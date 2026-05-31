@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kamp Malaya — Balabac's Hidden Sanctuary</title>
+<meta name="description" content="Kamp Malaya — a luxury eco-resort in Balabac, Palawan. Untouched paradise, sustainable luxury, authentic Filipino hospitality." />
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#1A1A1A',
+          charcoal: '#2C2C2C',
+          graytext: '#6B6B6B',
+          offwhite: '#F8F9FA',
+          warmgray: '#F1F0EB',
+          sand: '#F9F6F0',
+          coral: '#E76F51',
+          seagrass: '#2A9D8F',
+          gold: '#D4AF37',
+          line: '#E5E5E5',
+        },
+        fontFamily: {
+          display: ['"Playfair Display"', 'serif'],
+          body: ['Inter', 'sans-serif'],
+          quote: ['"Cormorant Garamond"', 'serif'],
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  :root {
+    --ink: #1A1A1A;
+    --charcoal: #2C2C2C;
+    --graytext: #6B6B6B;
+    --offwhite: #F8F9FA;
+    --warmgray: #F1F0EB;
+    --sand: #F9F6F0;
+    --coral: #E76F51;
+    --seagrass: #2A9D8F;
+    --gold: #D4AF37;
+    --line: #E5E5E5;
+  }
+
+  * { -webkit-font-smoothing: antialiased; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charcoal); overflow-x: hidden; }
+
+  .font-display { font-family: 'Playfair Display', serif; }
+  .font-quote   { font-family: 'Cormorant Garamond', serif; }
+
+  /* Glassmorphism — light/white tints */
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+  .glass-dark {
+    background: rgba(26, 26, 26, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .glass-light {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--line);
+  }
+
+  /* Fade / slide-up on scroll */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: .12s; }
+  .reveal-delay-2 { transition-delay: .24s; }
+  .reveal-delay-3 { transition-delay: .36s; }
+
+  /* Hero text fade-in */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  .hero-anim { opacity: 0; animation: fadeUp 1.2s cubic-bezier(.22,1,.36,1) forwards; }
+  .hero-anim.d1 { animation-delay: .3s; }
+  .hero-anim.d2 { animation-delay: .6s; }
+  .hero-anim.d3 { animation-delay: .9s; }
+  .hero-anim.d4 { animation-delay: 1.2s; }
+
+  /* Bouncing scroll arrow */
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+  .bounce { animation: bounce 1.8s infinite; }
+
+  /* Parallax */
+  .parallax { background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; }
+  @media (max-width: 768px) { .parallax { background-attachment: scroll; } }
+
+  /* Coral button (primary accent) */
+  .btn-coral {
+    border: 1.5px solid var(--coral);
+    color: var(--coral);
+    transition: all .35s ease;
+    letter-spacing: .12em;
+  }
+  .btn-coral:hover { background: var(--coral); color: #fff; }
+  .btn-coral-solid {
+    background: var(--coral); color: #fff;
+    transition: all .35s ease; letter-spacing: .12em;
+  }
+  .btn-coral-solid:hover { background: transparent; color: var(--coral); border: 1.5px solid var(--coral); }
+
+  /* Card hover lift — minimal neutral elevation */
+  .lift { transition: transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s ease; }
+  .lift:hover { transform: translateY(-8px); box-shadow: 0 18px 40px -20px rgba(0,0,0,.18); }
+
+  /* Image zoom container */
+  .zoom-wrap { overflow: hidden; }
+  .zoom-img { transition: transform .7s cubic-bezier(.22,1,.36,1); }
+  .zoom-wrap:hover .zoom-img { transform: scale(1.08); }
+
+  /* Gold border on image hover (premium selected touch) */
+  .gold-frame { transition: box-shadow .4s ease; box-shadow: 0 0 0 0 rgba(212,175,55,0); }
+  .lift:hover .gold-frame { box-shadow: 0 0 0 2px var(--gold); }
+
+  /* Experience card reveal text */
+  .exp-sub { color: var(--charcoal); transition: color .4s ease; }
+  .exp-card:hover .exp-sub { color: var(--coral); }
+
+  /* Nav scrolled state — off-white with charcoal text */
+  #navbar.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--line); }
+  #navbar.scrolled .brand { color: var(--charcoal); }
+  #navbar.scrolled .nav-link { color: var(--charcoal); }
+  #navbar.scrolled .nav-link:hover { color: var(--coral); }
+  #navbar.scrolled #menuBtn { color: var(--charcoal); }
+
+  /* Carousel */
+  .carousel-track { transition: opacity .6s ease; }
+  .dot { transition: all .3s ease; cursor: pointer; }
+  .dot.active { background: var(--gold); width: 28px; border-radius: 9999px; }
+
+  /* Mobile menu */
+  #mobileMenu { transition: transform .4s cubic-bezier(.22,1,.36,1), opacity .4s ease; }
+
+  /* placeholder image bg for missing assets — neutral warm */
+  img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
+
+  ::selection { background: var(--gold); color: var(--ink); }
+</style>
+</head>
+
+<body class="font-body text-charcoal">
+
+<!-- ===================== NAVBAR ===================== -->
+<nav id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-500">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 py-4 flex items-center justify-between">
+    <a href="#hero" class="brand font-display text-2xl tracking-wide text-white">Kamp <span class="text-gold">Malaya</span></a>
+
+    <ul class="hidden md:flex items-center gap-9 text-white/90 text-sm tracking-widest uppercase">
+      <li><a href="#about" class="nav-link hover:text-coral transition-colors">About</a></li>
+      <li><a href="#sanctuaries" class="nav-link hover:text-coral transition-colors">Sanctuaries</a></li>
+      <li><a href="#experience" class="nav-link hover:text-coral transition-colors">Experiences</a></li>
+      <li><a href="#gallery" class="nav-link hover:text-coral transition-colors">Gallery</a></li>
+      <li><a href="#cta" class="btn-coral px-5 py-2 rounded-full text-xs">Inquire</a></li>
+    </ul>
+
+    <button id="menuBtn" class="md:hidden text-white" aria-label="Open menu">
+      <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobileMenu" class="md:hidden glass-dark opacity-0 -translate-y-4 pointer-events-none absolute inset-x-0 top-full px-6 py-8">
+    <ul class="flex flex-col gap-6 text-white/90 text-lg tracking-widest uppercase">
+      <li><a href="#about" class="mobile-link hover:text-coral">About</a></li>
+      <li><a href="#sanctuaries" class="mobile-link hover:text-coral">Sanctuaries</a></li>
+      <li><a href="#experience" class="mobile-link hover:text-coral">Experiences</a></li>
+      <li><a href="#gallery" class="mobile-link hover:text-coral">Gallery</a></li>
+      <li><a href="#cta" class="mobile-link text-coral">Inquire Now</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===================== SECTION 1: HERO ===================== -->
+<header id="hero" class="relative h-[100svh] w-full overflow-hidden">
+  <!-- Desktop video -->
+  <video class="hidden md:block absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline poster="photo-landscape-1.jpg">
+    <source src="hero-video/kampmalaya.mp4" type="video/mp4" />
+  </video>
+  <!-- Mobile portrait image -->
+  <img src="assets/drone-portrait-placeholder.jpg" alt="Aerial drone view of Balabac's turquoise lagoon at Kamp Malaya"
+       class="md:hidden absolute inset-0 w-full h-full object-cover" />
+
+  <!-- gradient overlay (neutral) -->
+  <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70"></div>
+
+  <!-- Hero content -->
+  <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
+    <p class="hero-anim d1 font-quote text-gold text-xl md:text-2xl tracking-[0.3em] uppercase mb-4">Balabac · Palawan</p>
+    <h1 class="hero-anim d2 font-display text-white text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-none drop-shadow-lg">Kamp Malaya</h1>
+    <h2 class="hero-anim d3 font-display italic text-white/90 text-2xl md:text-3xl mt-4">Balabac's Hidden Sanctuary</h2>
+    <p class="hero-anim d4 font-quote text-white/85 text-xl md:text-2xl mt-3 tracking-wide">Where the last frontier meets your soul</p>
+  </div>
+
+  <!-- Floating glass booking bar -->
+  <div class="hero-anim d4 absolute bottom-24 md:bottom-16 inset-x-0 z-20 px-6">
+    <div class="glass max-w-4xl mx-auto rounded-2xl p-4 md:p-5 shadow-sm">
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+        <div class="flex flex-col text-left">
+          <label class="text-charcoal/70 text-xs tracking-widest uppercase mb-1">Check-in</label>
+          <input id="checkin" type="date" class="bg-black/5 text-charcoal rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-coral" />
+        </div>
+        <div class="flex flex-col text-left">
+          <label class="text-charcoal/70 text-xs tracking-widest uppercase mb-1">Check-out</label>
+          <input id="checkout" type="date" class="bg-black/5 text-charcoal rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-coral" />
+        </div>
+        <div class="flex flex-col text-left">
+          <label class="text-charcoal/70 text-xs tracking-widest uppercase mb-1">Guests</label>
+          <select id="guests" class="bg-black/5 text-charcoal rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-coral">
+            <option class="text-charcoal" value="1">1 Guest</option>
+            <option class="text-charcoal" value="2">2 Guests</option>
+            <option class="text-charcoal" value="3">3 Guests</option>
+            <option class="text-charcoal" value="4">4 Guests</option>
+          </select>
+        </div>
+        <button id="availabilityBtn" class="btn-coral-solid rounded-lg px-5 py-2.5 text-sm font-semibold uppercase">Check Availability</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <a href="#about" class="absolute bottom-4 inset-x-0 z-10 flex flex-col items-center justify-center text-white/80 hover:text-coral transition-colors">
+    <span class="text-xs tracking-[0.7em] uppercase mb-1">Discover</span>
+    <svg class="bounce mx-auto" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+  </a>
+</header>
+
+<!-- ===================== SECTION 2: ABOUT ===================== -->
+<section id="about" class="bg-white">
+  <div class="grid md:grid-cols-2 min-h-[90vh]">
+    <!-- Portrait drone -->
+    <div class="reveal zoom-wrap h-[60vh] md:h-auto">
+      <img src="drone-portrait-placeholder.jpg" alt="Portrait drone shot of a secluded Balabac lagoon and island"
+           class="zoom-img w-full h-full object-cover" />
+    </div>
+    <!-- Text -->
+    <div class="reveal reveal-delay-1 flex items-center px-8 md:px-16 py-16">
+      <div>
+        <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">The Malaya Welcome</p>
+        <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-3 leading-tight">Untouched. Unhurried.<br/>Unforgettable.</h2>
+        <div class="w-20 h-px bg-gold my-7"></div>
+        <p class="text-graytext leading-relaxed text-lg mb-5">
+          At the southernmost edge of Palawan lies Balabac — a scatter of islands so remote that time itself seems to slow. <em class="font-quote text-seagrass">Kamp Malaya</em>, meaning "Free Camp," is our humble surrender to this last frontier: powder-white sandbars, lagoons the colour of liquid jade, and night skies unbroken by a single city light.
+        </p>
+        <p class="text-graytext leading-relaxed text-lg mb-8">
+          We built Malaya lightly. Solar-powered, locally crafted, and run by the families who have called these waters home for generations. Here, luxury is not excess — it is space, silence, and the privilege of an untouched horizon kept that way.
+        </p>
+        <a href="#experience" class="btn-coral inline-block px-8 py-3 rounded-full text-sm uppercase">Our Story</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 3: EXPERIENCE ===================== -->
+<section id="experience" class="bg-offwhite py-24 px-6">
+  <div class="max-w-7xl mx-auto text-center reveal">
+    <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">Savor Malaya</p>
+    <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-2">Experiences that stay with you</h2>
+    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+  </div>
+
+  <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 mt-6">
+    <!-- 1 -->
+    <article class="exp-card reveal lift bg-white rounded-2xl overflow-hidden border border-line">
+      <div class="zoom-wrap h-72"><img src="night_stay.jpg" alt="Guests gathered around a beachfront bonfire at night" class="zoom-img w-full h-full object-cover" /></div>
+      <div class="p-8">
+        <h3 class="exp-sub font-display text-2xl">Island Camping</h3>
+        <p class="text-graytext mt-3 leading-relaxed">Fall asleep to the hush of the tide and wake to a private sandbar. Our bonfire nights end with stargazing and stories shared beneath a sky thick with constellations.</p>
+      </div>
+    </article>
+    <!-- 2 -->
+    <article class="exp-card reveal reveal-delay-1 lift bg-white rounded-2xl overflow-hidden border border-line">
+      <div class="zoom-wrap h-72"><img src="seasidefeast.png" alt="A spread of freshly grilled seafood served on banana leaves" class="zoom-img w-full h-full object-cover" /></div>
+      <div class="p-8">
+        <h3 class="exp-sub font-display text-2xl">Local Feasts</h3>
+        <p class="text-graytext mt-3 leading-relaxed">Seafood caught hours before it reaches your plate, grilled over open flame and seasoned the Balabac way. Every meal is a celebration of the sea and the hands that tend it.</p>
+      </div>
+    </article>
+    <!-- 3 -->
+    <article class="exp-card reveal reveal-delay-2 lift bg-white rounded-2xl overflow-hidden border border-line">
+      <div class="zoom-wrap h-72"><img src="sunset_boat.jpg" alt="A wooden boat drifting across calm water at sunset" class="zoom-img w-full h-full object-cover" /></div>
+      <div class="p-8">
+        <h3 class="exp-sub font-display text-2xl">Sunset Drift</h3>
+        <p class="text-graytext mt-3 leading-relaxed">Glide across glassy waters as the sky melts into gold. Our slow boat journeys trace hidden coves and end exactly where the day's last light touches the horizon.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ===================== SECTION 4: SANCTUARIES ===================== -->
+<section id="sanctuaries" class="bg-white py-24 px-6">
+  <div class="max-w-7xl mx-auto text-center reveal">
+    <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">Our Sanctuaries</p>
+    <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-2">Where you'll rest</h2>
+    <p class="text-graytext mt-4 text-lg">Three ways to wake up in paradise</p>
+    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+  </div>
+
+  <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 mt-6">
+    <!-- Card 1 -->
+    <article class="reveal lift bg-offwhite rounded-2xl overflow-hidden border border-line">
+      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="beachside.jpg" alt="Beachfront native hut with a thatched roof at the shoreline" class="zoom-img w-full h-full object-cover" /></div>
+      <div class="p-7">
+        <h3 class="font-display text-charcoal text-2xl">Kubo by the Shore</h3>
+        <p class="text-graytext mt-2 leading-relaxed text-sm">A beachfront native hut where the sea is your front yard. Crafted from local bamboo and nipa, steps from the water.</p>
+        <div class="flex items-center justify-between mt-5">
+          <div>
+            <p class="text-xs text-graytext uppercase tracking-widest">2 Guests · from</p>
+            <p class="font-display text-charcoal text-2xl">₱4,500<span class="text-sm text-graytext">/night</span></p>
+          </div>
+          <button class="book-btn btn-coral px-5 py-2 rounded-full text-xs uppercase" data-room="Kubo by the Shore">Book Now</button>
+        </div>
+      </div>
+    </article>
+    <!-- Card 2 -->
+    <article class="reveal reveal-delay-1 lift bg-offwhite rounded-2xl overflow-hidden border border-line">
+      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="beachside hut.jpg" alt="Elevated jungle tent nestled among tropical canopy" class="zoom-img w-full h-full object-cover" /></div>
+      <div class="p-7">
+        <h3 class="font-display text-charcoal text-2xl">Canopy Tent</h3>
+        <p class="text-graytext mt-2 leading-relaxed text-sm">An elevated jungle tent wrapped in green. Drift to sleep among the treetops with the chorus of the forest below.</p>
+        <div class="flex items-center justify-between mt-5">
+          <div>
+            <p class="text-xs text-graytext uppercase tracking-widest">2 Guests · from</p>
+            <p class="font-display text-charcoal text-2xl">₱3,800<span class="text-sm text-graytext">/night</span></p>
+          </div>
+          <button class="book-btn btn-coral px-5 py-2 rounded-full text-xs uppercase" data-room="Canopy Tent">Book Now</button>
+        </div>
+      </div>
+    </article>
+    <!-- Card 3 -->
+    <article class="reveal reveal-delay-2 lift bg-offwhite rounded-2xl overflow-hidden border border-line">
+      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="beachside_house.jpg" alt="Private beach villa with an open deck facing the ocean" class="zoom-img w-full h-full object-cover" /></div>
+      <div class="p-7">
+        <h3 class="font-display text-charcoal text-2xl">Malaya Villa</h3>
+        <p class="text-graytext mt-2 leading-relaxed text-sm">Our private beach villa for those who want it all — space, seclusion, and an unobstructed stretch of sand to call your own.</p>
+        <div class="flex items-center justify-between mt-5">
+          <div>
+            <p class="text-xs text-graytext uppercase tracking-widest">4 Guests · from</p>
+            <p class="font-display text-charcoal text-2xl">₱8,500<span class="text-sm text-graytext">/night</span></p>
+          </div>
+          <button class="book-btn btn-coral px-5 py-2 rounded-full text-xs uppercase" data-room="Malaya Villa">Book Now</button>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ===================== SECTION 5: ADVENTURES ===================== -->
+<section id="adventures" class="bg-white py-24 px-6">
+  <div class="max-w-7xl mx-auto text-center reveal">
+    <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">Adventures Await</p>
+    <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-2">Beyond the shore</h2>
+    <p class="text-graytext mt-4 text-lg">Let us take you deeper into Balabac</p>
+    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+  </div>
+
+  <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center mt-6">
+    <!-- Tour list -->
+    <div class="reveal space-y-4">
+      <!-- Tour item template -->
+      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all border-l-4 hover:border-coral cursor-pointer">
+        <div class="text-coral mt-1">
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/><path d="M7 3v18"/></svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-display text-charcoal text-xl">Island Hopping</h3>
+          <p class="text-graytext text-sm mt-1">Chase sandbars and secret coves across the Balabac archipelago.</p>
+          <button class="learn-more text-coral text-xs uppercase tracking-widest mt-2 hover:underline" data-tour="Island Hopping" data-detail="A full-day boat expedition to Onuk Island, Punta Sebaring, and hidden sandbars. Includes lunch and snorkel gear.">Learn More →</button>
+        </div>
+      </div>
+
+      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all border-l-4 hover:border-coral cursor-pointer">
+        <div class="text-coral mt-1">
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-display text-charcoal text-xl">Reef Sanctuary Snorkeling</h3>
+          <p class="text-graytext text-sm mt-1">Glide above living coral gardens teeming with marine life.</p>
+          <button class="learn-more text-coral text-xs uppercase tracking-widest mt-2 hover:underline" data-tour="Reef Sanctuary Snorkeling" data-detail="Guided snorkeling over a protected reef sanctuary. Spot turtles, clownfish, and vibrant coral. Suitable for all levels.">Learn More →</button>
+        </div>
+      </div>
+
+      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all border-l-4 hover:border-coral cursor-pointer">
+        <div class="text-coral mt-1">
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-display text-charcoal text-xl">Firefly Lagoon Night Tour</h3>
+          <p class="text-graytext text-sm mt-1">Drift through mangroves lit by thousands of fireflies.</p>
+          <button class="learn-more text-coral text-xs uppercase tracking-widest mt-2 hover:underline" data-tour="Firefly Lagoon Night Tour" data-detail="An evening paddle into mangrove channels where fireflies blanket the trees like living stars. Magical and serene.">Learn More →</button>
+        </div>
+      </div>
+
+      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all border-l-4 hover:border-coral cursor-pointer">
+        <div class="text-coral mt-1">
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9v.01M9 13v.01M9 17v.01"/></svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-display text-charcoal text-xl">Local Village Visit</h3>
+          <p class="text-graytext text-sm mt-1">Meet the Molbog community and share in their way of life.</p>
+          <button class="learn-more text-coral text-xs uppercase tracking-widest mt-2 hover:underline" data-tour="Local Village Visit" data-detail="A respectful cultural visit to a Balabac fishing village. Learn traditional weaving, fishing, and cooking from locals.">Learn More →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carousel -->
+    <div class="reveal reveal-delay-1">
+      <div class="relative rounded-2xl overflow-hidden shadow-sm h-[460px]">
+        <img id="carouselImg" src="assets/tour-island.jpg" alt="Scenic view of a Balabac island hopping tour" class="carousel-track w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <div class="absolute bottom-6 left-6">
+          <h4 id="carouselCaption" class="font-display text-white text-2xl">Island Hopping</h4>
+        </div>
+        <!-- dots -->
+        <div class="absolute bottom-6 right-6 flex gap-2">
+          <span class="dot active w-2.5 h-2.5 rounded-full bg-white/60" data-i="0"></span>
+          <span class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="1"></span>
+          <span class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="2"></span>
+          <span class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="3"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 6: GALLERY ===================== -->
+<section id="gallery" class="bg-offwhite py-24 px-6">
+  <div class="max-w-7xl mx-auto text-center reveal">
+    <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">Kamp Malaya Gallery</p>
+    <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-2">Unfiltered Balabac</h2>
+    <p class="text-graytext mt-4 text-lg">What the wild looks like</p>
+    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+  </div>
+
+  <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] gap-4 mt-6">
+    <!-- wide landscape spans 2 cols -->
+    <div class="reveal zoom-wrap col-span-2 row-span-1 rounded-xl overflow-hidden">
+      <img src="panorama.png" alt="Panoramic landscape of a Balabac beach and turquoise sea" class="zoom-img w-full h-full object-cover" />
+    </div>
+    <!-- portrait tall -->
+    <div class="reveal reveal-delay-1 zoom-wrap row-span-2 rounded-xl overflow-hidden">
+      <img src="onok_island.jpg" alt="Tall drone shot of a winding sandbar from above" class="zoom-img w-full h-full object-cover" />
+    </div>
+    <!-- portrait tall, spans 2 rows -->
+    <div class="reveal reveal-delay-2 zoom-wrap row-span-2 rounded-xl overflow-hidden">
+      <img src="coralreef.png" alt="Aerial portrait of an island ringed by coral reef" class="zoom-img w-full h-full object-cover" />
+    </div>
+    <!-- landscape -->
+    <div class="reveal zoom-wrap col-span-1 rounded-xl overflow-hidden">
+      <img src="tallportrait2.jpg" alt="Sunset over the Balabac horizon" class="zoom-img w-full h-full object-cover" />
+    </div>
+    <!-- landscape -->
+    <div class="reveal reveal-delay-1 zoom-wrap col-span-1 rounded-xl overflow-hidden">
+      <img src="whitesand.jpg" alt="Clear shallow waters lapping a white sand beach" class="zoom-img w-full h-full object-cover" />
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 7: TESTIMONIALS ===================== -->
+<section id="testimonials" class="bg-warmgray py-24 px-6">
+  <div class="max-w-7xl mx-auto text-center reveal">
+    <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">Guest Whispers</p>
+    <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-2">They found their Malaya</h2>
+    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+  </div>
+
+  <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 mt-6">
+    <!-- card -->
+    <div class="reveal glass-light rounded-2xl p-8 lift">
+      <div class="flex gap-1 text-gold mb-4">★★★★★</div>
+      <p class="font-quote text-charcoal text-xl leading-relaxed italic">"I have travelled the world and never felt so completely held by a place. Malaya undid all my noise."</p>
+      <p class="mt-6 font-semibold text-charcoal">Maria</p>
+      <p class="text-graytext text-sm">Manila, Philippines</p>
+    </div>
+    <div class="reveal reveal-delay-1 glass-light rounded-2xl p-8 lift">
+      <div class="flex gap-1 text-gold mb-4">★★★★★</div>
+      <p class="font-quote text-charcoal text-xl leading-relaxed italic">"No signal, no crowds, no schedule. Just my wife, the stars, and the sound of the tide. Pure freedom."</p>
+      <p class="mt-6 font-semibold text-charcoal">Daniel</p>
+      <p class="text-graytext text-sm">Singapore</p>
+    </div>
+    <div class="reveal reveal-delay-2 glass-light rounded-2xl p-8 lift">
+      <div class="flex gap-1 text-gold mb-4">★★★★★</div>
+      <p class="font-quote text-charcoal text-xl leading-relaxed italic">"The most beautiful place I never knew existed. The team treated us like family from the first morning."</p>
+      <p class="mt-6 font-semibold text-charcoal">Sofia</p>
+      <p class="text-graytext text-sm">Barcelona, Spain</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SECTION: WHERE TO FIND US ===================== -->
+<section id="location" class="bg-white py-24 px-6">
+  <div class="max-w-7xl mx-auto text-center reveal">
+    <p class="font-quote text-gold text-2xl tracking-widest uppercase">Getting Here</p>
+    <h2 class="font-display text-4xl md:text-5xl mt-2" style="color: #1A1A1A;">Where to Find Us</h2>
+    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+    <p class="text-gray-600 max-w-2xl mx-auto mb-10">
+      Located in the remote paradise of Balabac, Palawan. The journey is part of the adventure.
+    </p>
+  </div>
+
+  <!-- Google Map Embed -->
+  <div class="max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-xl reveal">
+    <div class="relative" style="padding-bottom: 56.25%; height: 0;">
+      <iframe 
+        src="https://maps.google.com/maps?q=Poblacion%202,%20Balabac,%20Palawan,%205307&t=k&z=15&ie=UTF8&iwloc=&output=embed" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" 
+        allowfullscreen="" 
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </div>
+
+  <!-- Address & Directions -->
+  <div class="max-w-3xl mx-auto text-center mt-8 space-y-3 reveal reveal-delay-1">
+    <p class="text-gray-700 text-lg flex items-center justify-center gap-2">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle cx="12" cy="9" r="3"/>
+      </svg>
+      <strong>Poblacion 2, Balabac, Palawan, 5307</strong>
+    </p>
+    <p class="text-gray-500 text-sm">
+      📍 Exact camp coordinates are shared upon booking confirmation to preserve the exclusivity of the sanctuary.
+    </p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+      <a href="https://maps.google.com/maps?daddr=Poblacion+2,+Balabac,+Palawan,+5307" 
+         target="_blank" 
+         class="btn-gold inline-block px-6 py-3 rounded-full text-sm uppercase transition-transform hover:scale-105">
+        Get Directions ↗
+      </a>
+      <a href="#cta" 
+         class="inline-block px-6 py-3 rounded-full text-sm uppercase border border-gold text-gold hover:bg-gold hover:text-navy transition-all">
+        Ask for Transfer Info
+      </a>
+    </div>
+    <!-- Travel summary -->
+    <div class="bg-gray-50 rounded-xl p-5 mt-8 text-left max-w-2xl mx-auto">
+      <p class="font-semibold text-gray-800 mb-2">✈️ How to get there:</p>
+      <ul class="text-gray-600 text-sm space-y-1">
+        <li>1. Fly to <strong>Puerto Princesa International Airport</strong> (PPS)</li>
+        <li>2. 4-hour drive to <strong>Buliluyan Port</strong></li>
+        <li>3. 2-hour boat transfer to <strong>Kamp Malaya</strong></li>
+        <li class="text-gold text-xs mt-2">*Transfers can be arranged upon booking</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 8: CTA ===================== -->
+<section id="cta" class="parallax relative py-40 px-6 bg-cover bg-center bg-fixed" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.45)), url('booknow.jpg');">
+  <div class="reveal max-w-2xl mx-auto text-center glass rounded-3xl p-12 shadow-sm">
+    <h2 class="font-display text-charcoal text-4xl md:text-5xl leading-tight">Your Balabac story begins now</h2>
+    <p class="font-quote text-graytext text-2xl mt-4">No crowds. No rush. Just you and the wild.</p>
+    <button id="inquireBtn" class="btn-coral-solid mt-9 px-10 py-4 rounded-full text-base font-semibold uppercase transition-transform hover:scale-105">Inquire Now</button>
+  </div>
+</section>
+
+<!-- ===================== SECTION 9: FOOTER ===================== -->
+<footer class="bg-[#1A1A1A] text-sand pt-16 pb-8 px-6">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-10">
+    <!-- Brand -->
+    <div>
+      <h3 class="font-display text-2xl">Kamp <span class="text-gold">Malaya</span></h3>
+      <p class="text-sand/60 mt-4 leading-relaxed text-sm">Balabac, Palawan, Philippines.<br/>A sustainable eco-sanctuary at the last frontier.</p>
+    </div>
+
+    <!-- Quick Links -->
+    <div>
+      <h4 class="text-gold text-sm tracking-widest uppercase mb-4">Quick Links</h4>
+      <ul class="space-y-2 text-sand/70 text-sm">
+        <li><a href="#hero" class="hover:text-gold transition-colors">Home</a></li>
+        <li><a href="#sanctuaries" class="hover:text-gold transition-colors">Our Sanctuaries</a></li>
+        <li><a href="#experience" class="hover:text-gold transition-colors">Experiences</a></li>
+        <li><a href="#gallery" class="hover:text-gold transition-colors">Gallery</a></li>
+      </ul>
+    </div>
+
+    <!-- Contact -->
+    <div>
+      <h4 class="text-gold text-sm tracking-widest uppercase mb-4">Contact</h4>
+      <ul class="space-y-2 text-sand/70 text-sm">
+        <li class="flex items-center gap-2">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <path d="M22 6l-10 7L2 6"/>
+          </svg>
+          <a href="mailto:kampmalayabalabac@gmail.com" class="hover:text-gold transition-colors">kampmalayabalabac@gmail.com</a>
+        </li>
+        <li class="flex items-center gap-2">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+          <a href="tel:+63 962 240 3861" class="hover:text-gold transition-colors">+63 962 240 3861</a>
+        </li>
+        <li class="flex items-center gap-2">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span>Balabac, Palawan, Philippines</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Socials -->
+    <div>
+      <h4 class="text-gold text-sm tracking-widest uppercase mb-4">Follow Us</h4>
+      <div class="flex gap-5">
+        <!-- Facebook -->
+        <a href="https://facebook.com/kampmalaya" target="_blank" rel="noopener noreferrer" 
+           class="hover:text-gold transition-colors" aria-label="Facebook">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.2c-1.2 0-1.6.8-1.6 1.6V12h2.7l-.4 2.9h-2.3v7A10 10 0 0 0 22 12z"/>
+          </svg>
+        </a>
+        <!-- Instagram -->
+        <a href="https://www.instagram.com/kampmalayabalabac/" target="_blank" rel="noopener noreferrer" 
+           class="hover:text-gold transition-colors" aria-label="Instagram">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+            <rect x="2" y="2" width="20" height="20" rx="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+      </div>
+      <!-- Optional: Social handle text -->
+      <p class="text-sand/40 text-xs mt-4">@kampmalaya</p>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto border-t border-sand/15 mt-12 pt-6 text-center text-sand/40 text-sm">
+    © 2025 Kamp Malaya. All rights reserved. <span class="font-quote text-gold/70 italic">Wildly yours.</span>
+  </div>
+</footer>
+
+<script>
+  // ---------- Navbar scroll state ----------
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ---------- Mobile menu ----------
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  let menuOpen = false;
+  function toggleMenu(open) {
+    menuOpen = open;
+    mobileMenu.classList.toggle('opacity-0', !open);
+    mobileMenu.classList.toggle('-translate-y-4', !open);
+    mobileMenu.classList.toggle('pointer-events-none', !open);
+  }
+  menuBtn.addEventListener('click', () => toggleMenu(!menuOpen));
+  document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => toggleMenu(false)));
+
+  // ---------- Intersection Observer reveals ----------
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ---------- Booking bar ----------
+  document.getElementById('availabilityBtn').addEventListener('click', () => {
+    const data = {
+      checkIn: document.getElementById('checkin').value,
+      checkOut: document.getElementById('checkout').value,
+      guests: document.getElementById('guests').value,
+    };
+    console.log('Check Availability →', data);
+    alert(`Checking availability:\nCheck-in: ${data.checkIn || '—'}\nCheck-out: ${data.checkOut || '—'}\nGuests: ${data.guests}`);
+  });
+
+  // ---------- Book Now buttons ----------
+  document.querySelectorAll('.book-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const room = btn.dataset.room;
+      console.log('Book Now →', room);
+      alert(`Booking request: ${room}\nWe'll redirect you to reservations.`);
+    });
+  });
+
+  // ---------- Tour Learn More ----------
+  document.querySelectorAll('.learn-more').forEach(btn => {
+    btn.addEventListener('click', () => {
+      console.log('Tour →', btn.dataset.tour);
+      alert(`${btn.dataset.tour}\n\n${btn.dataset.detail}`);
+    });
+  });
+
+  // ---------- Carousel ----------
+  const slides = [
+    { img: 'aerial_view.jpg',   caption: 'Island Hopping' },
+    { img: 'reefsanctuary.png',  caption: 'Reef Sanctuary Snorkeling' },
+    { img: 'fireflylagoon.png',  caption: 'Firefly Lagoon Night Tour' },
+    { img: 'villagevisit.png',  caption: 'Local Village Visit' },
+  ];
+  const carouselImg = document.getElementById('carouselImg');
+  const carouselCaption = document.getElementById('carouselCaption');
+  const dots = document.querySelectorAll('.dot');
+  let current = 0, carouselTimer;
+
+  function goTo(i) {
+    current = i;
+    carouselImg.style.opacity = 0;
+    setTimeout(() => {
+      carouselImg.src = slides[i].img;
+      carouselImg.alt = slides[i].caption;
+      carouselCaption.textContent = slides[i].caption;
+      carouselImg.style.opacity = 1;
+    }, 300);
+    dots.forEach((d, di) => d.classList.toggle('active', di === i));
+  }
+  dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); resetTimer(); }));
+  function nextSlide() { goTo((current + 1) % slides.length); }
+  function resetTimer() { clearInterval(carouselTimer); carouselTimer = setInterval(nextSlide, 4500); }
+  resetTimer();
+
+  // ---------- CTA Inquire ----------
+  document.getElementById('inquireBtn').addEventListener('click', () => {
+    console.log('Inquire Now clicked');
+    alert('Thank you for your interest in Kamp Malaya!\nWe\'ll be in touch shortly.');
+  });
+</script>
+</body>
+</html>
