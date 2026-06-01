@@ -95,10 +95,6 @@
   .hero-anim.d3 { animation-delay: .9s; }
   .hero-anim.d4 { animation-delay: 1.2s; }
 
-  /* Bouncing scroll arrow */
-  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
-  .bounce { animation: bounce 1.8s infinite; }
-
   /* Parallax */
   .parallax { background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; }
   @media (max-width: 768px) { .parallax { background-attachment: scroll; } }
@@ -210,7 +206,7 @@
   </div>
 
   <!-- Floating glass booking bar -->
-  <div class="hero-anim d4 absolute bottom-24 md:bottom-16 inset-x-0 z-20 px-6">
+  <div class="hero-anim d4 absolute bottom-10 md:bottom-12 inset-x-0 z-20 px-6">
     <div class="glass max-w-4xl mx-auto rounded-2xl p-4 md:p-5 shadow-sm">
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
         <div class="flex flex-col text-left">
@@ -234,12 +230,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Scroll indicator -->
-  <a href="#about" class="absolute bottom-4 inset-x-0 z-10 flex flex-col items-center justify-center text-white/80 hover:text-coral transition-colors">
-    <span class="text-xs tracking-[0.7em] uppercase mb-1">Discover</span>
-    <svg class="bounce mx-auto" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-  </a>
 </header>
 
 <!-- ===================== SECTION 2: ABOUT ===================== -->
