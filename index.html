@@ -652,6 +652,9 @@
 </footer>
 
 <script>
+  // ---------- FUNNEL URL ----------
+  const FUNNEL_URL = '/funnel.html';
+
   // ---------- Navbar scroll state ----------
   const navbar = document.getElementById('navbar');
   window.addEventListener('scroll', () => {
@@ -677,40 +680,57 @@
   }, { threshold: 0.15 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  // ---------- Booking bar ----------
-  document.getElementById('availabilityBtn').addEventListener('click', () => {
-    const data = {
-      checkIn: document.getElementById('checkin').value,
-      checkOut: document.getElementById('checkout').value,
-      guests: document.getElementById('guests').value,
-    };
-    console.log('Check Availability →', data);
-    alert(`Checking availability:\nCheck-in: ${data.checkIn || '—'}\nCheck-out: ${data.checkOut || '—'}\nGuests: ${data.guests}`);
-  });
+  // ---------- CHECK AVAILABILITY BUTTON - REDIRECT ----------
+  const availabilityBtn = document.getElementById('availabilityBtn');
+  if (availabilityBtn) {
+    availabilityBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const checkIn = document.getElementById('checkin').value;
+      const checkOut = document.getElementById('checkout').value;
+      const guests = document.getElementById('guests').value;
+      const params = new URLSearchParams();
+      if (checkIn) params.set('checkin', checkIn);
+      if (checkOut) params.set('checkout', checkOut);
+      if (guests) params.set('guests', guests);
+      const qs = params.toString();
+      window.location.href = FUNNEL_URL + (qs ? '?' + qs : '');
+    });
+  }
 
-  // ---------- Book Now buttons ----------
-  document.querySelectorAll('.book-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const room = btn.dataset.room;
-      console.log('Book Now →', room);
-      alert(`Booking request: ${room}\nWe'll redirect you to reservations.`);
+  // ---------- BOOK NOW BUTTONS - REDIRECT ----------
+  const bookBtns = document.querySelectorAll('.book-btn');
+  bookBtns.forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const room = this.dataset.room;
+      window.location.href = FUNNEL_URL + '?room=' + encodeURIComponent(room);
     });
   });
 
-  // ---------- Tour Learn More ----------
-  document.querySelectorAll('.learn-more').forEach(btn => {
-    btn.addEventListener('click', () => {
-      console.log('Tour →', btn.dataset.tour);
-      alert(`${btn.dataset.tour}\n\n${btn.dataset.detail}`);
+  // ---------- INQUIRE NOW BUTTON - REDIRECT ----------
+  const inquireBtn = document.getElementById('inquireBtn');
+  if (inquireBtn) {
+    inquireBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = FUNNEL_URL;
+    });
+  }
+
+  // ---------- TOUR LEARN MORE - ALERT (KEEP THIS) ----------
+  const learnMoreBtns = document.querySelectorAll('.learn-more');
+  learnMoreBtns.forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      alert(this.dataset.tour + '\n\n' + this.dataset.detail);
     });
   });
 
-  // ---------- Carousel ----------
+  // ---------- CAROUSEL ----------
   const slides = [
-    { img: 'aerial_view.jpg',   caption: 'Island Hopping' },
-    { img: 'reefsanctuary.png',  caption: 'Reef Sanctuary Snorkeling' },
-    { img: 'fireflylagoon.png',  caption: 'Firefly Lagoon Night Tour' },
-    { img: 'villagevisit.png',  caption: 'Local Village Visit' },
+    { img: 'aerial_view.jpg', caption: 'Island Hopping' },
+    { img: 'reefsanctuary.png', caption: 'Reef Sanctuary Snorkeling' },
+    { img: 'fireflylagoon.png', caption: 'Firefly Lagoon Night Tour' },
+    { img: 'villagevisit.png', caption: 'Local Village Visit' },
   ];
   const carouselImg = document.getElementById('carouselImg');
   const carouselCaption = document.getElementById('carouselCaption');
@@ -728,22 +748,20 @@
     }, 300);
     dots.forEach((d, di) => d.classList.toggle('active', di === i));
   }
-  dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); resetTimer(); }));
+  
+  if (dots.length > 0) {
+    dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); resetTimer(); }));
+  }
+  
   function nextSlide() { goTo((current + 1) % slides.length); }
-  function resetTimer() { clearInterval(carouselTimer); carouselTimer = setInterval(nextSlide, 4500); }
+  function resetTimer() { 
+    if (carouselTimer) clearInterval(carouselTimer); 
+    carouselTimer = setInterval(nextSlide, 4500); 
+  }
   resetTimer();
-
-  // ---------- CTA Inquire ----------
-  document.getElementById('inquireBtn').addEventListener('click', () => {
-    console.log('Inquire Now clicked');
-    alert('Thank you for your interest in Kamp Malaya!\nWe\'ll be in touch shortly.');
-  });
 </script>
 
-<script 
-  src="https://link.msgsndr.com/js/external-tracking.js"
-  data-tracking-id="tk_74649f2ee7e640838215408e2ec57cdd">
-</script>
+<script src="https://link.msgsndr.com/js/external-tracking.js" data-tracking-id="tk_74649f2ee7e640838215408e2ec57cdd"></script>
 
 </body>
 </html>
