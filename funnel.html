@@ -258,19 +258,23 @@
     }
   })();
 
-  // ---------- Form submission with GHL tracking ----------
+  // ---------- GHL FORM SUBMISSION (Creates Contacts!) ----------
   const form = document.getElementById('inquiryForm');
   const formWrap = document.getElementById('formWrap');
   const successWrap = document.getElementById('successWrap');
   const formError = document.getElementById('formError');
+  const submitBtn = document.getElementById('submitBtn');
 
-  form.addEventListener('submit', function (e) {
+  // GHL Form Action URL - This is what creates contacts in your Kamp Malaya sub-account
+  const GHL_FORM_URL = 'https://api.leadconnectorhq.com/widget/form/SQTfOzAK45gQEoeaKGYz';
+
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const data = Object.fromEntries(new FormData(form).entries());
     formError.classList.add('hidden');
 
-    const required = ['full_name','email','phone','guests','accommodation','check_in','check_out'];
+    const required = ['full_name', 'email', 'phone', 'guests', 'accommodation', 'check_in', 'check_out'];
     const missing = required.filter(k => !data[k]);
     if (missing.length) {
       formError.textContent = 'Please complete all required fields.';
@@ -283,54 +287,56 @@
       return;
     }
 
-    // ----- GHL TRACKING: Manually trigger the external tracking -----
-    // This ensures GHL captures the form data even with e.preventDefault()
-    if (window._lctk && typeof window._lctk.trackForm === 'function') {
-      console.log('GHL: Manually tracking form submission');
-      window._lctk.trackForm(form);
-    } else {
-      console.warn('GHL: _lctk.trackForm not available - script may not have loaded');
+    // Disable button to prevent double submission
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    try {
+      // Send data directly to GHL Form - THIS CREATES THE CONTACT!
+      const formData = new FormData(form);
+      
+      const response = await fetch(GHL_FORM_URL, {
+        method: 'POST',
+        mode: 'no-cors', // This allows cross-origin submission
+        body: formData
+      });
+
+      // Optional: Also track with external script for analytics
+      if (window._lctk && typeof window._lctk.trackForm === 'function') {
+        console.log('GHL: Analytics tracking form submission');
+        window._lctk.trackForm(form);
+      }
+
+      // Show success message
+      const firstName = (data.full_name || '').trim().split(' ')[0] || 'there';
+      document.getElementById('successHeading').textContent = 'Thank you, ' + firstName + '!';
+      document.getElementById('successMsg').textContent =
+        "We've received your inquiry and will get back to you within 24 hours.";
+      document.getElementById('successEmail').textContent =
+        'A confirmation email has been sent to ' + data.email;
+
+      formWrap.classList.add('hidden');
+      successWrap.classList.remove('hidden');
+      successWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      console.log('Inquiry submitted to GHL ->', data);
+
+    } catch (error) {
+      console.error('Submission error:', error);
+      formError.textContent = 'Something went wrong. Please try again or contact us directly.';
+      formError.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Check Availability →';
     }
-
-    // Also send via fetch as a backup (optional - uncomment if needed)
-    /*
-    fetch('https://tracking.msgsndr.com/track', {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        trackingId: 'tk_74649f2ee7e640838215408e2ec57cdd',
-        formData: data,
-        url: window.location.href
-      })
-    }).catch(console.error);
-    */
-
-    const firstName = (data.full_name || '').trim().split(' ')[0] || 'there';
-    document.getElementById('successHeading').textContent = 'Thank you, ' + firstName + '!';
-    document.getElementById('successMsg').textContent =
-      "We've received your inquiry and will get back to you within 24 hours.";
-    document.getElementById('successEmail').textContent =
-      'A confirmation email has been sent to ' + data.email;
-
-    formWrap.classList.add('hidden');
-    successWrap.classList.remove('hidden');
-    successWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    console.log('Inquiry submitted ->', data);
   });
 
-  // Debug: Check if GHL script loaded
+  // Debug: Check if anything is blocking
   window.addEventListener('load', function() {
-    if (window._lctk) {
-      console.log('GHL Tracking Script loaded successfully');
-    } else {
-      console.warn('GHL Tracking Script NOT detected');
-    }
+    console.log('Funnel page loaded. GHL Form URL:', GHL_FORM_URL);
   });
 </script>
 
-<!-- GHL EXTERNAL TRACKING SCRIPT with debug mode -->
+<!-- GHL External Tracking Script (for analytics only, not required for contact creation) -->
 <script 
   src="https://link.msgsndr.com/js/external-tracking.js"
   data-tracking-id="tk_74649f2ee7e640838215408e2ec57cdd"
