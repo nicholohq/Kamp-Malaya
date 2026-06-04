@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Kamp Malaya — Balabac's Hidden Sanctuary</title>
 <meta name="description" content="Kamp Malaya — a luxury eco-resort in Balabac, Palawan. Untouched paradise, sustainable luxury, authentic Filipino hospitality." />
 
@@ -186,47 +186,48 @@
 
 <!-- ===================== SECTION 1: HERO ===================== -->
 <header id="hero" class="relative h-[100svh] w-full overflow-hidden">
-  <!-- Desktop video -->
-  <video class="hidden md:block absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline poster="photo-landscape-1.jpg">
-    <source src="hero-video/kampmalaya.mp4" type="video/mp4" />
+  <!-- Video for ALL devices (mobile + desktop) -->
+  <video class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline poster="photo-landscape-1.jpg">
+    <source src="https://res.cloudinary.com/dk8mlyx7o/video/upload/dji_export_20250521_190251_1747825371405_mastershots_z7f3ix.mp4" type="video/mp4" />
   </video>
-  <!-- Mobile portrait image -->
+  
+  <!-- Fallback image for browsers that don't support video -->
   <img src="assets/drone-portrait-placeholder.jpg" alt="Aerial drone view of Balabac's turquoise lagoon at Kamp Malaya"
-       class="md:hidden absolute inset-0 w-full h-full object-cover" />
+       class="absolute inset-0 w-full h-full object-cover hidden [&_video]:hidden" />
 
   <!-- gradient overlay (neutral) -->
   <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70"></div>
 
-  <!-- Hero content -->
-  <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-    <p class="hero-anim d1 font-quote text-gold text-xl md:text-2xl tracking-[0.3em] uppercase mb-4">Balabac · Palawan</p>
-    <h1 class="hero-anim d2 font-display text-white text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-none drop-shadow-lg">Kamp Malaya</h1>
-    <h2 class="hero-anim d3 font-display italic text-white/90 text-2xl md:text-3xl mt-4">Balabac's Hidden Sanctuary</h2>
-    <p class="hero-anim d4 font-quote text-white/85 text-xl md:text-2xl mt-3 tracking-wide">Where the last frontier meets your soul</p>
+  <!-- Hero content - responsive text sizes -->
+  <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 sm:px-6">
+    <p class="hero-anim d1 font-quote text-gold text-sm sm:text-base md:text-xl lg:text-2xl tracking-[0.2em] sm:tracking-[0.3em] uppercase mb-3 sm:mb-4">Balabac · Palawan</p>
+    <h1 class="hero-anim d2 font-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl leading-none drop-shadow-lg px-2">Kamp Malaya</h1>
+    <h2 class="hero-anim d3 font-display italic text-white/90 text-xl sm:text-2xl md:text-3xl mt-3 sm:mt-4">Balabac's Hidden Sanctuary</h2>
+    <p class="hero-anim d4 font-quote text-white/85 text-lg sm:text-xl md:text-2xl mt-2 sm:mt-3 tracking-wide px-4">Where the last frontier meets your soul</p>
   </div>
 
-  <!-- Floating glass booking bar -->
-  <div class="hero-anim d4 absolute bottom-10 md:bottom-12 inset-x-0 z-20 px-6">
-    <div class="glass max-w-4xl mx-auto rounded-2xl p-4 md:p-5 shadow-sm">
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+  <!-- Floating glass booking bar - fully responsive -->
+  <div class="hero-anim d4 absolute bottom-8 sm:bottom-10 md:bottom-12 inset-x-0 z-20 px-3 sm:px-6">
+    <div class="glass max-w-4xl mx-auto rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 shadow-sm">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 items-end">
         <div class="flex flex-col text-left">
-          <label class="text-charcoal/70 text-xs tracking-widest uppercase mb-1">Check-in</label>
-          <input id="checkin" type="date" class="bg-black/5 text-charcoal rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-coral" />
+          <label class="text-charcoal/70 text-[10px] sm:text-xs tracking-widest uppercase mb-1">Check-in</label>
+          <input id="checkin" type="date" class="bg-black/5 text-charcoal rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-coral w-full" />
         </div>
         <div class="flex flex-col text-left">
-          <label class="text-charcoal/70 text-xs tracking-widest uppercase mb-1">Check-out</label>
-          <input id="checkout" type="date" class="bg-black/5 text-charcoal rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-coral" />
+          <label class="text-charcoal/70 text-[10px] sm:text-xs tracking-widest uppercase mb-1">Check-out</label>
+          <input id="checkout" type="date" class="bg-black/5 text-charcoal rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-coral w-full" />
         </div>
         <div class="flex flex-col text-left">
-          <label class="text-charcoal/70 text-xs tracking-widest uppercase mb-1">Guests</label>
-          <select id="guests" class="bg-black/5 text-charcoal rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-coral">
+          <label class="text-charcoal/70 text-[10px] sm:text-xs tracking-widest uppercase mb-1">Guests</label>
+          <select id="guests" class="bg-black/5 text-charcoal rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-coral w-full">
             <option class="text-charcoal" value="1">1 Guest</option>
             <option class="text-charcoal" value="2">2 Guests</option>
             <option class="text-charcoal" value="3">3 Guests</option>
             <option class="text-charcoal" value="4">4 Guests</option>
           </select>
         </div>
-        <button id="availabilityBtn" class="btn-coral-solid rounded-lg px-5 py-2.5 text-sm font-semibold uppercase">Check Availability</button>
+        <button id="availabilityBtn" class="btn-coral-solid rounded-lg px-3 sm:px-5 py-2 text-xs sm:text-sm font-semibold uppercase w-full">Check Availability</button>
       </div>
     </div>
   </div>
@@ -234,73 +235,79 @@
 
 <!-- ===================== SECTION 2: ABOUT ===================== -->
 <section id="about" class="bg-white">
-  <div class="grid md:grid-cols-2 min-h-[90vh]">
+  <div class="grid md:grid-cols-2">
     <!-- Portrait drone -->
-    <div class="reveal zoom-wrap h-[60vh] md:h-auto">
+    <div class="reveal zoom-wrap h-[50vh] sm:h-[60vh] md:h-auto">
       <img src="drone-portrait-placeholder.jpg" alt="Portrait drone shot of a secluded Balabac lagoon and island"
            class="zoom-img w-full h-full object-cover" />
     </div>
     <!-- Text -->
-    <div class="reveal reveal-delay-1 flex items-center px-8 md:px-16 py-16">
+    <div class="reveal reveal-delay-1 flex items-center px-6 sm:px-8 md:px-12 lg:px-16 py-12 sm:py-16">
       <div>
-        <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">The Malaya Welcome</p>
-        <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-3 leading-tight">Untouched. Unhurried.<br/>Unforgettable.</h2>
-        <div class="w-20 h-px bg-gold my-7"></div>
-        <p class="text-graytext leading-relaxed text-lg mb-5">
+        <p class="font-quote text-seagrass text-xl sm:text-2xl tracking-widest uppercase">The Malaya Welcome</p>
+        <h2 class="font-display text-charcoal text-3xl sm:text-4xl md:text-5xl mt-3 leading-tight">Untouched. Unhurried.<br/>Unforgettable.</h2>
+        <div class="w-20 h-px bg-gold my-6 sm:my-7"></div>
+        <p class="text-graytext leading-relaxed text-base sm:text-lg mb-4 sm:mb-5">
           At the southernmost edge of Palawan lies Balabac — a scatter of islands so remote that time itself seems to slow. <em class="font-quote text-seagrass">Kamp Malaya</em>, meaning "Free Camp," is our humble surrender to this last frontier: powder-white sandbars, lagoons the colour of liquid jade, and night skies unbroken by a single city light.
         </p>
-        <p class="text-graytext leading-relaxed text-lg mb-8">
+        <p class="text-graytext leading-relaxed text-base sm:text-lg mb-6 sm:mb-8">
           We built Malaya lightly. Solar-powered, locally crafted, and run by the families who have called these waters home for generations. Here, luxury is not excess — it is space, silence, and the privilege of an untouched horizon kept that way.
         </p>
-        <a href="#experience" class="btn-coral inline-block px-8 py-3 rounded-full text-sm uppercase">Our Story</a>
+        <a href="#experience" class="btn-coral inline-block px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm uppercase">Our Story</a>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ===================== SECTION 3: EXPERIENCE ===================== -->
-<section id="experience" class="bg-offwhite py-24 px-6">
+<section id="experience" class="bg-offwhite py-12 sm:py-16 px-4 sm:px-6">
   <div class="max-w-7xl mx-auto text-center reveal">
-    <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">Savor Malaya</p>
-    <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-2">Experiences that stay with you</h2>
-    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+    <p class="font-quote text-seagrass text-xl sm:text-2xl tracking-widest uppercase">Savor Malaya</p>
+    <h2 class="font-display text-charcoal text-3xl sm:text-4xl md:text-5xl mt-2">Experiences that stay with you</h2>
+    <div class="w-20 h-px bg-gold mx-auto my-5 sm:my-6"></div>
   </div>
 
-  <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 mt-6">
+  <div class="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8 mt-4 sm:mt-6">
     <!-- 1 -->
     <article class="exp-card reveal lift bg-white rounded-2xl overflow-hidden border border-line">
-      <div class="zoom-wrap h-72"><img src="night_stay.jpg" alt="Guests gathered around a beachfront bonfire at night" class="zoom-img w-full h-full object-cover" /></div>
-      <div class="p-8">
-        <h3 class="exp-sub font-display text-2xl">Island Camping</h3>
-        <p class="text-graytext mt-3 leading-relaxed">Fall asleep to the hush of the tide and wake to a private sandbar. Our bonfire nights end with stargazing and stories shared beneath a sky thick with constellations.</p>
+      <div class="zoom-wrap h-56 sm:h-64 md:h-72">
+        <img src="night_stay.jpg" alt="Guests gathered around a beachfront bonfire at night" class="zoom-img w-full h-full object-cover" />
+      </div>
+      <div class="p-5 sm:p-6 md:p-8">
+        <h3 class="exp-sub font-display text-xl sm:text-2xl">Island Camping</h3>
+        <p class="text-graytext mt-2 sm:mt-3 leading-relaxed text-sm sm:text-base">Fall asleep to the hush of the tide and wake to a private sandbar. Our bonfire nights end with stargazing and stories shared beneath a sky thick with constellations.</p>
       </div>
     </article>
     <!-- 2 -->
     <article class="exp-card reveal reveal-delay-1 lift bg-white rounded-2xl overflow-hidden border border-line">
-      <div class="zoom-wrap h-72"><img src="seasidefeast.png" alt="A spread of freshly grilled seafood served on banana leaves" class="zoom-img w-full h-full object-cover" /></div>
-      <div class="p-8">
-        <h3 class="exp-sub font-display text-2xl">Local Feasts</h3>
-        <p class="text-graytext mt-3 leading-relaxed">Seafood caught hours before it reaches your plate, grilled over open flame and seasoned the Balabac way. Every meal is a celebration of the sea and the hands that tend it.</p>
+      <div class="zoom-wrap h-56 sm:h-64 md:h-72">
+        <img src="seasidefeast.png" alt="A spread of freshly grilled seafood served on banana leaves" class="zoom-img w-full h-full object-cover" />
+      </div>
+      <div class="p-5 sm:p-6 md:p-8">
+        <h3 class="exp-sub font-display text-xl sm:text-2xl">Local Feasts</h3>
+        <p class="text-graytext mt-2 sm:mt-3 leading-relaxed text-sm sm:text-base">Seafood caught hours before it reaches your plate, grilled over open flame and seasoned the Balabac way. Every meal is a celebration of the sea and the hands that tend it.</p>
       </div>
     </article>
     <!-- 3 -->
     <article class="exp-card reveal reveal-delay-2 lift bg-white rounded-2xl overflow-hidden border border-line">
-      <div class="zoom-wrap h-72"><img src="sunset_boat.jpg" alt="A wooden boat drifting across calm water at sunset" class="zoom-img w-full h-full object-cover" /></div>
-      <div class="p-8">
-        <h3 class="exp-sub font-display text-2xl">Sunset Drift</h3>
-        <p class="text-graytext mt-3 leading-relaxed">Glide across glassy waters as the sky melts into gold. Our slow boat journeys trace hidden coves and end exactly where the day's last light touches the horizon.</p>
+      <div class="zoom-wrap h-56 sm:h-64 md:h-72">
+        <img src="sunset_boat.jpg" alt="A wooden boat drifting across calm water at sunset" class="zoom-img w-full h-full object-cover" />
+      </div>
+      <div class="p-5 sm:p-6 md:p-8">
+        <h3 class="exp-sub font-display text-xl sm:text-2xl">Sunset Drift</h3>
+        <p class="text-graytext mt-2 sm:mt-3 leading-relaxed text-sm sm:text-base">Glide across glassy waters as the sky melts into gold. Our slow boat journeys trace hidden coves and end exactly where the day's last light touches the horizon.</p>
       </div>
     </article>
   </div>
 </section>
 
 <!-- ===================== SECTION 4: SANCTUARIES ===================== -->
-<section id="sanctuaries" class="bg-white py-24 px-6">
+<section id="sanctuaries" class="bg-white pt-16 pb-8 px-6">
   <div class="max-w-7xl mx-auto text-center reveal">
     <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">Our Sanctuaries</p>
     <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-2">Where you'll rest</h2>
-    <p class="text-graytext mt-4 text-lg">Three ways to wake up in paradise</p>
-    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+    <p class="text-graytext mt-3 text-lg">Three ways to wake up in paradise</p>
+    <div class="w-20 h-px bg-gold mx-auto my-6"></div>
   </div>
 
   <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 mt-6">
@@ -321,7 +328,7 @@
     </article>
     <!-- Card 2 -->
     <article class="reveal reveal-delay-1 lift bg-offwhite rounded-2xl overflow-hidden border border-line">
-      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="beachside hut.jpg" alt="Elevated jungle tent nestled among tropical canopy" class="zoom-img w-full h-full object-cover" /></div>
+      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="beachside_hut.jpg" alt="Elevated jungle tent nestled among tropical canopy" class="zoom-img w-full h-full object-cover" /></div>
       <div class="p-7">
         <h3 class="font-display text-charcoal text-2xl">Canopy Tent</h3>
         <p class="text-graytext mt-2 leading-relaxed text-sm">An elevated jungle tent wrapped in green. Drift to sleep among the treetops with the chorus of the forest below.</p>
@@ -353,12 +360,12 @@
 </section>
 
 <!-- ===================== SECTION 5: ADVENTURES ===================== -->
-<section id="adventures" class="bg-white py-24 px-6">
+<section id="adventures" class="bg-white py-6 px-6">
   <div class="max-w-7xl mx-auto text-center reveal">
-    <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">Adventures Await</p>
-    <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-2">Beyond the shore</h2>
-    <p class="text-graytext mt-4 text-lg">Let us take you deeper into Balabac</p>
-    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+    <p class="font-quote text-seagrass text-xl tracking-widest uppercase">Adventures Await</p>
+    <h2 class="font-display text-charcoal text-3xl md:text-4xl mt-1">Beyond the shore</h2>
+    <p class="text-graytext mt-2 text-base">Let us take you deeper into Balabac</p>
+    <div class="w-16 h-px bg-gold mx-auto my-5"></div>
   </div>
 
   <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center mt-6">
@@ -431,61 +438,64 @@
 </section>
 
 <!-- ===================== SECTION 6: GALLERY ===================== -->
-<section id="gallery" class="bg-offwhite py-24 px-6">
+<section id="gallery" class="bg-offwhite py-12 px-6">
   <div class="max-w-7xl mx-auto text-center reveal">
-    <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">Kamp Malaya Gallery</p>
-    <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-2">Unfiltered Balabac</h2>
-    <p class="text-graytext mt-4 text-lg">What the wild looks like</p>
-    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+    <p class="font-quote text-seagrass text-xl sm:text-2xl tracking-widest uppercase">Kamp Malaya Gallery</p>
+    <h2 class="font-display text-charcoal text-3xl sm:text-4xl md:text-5xl mt-2">Unfiltered Balabac</h2>
+    <p class="text-graytext mt-2 sm:mt-3 text-base sm:text-lg">What the wild looks like</p>
+    <div class="w-20 h-px bg-gold mx-auto my-6"></div>
   </div>
 
-  <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] gap-4 mt-6">
-    <!-- wide landscape spans 2 cols -->
+  <!-- Mobile: 2 columns, Tablet/Desktop: 4 columns -->
+  <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 auto-rows-[180px] sm:auto-rows-[200px] gap-3 sm:gap-4 mt-6">
+    <!-- wide landscape spans 2 cols on all screens -->
     <div class="reveal zoom-wrap col-span-2 row-span-1 rounded-xl overflow-hidden">
       <img src="panorama.png" alt="Panoramic landscape of a Balabac beach and turquoise sea" class="zoom-img w-full h-full object-cover" />
     </div>
-    <!-- portrait tall -->
+    <!-- portrait tall - full height on mobile -->
     <div class="reveal reveal-delay-1 zoom-wrap row-span-2 rounded-xl overflow-hidden">
       <img src="onok_island.jpg" alt="Tall drone shot of a winding sandbar from above" class="zoom-img w-full h-full object-cover" />
     </div>
-    <!-- portrait tall, spans 2 rows -->
-    <div class="reveal reveal-delay-2 zoom-wrap row-span-2 rounded-xl overflow-hidden">
+    <!-- portrait tall -->
+    <div class="reveal reveal-delay-2 zoom-wrap row-span-2 rounded-xl overflow-hidden hidden md:block">
       <img src="coralreef.png" alt="Aerial portrait of an island ringed by coral reef" class="zoom-img w-full h-full object-cover" />
     </div>
-    <!-- landscape -->
-    <div class="reveal zoom-wrap col-span-1 rounded-xl overflow-hidden">
+    <!-- landscape - becomes full width on mobile -->
+    <div class="reveal zoom-wrap col-span-2 md:col-span-1 rounded-xl overflow-hidden">
       <img src="tallportrait2.jpg" alt="Sunset over the Balabac horizon" class="zoom-img w-full h-full object-cover" />
     </div>
     <!-- landscape -->
-    <div class="reveal reveal-delay-1 zoom-wrap col-span-1 rounded-xl overflow-hidden">
+    <div class="reveal reveal-delay-1 zoom-wrap col-span-2 md:col-span-1 rounded-xl overflow-hidden">
       <img src="whitesand.jpg" alt="Clear shallow waters lapping a white sand beach" class="zoom-img w-full h-full object-cover" />
     </div>
   </div>
 </section>
 
 <!-- ===================== SECTION 7: TESTIMONIALS ===================== -->
-<section id="testimonials" class="bg-warmgray py-24 px-6">
+<section id="testimonials" class="bg-warmgray py-12 px-6">
   <div class="max-w-7xl mx-auto text-center reveal">
     <p class="font-quote text-seagrass text-2xl tracking-widest uppercase">Guest Whispers</p>
     <h2 class="font-display text-charcoal text-4xl md:text-5xl mt-2">They found their Malaya</h2>
-    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
+    <div class="w-20 h-px bg-gold mx-auto my-6"></div>
   </div>
 
   <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 mt-6">
-    <!-- card -->
-    <div class="reveal glass-light rounded-2xl p-8 lift">
+    <!-- card 1 -->
+    <div class="reveal bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gold/30 hover:border-gold transition-all">
       <div class="flex gap-1 text-gold mb-4">★★★★★</div>
       <p class="font-quote text-charcoal text-xl leading-relaxed italic">"I have travelled the world and never felt so completely held by a place. Malaya undid all my noise."</p>
       <p class="mt-6 font-semibold text-charcoal">Maria</p>
       <p class="text-graytext text-sm">Manila, Philippines</p>
     </div>
-    <div class="reveal reveal-delay-1 glass-light rounded-2xl p-8 lift">
+    <!-- card 2 -->
+    <div class="reveal reveal-delay-1 bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gold/30 hover:border-gold transition-all">
       <div class="flex gap-1 text-gold mb-4">★★★★★</div>
       <p class="font-quote text-charcoal text-xl leading-relaxed italic">"No signal, no crowds, no schedule. Just my wife, the stars, and the sound of the tide. Pure freedom."</p>
       <p class="mt-6 font-semibold text-charcoal">Daniel</p>
       <p class="text-graytext text-sm">Singapore</p>
     </div>
-    <div class="reveal reveal-delay-2 glass-light rounded-2xl p-8 lift">
+    <!-- card 3 -->
+    <div class="reveal reveal-delay-2 bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gold/30 hover:border-gold transition-all">
       <div class="flex gap-1 text-gold mb-4">★★★★★</div>
       <p class="font-quote text-charcoal text-xl leading-relaxed italic">"The most beautiful place I never knew existed. The team treated us like family from the first morning."</p>
       <p class="mt-6 font-semibold text-charcoal">Sofia</p>
@@ -495,12 +505,12 @@
 </section>
 
 <!-- ===================== SECTION: WHERE TO FIND US ===================== -->
-<section id="location" class="bg-white py-24 px-6">
+<section id="location" class="bg-white py-16 px-6">
   <div class="max-w-7xl mx-auto text-center reveal">
     <p class="font-quote text-gold text-2xl tracking-widest uppercase">Getting Here</p>
     <h2 class="font-display text-4xl md:text-5xl mt-2" style="color: #1A1A1A;">Where to Find Us</h2>
-    <div class="w-20 h-px bg-gold mx-auto my-8"></div>
-    <p class="text-gray-600 max-w-2xl mx-auto mb-10">
+    <div class="w-20 h-px bg-gold mx-auto my-6"></div>
+    <p class="text-gray-600 max-w-2xl mx-auto mb-8">
       Located in the remote paradise of Balabac, Palawan. The journey is part of the adventure.
     </p>
   </div>
@@ -533,11 +543,11 @@
     <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
       <a href="https://maps.google.com/maps?daddr=Poblacion+2,+Balabac,+Palawan,+5307" 
          target="_blank" 
-         class="btn-gold inline-block px-6 py-3 rounded-full text-sm uppercase transition-transform hover:scale-105">
+         class="btn-coral inline-block px-6 py-3 rounded-full text-sm uppercase transition-transform hover:scale-105">
         Get Directions ↗
       </a>
       <a href="#cta" 
-         class="inline-block px-6 py-3 rounded-full text-sm uppercase border border-gold text-gold hover:bg-gold hover:text-navy transition-all">
+         class="inline-block px-6 py-3 rounded-full text-sm uppercase border border-gold text-gold hover:bg-gold hover:text-white transition-all">
         Ask for Transfer Info
       </a>
     </div>
@@ -555,11 +565,11 @@
 </section>
 
 <!-- ===================== SECTION 8: CTA ===================== -->
-<section id="cta" class="parallax relative py-40 px-6 bg-cover bg-center bg-fixed" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.45)), url('booknow.jpg');">
-  <div class="reveal max-w-2xl mx-auto text-center glass rounded-3xl p-12 shadow-sm">
-    <h2 class="font-display text-charcoal text-4xl md:text-5xl leading-tight">Your Balabac story begins now</h2>
-    <p class="font-quote text-graytext text-2xl mt-4">No crowds. No rush. Just you and the wild.</p>
-    <button id="inquireBtn" class="btn-coral-solid mt-9 px-10 py-4 rounded-full text-base font-semibold uppercase transition-transform hover:scale-105">Inquire Now</button>
+<section id="cta" class="parallax relative py-24 px-6 bg-cover bg-center bg-fixed" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.45)), url('booknow.jpg');">
+  <div class="reveal max-w-2xl mx-auto text-center glass rounded-3xl p-10 shadow-sm">
+    <h2 class="font-display text-charcoal text-3xl md:text-4xl leading-tight">Your Balabac story begins now</h2>
+    <p class="font-quote text-graytext text-xl mt-3">No crowds. No rush. Just you and the wild.</p>
+    <button id="inquireBtn" class="btn-coral-solid mt-8 px-10 py-4 rounded-full text-base font-semibold uppercase transition-transform hover:scale-105">Inquire Now</button>
   </div>
 </section>
 
@@ -587,7 +597,7 @@
     <div>
       <h4 class="text-gold text-sm tracking-widest uppercase mb-4">Contact</h4>
       <ul class="space-y-2 text-sand/70 text-sm">
-        <li class="flex items-center gap-2">
+        <li class="flex items-center gap-2 flex-wrap">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
             <path d="M22 6l-10 7L2 6"/>
@@ -637,7 +647,7 @@
   </div>
 
   <div class="max-w-7xl mx-auto border-t border-sand/15 mt-12 pt-6 text-center text-sand/40 text-sm">
-    © 2025 Kamp Malaya. All rights reserved. <span class="font-quote text-gold/70 italic">Wildly yours.</span>
+    © 2026 Kamp Malaya. All rights reserved. <span class="font-quote text-gold/70 italic">Wildly yours.</span>
   </div>
 </footer>
 
@@ -751,7 +761,10 @@
   resetTimer();
 </script>
 
-<script src="https://link.msgsndr.com/js/external-tracking.js" data-tracking-id="tk_74649f2ee7e640838215408e2ec57cdd"></script>
+<script 
+  src="https://link.msgsndr.com/js/external-tracking.js"
+  data-tracking-id="tk_46b574507f59433792ebc13b29db7da4">
+</script>
 
 </body>
 </html>
