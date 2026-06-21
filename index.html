@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Kamp Malaya — Balabac's Hidden Sanctuary</title>
+<title>Kamp Malaya</title>
 <meta name="description" content="Kamp Malaya — a luxury eco-resort in Balabac, Palawan. Untouched paradise, sustainable luxury, authentic Filipino hospitality." />
 
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
-
+<link rel="icon" type="image/png" href="icons/kampmalaya.png">
 <!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -164,7 +164,7 @@
       <li><a href="#sanctuaries" class="nav-link hover:text-coral transition-colors">Sanctuaries</a></li>
       <li><a href="#experience" class="nav-link hover:text-coral transition-colors">Experiences</a></li>
       <li><a href="#gallery" class="nav-link hover:text-coral transition-colors">Gallery</a></li>
-      <li><a href="#cta" class="btn-coral px-5 py-2 rounded-full text-xs">Inquire</a></li>
+      <li><a href="funnel.html" class="btn-coral px-5 py-2 rounded-full text-xs">Inquire</a></li>
     </ul>
 
     <button id="menuBtn" class="md:hidden text-white" aria-label="Open menu">
@@ -179,7 +179,7 @@
       <li><a href="#sanctuaries" class="mobile-link hover:text-coral">Sanctuaries</a></li>
       <li><a href="#experience" class="mobile-link hover:text-coral">Experiences</a></li>
       <li><a href="#gallery" class="mobile-link hover:text-coral">Gallery</a></li>
-      <li><a href="#cta" class="mobile-link text-coral">Inquire Now</a></li>
+      <li><a href="funnel.html" class="mobile-link text-coral">Inquire Now</a></li>
     </ul>
   </div>
 </nav>
@@ -206,31 +206,17 @@
     <p class="hero-anim d4 font-quote text-white/85 text-lg sm:text-xl md:text-2xl mt-2 sm:mt-3 tracking-wide px-4">Where the last frontier meets your soul</p>
   </div>
 
-  <!-- Floating glass booking bar - fully responsive -->
-  <div class="hero-anim d4 absolute bottom-8 sm:bottom-10 md:bottom-12 inset-x-0 z-20 px-3 sm:px-6">
-    <div class="glass max-w-4xl mx-auto rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 shadow-sm">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 items-end">
-        <div class="flex flex-col text-left">
-          <label class="text-charcoal/70 text-[10px] sm:text-xs tracking-widest uppercase mb-1">Check-in</label>
-          <input id="checkin" type="date" class="bg-black/5 text-charcoal rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-coral w-full" />
-        </div>
-        <div class="flex flex-col text-left">
-          <label class="text-charcoal/70 text-[10px] sm:text-xs tracking-widest uppercase mb-1">Check-out</label>
-          <input id="checkout" type="date" class="bg-black/5 text-charcoal rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-coral w-full" />
-        </div>
-        <div class="flex flex-col text-left">
-          <label class="text-charcoal/70 text-[10px] sm:text-xs tracking-widest uppercase mb-1">Guests</label>
-          <select id="guests" class="bg-black/5 text-charcoal rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-coral w-full">
-            <option class="text-charcoal" value="1">1 Guest</option>
-            <option class="text-charcoal" value="2">2 Guests</option>
-            <option class="text-charcoal" value="3">3 Guests</option>
-            <option class="text-charcoal" value="4">4 Guests</option>
-          </select>
-        </div>
-        <button id="availabilityBtn" class="btn-coral-solid rounded-lg px-3 sm:px-5 py-2 text-xs sm:text-sm font-semibold uppercase w-full">Check Availability</button>
-      </div>
-    </div>
+<div class="hero-anim d4 absolute bottom-8 sm:bottom-10 md:bottom-12 inset-x-0 z-20 px-3 sm:px-6">
+  <div class="flex justify-center">
+    <a href="funnel.html" 
+       class="glass px-8 sm:px-12 py-4 sm:py-5 rounded-full text-base sm:text-lg font-semibold uppercase tracking-wider hover:bg-white/90 transition-all duration-300 inline-flex items-center gap-3 border border-white/30">
+      <span>Book Now</span>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
   </div>
+</div>  
 </header>
 
 <!-- ===================== SECTION 2: ABOUT ===================== -->
@@ -647,13 +633,13 @@
   </div>
 
   <div class="max-w-7xl mx-auto border-t border-sand/15 mt-12 pt-6 text-center text-sand/40 text-sm">
-    © 2026 Kamp Malaya. All rights reserved. <span class="font-quote text-gold/70 italic">Wildly yours.</span>
+    © 2018 Kamp Malaya. All rights reserved. <span class="font-quote text-gold/70 italic">Wildly yours.</span>
   </div>
 </footer>
 
 <script>
   // ---------- FUNNEL URL ----------
-  const FUNNEL_URL = '/funnel.html';
+  const FUNNEL_URL = 'funnel.html';
 
   // ---------- Navbar scroll state ----------
   const navbar = document.getElementById('navbar');
@@ -680,22 +666,6 @@
   }, { threshold: 0.15 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  // ---------- CHECK AVAILABILITY BUTTON - REDIRECT ----------
-  const availabilityBtn = document.getElementById('availabilityBtn');
-  if (availabilityBtn) {
-    availabilityBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      const checkIn = document.getElementById('checkin').value;
-      const checkOut = document.getElementById('checkout').value;
-      const guests = document.getElementById('guests').value;
-      const params = new URLSearchParams();
-      if (checkIn) params.set('checkin', checkIn);
-      if (checkOut) params.set('checkout', checkOut);
-      if (guests) params.set('guests', guests);
-      const qs = params.toString();
-      window.location.href = FUNNEL_URL + (qs ? '?' + qs : '');
-    });
-  }
 
   // ---------- BOOK NOW BUTTONS - REDIRECT ----------
   const bookBtns = document.querySelectorAll('.book-btn');
@@ -707,14 +677,20 @@
     });
   });
 
-  // ---------- INQUIRE NOW BUTTON - REDIRECT ----------
+// ---------- INQUIRE NOW BUTTON - REDIRECT ----------
   const inquireBtn = document.getElementById('inquireBtn');
   if (inquireBtn) {
-    inquireBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      window.location.href = FUNNEL_URL;
-    });
-  }
+      inquireBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          // Show a quick choice dialog
+          const choice = confirm('Book a Private Stay or Joiner Tour?\n\nClick OK for Private Stay\nClick Cancel for Joiner Tour');
+          if (choice) {
+              window.location.href = 'funnel.html';
+          } else {
+              window.location.href = 'funnel.html?type=joiner';
+          }
+      });
+}
 
   // ---------- TOUR LEARN MORE - ALERT (KEEP THIS) ----------
   const learnMoreBtns = document.querySelectorAll('.learn-more');
