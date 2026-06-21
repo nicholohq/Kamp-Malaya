@@ -98,6 +98,44 @@
     border-radius: 8px;
     font-size: 0.9rem;
   }
+  
+  .package-details {
+    background: var(--sand);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .package-details ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .package-details li {
+    padding: 4px 0;
+    font-size: 0.85rem;
+    color: var(--charcoal);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .package-details li::before {
+    content: "✓";
+    color: var(--seagrass);
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .package-details .sub-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--graytext);
+    margin-top: 8px;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .package-details .sub-label:first-of-type {
+    margin-top: 0;
+  }
 
   ::selection { background: var(--gold); color: var(--ink); }
 </style>
@@ -155,7 +193,7 @@
               <div>
                 <h4 class="font-bold text-charcoal text-sm">Private Stay</h4>
                 <p class="text-graytext text-xs">Flexible dates, choose your room</p>
-                <span class="text-graytext text-[10px]">1-4 guests</span>
+                <span class="text-graytext text-[10px]">5+ guests welcome</span>
               </div>
             </div>
           </button>
@@ -164,8 +202,8 @@
               <span class="icon">🚐</span>
               <div>
                 <h4 class="font-bold text-charcoal text-sm">Joiner Tour</h4>
-                <p class="text-graytext text-xs">Fixed schedule with transfers</p>
-                <span class="text-graytext text-[10px]">1-4 guests (5+ inquire)</span>
+                <p class="text-graytext text-xs">4D/3N all-in package</p>
+                <span class="text-graytext text-[10px]">Limited slots • From ₱14,799/head</span>
               </div>
             </div>
           </button>
@@ -195,8 +233,14 @@
               <label class="field-label" for="guests">Guests</label>
               <select class="field" id="guests" name="guests" required>
                 <option value="" disabled selected>Select guests</option>
-                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
                 <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8+ (Contact us for large groups)</option>
               </select>
             </div>
             <div>
@@ -215,6 +259,7 @@
                   <option value="Kubo by the Shore">Kubo by the Shore (2 guests) — from ₱4,500/night</option>
                   <option value="Canopy Tent">Canopy Tent (2 guests) — from ₱3,800/night</option>
                   <option value="Malaya Villa">Malaya Villa (4 guests) — from ₱8,500/night</option>
+                  <option value="Multiple Rooms">Multiple Rooms (5+ guests) — Contact us for rates</option>
                 </select>
               </div>
               <div>
@@ -226,23 +271,55 @@
                 <input class="field" type="date" id="check_out" name="check_out" required />
               </div>
               <div class="flex items-end">
-                <p class="text-xs text-graytext">💡 <span class="font-medium">Note:</span> 2-night minimum. Room capacity limits apply.</p>
+                <p class="text-xs text-graytext">💡 <span class="font-medium">Note:</span> 2-night minimum. For 5+ guests, we'll help arrange multiple rooms or group accommodations.</p>
               </div>
+            </div>
+            
+            <!-- Large group note for private stays -->
+            <div id="private-large-group-note" class="mt-3 p-3 bg-gold/10 rounded-lg border border-gold/20 hidden">
+              <p class="text-xs text-gold">👥 <span class="font-medium">Large group (5+ guests):</span> We'll contact you to arrange the best accommodation setup for your group size.</p>
             </div>
           </div>
 
           <!-- ===== JOINER FIELDS ===== -->
           <div id="joiner-fields" class="field-group hidden mt-4">
-            <!-- Package info -->
-            <div class="price-placeholder mb-4">
-              <div class="flex justify-between items-center">
+            <!-- Package info with full details -->
+            <div class="package-details mb-4">
+              <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
                 <div>
-                  <span class="font-bold">Standard Joiner Package</span>
-                  <p class="text-sm text-gray-600">3D/2N • Thu-Sun • Island hopping + transfers</p>
+                  <span class="font-bold text-lg">4D/3N Balabac Island Tour</span>
+                  <p class="text-sm text-graytext">All-in Joiner Package</p>
+                  <span class="inline-block text-xs bg-coral/10 text-coral px-2 py-0.5 rounded-full mt-1">Limited Slots Available</span>
                 </div>
-                <span class="font-display text-xl text-gold">₱8,500</span>
+                <span class="font-display text-2xl text-gold">₱14,799<small class="text-sm text-graytext font-body">/head</small></span>
               </div>
-              <p class="text-xs text-gray-500 mt-1">* Includes van, boat, meals, tours. Price per person. Placeholder rate — final pricing upon confirmation.</p>
+              
+              <div class="sub-label">✨ Inclusions</div>
+              <ul>
+                <li>Round trip AC van transfers (Puerto Princesa ↔ Buliluyan Port)</li>
+                <li>Round trip boat transfers (Buliluyan ↔ Balabac)</li>
+                <li>Full board meals (Breakfast, Lunch, Dinner)</li>
+                <li>All entrance fees</li>
+                <li>Onok Island day tour</li>
+                <li>Camping tent accommodation with complete beddings</li>
+                <li>Environmental fee &amp; life vest</li>
+                <li>Local tour guide</li>
+              </ul>
+              
+              <div class="sub-label">📌 Important Notes</div>
+              <ul>
+                <li>Deposit: ₱1,000/head (non-refundable, transferable to replacement)</li>
+                <li>Island itinerary subject to weather conditions</li>
+                <li>Inform us of any seafood allergies or dietary restrictions</li>
+                <li><strong>Limited slots available</strong> — book early to secure your spot</li>
+              </ul>
+              
+              <div class="sub-label">📋 Things to Bring</div>
+              <ul>
+                <li>Toiletries, light towel, sunblock/sunscreen</li>
+                <li>Personal medicine (if any)</li>
+                <li>Cash (no ATM on the island)</li>
+              </ul>
             </div>
 
             <div class="grid sm:grid-cols-2 gap-4">
@@ -269,7 +346,7 @@
             </div>
 
             <div class="mt-3 p-3 bg-sand/50 rounded-lg border border-gold/20">
-              <p class="text-xs text-graytext">📌 <span class="font-medium">Note:</span> Joiner tours require approval from our operations team. You'll receive confirmation and payment instructions within 24 hours.</p>
+              <p class="text-xs text-graytext">📌 <span class="font-medium">Note:</span> Joiner tours require approval from our operations team. A ₱1,000/head deposit is required to secure your slot. You'll receive confirmation and payment instructions within 24 hours.</p>
             </div>
 
             <!-- Large group note -->
@@ -333,7 +410,7 @@
 
 <footer class="bg-charcoal text-white py-10 px-5 text-center">
   <p class="font-display text-lg">Kamp <span class="text-gold">Malaya</span> &mdash; Balabac, Palawan, Philippines</p>
-  <p class="text-white/50 text-sm mt-2">&copy; 2025 Kamp Malaya. All rights reserved. <span class="font-quote text-gold italic">Wildly yours.</span></p>
+  <p class="text-white/50 text-sm mt-2">&copy; 2026 Kamp Malaya. All rights reserved. <span class="font-quote text-gold italic">Wildly yours.</span></p>
 </footer>
 
 <script>
@@ -426,12 +503,10 @@
     const select = document.getElementById('tour_date');
     if (!select) return;
     
-    // Clear existing options (keep first placeholder)
     while (select.options.length > 1) {
       select.remove(1);
     }
     
-    // Add all dates
     JOINER_SCHEDULE.forEach(tour => {
       const option = document.createElement('option');
       option.value = tour.start;
@@ -455,19 +530,23 @@
     if (type === 'private') {
       privateFields.classList.remove('hidden');
       joinerFields.classList.add('hidden');
-      // Make private fields required
       document.querySelectorAll('#private-fields [required]').forEach(el => el.disabled = false);
       document.querySelectorAll('#joiner-fields [required]').forEach(el => el.disabled = true);
-      // Update submit button text
-      document.getElementById('submitBtn').innerHTML = 'Check Availability →';
+      document.getElementById('submitBtn').innerHTML = 'Check Availability &rarr;';
+      
+      // Show large group note if 8+ selected
+      const guests = document.getElementById('guests');
+      if (guests && guests.value === '8+') {
+        document.getElementById('private-large-group-note').classList.remove('hidden');
+      } else {
+        document.getElementById('private-large-group-note').classList.add('hidden');
+      }
     } else {
       joinerFields.classList.remove('hidden');
       privateFields.classList.add('hidden');
-      // Make joiner fields required
       document.querySelectorAll('#joiner-fields [required]').forEach(el => el.disabled = false);
       document.querySelectorAll('#private-fields [required]').forEach(el => el.disabled = true);
-      // Update submit button text
-      document.getElementById('submitBtn').innerHTML = 'Submit Joiner Inquiry →';
+      document.getElementById('submitBtn').innerHTML = 'Submit Joiner Inquiry &rarr;';
     }
     
     handlePaxChange();
@@ -489,7 +568,22 @@
   }
 
   // ============================================================
-  // 5. REVEAL ON SCROLL
+  // 5. GUEST COUNT CHANGE HANDLER
+  // ============================================================
+  function handleGuestChange() {
+    const guests = document.getElementById('guests');
+    const note = document.getElementById('private-large-group-note');
+    if (guests && note) {
+      if (guests.value === '8+') {
+        note.classList.remove('hidden');
+      } else {
+        note.classList.add('hidden');
+      }
+    }
+  }
+
+  // ============================================================
+  // 6. REVEAL ON SCROLL
   // ============================================================
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
@@ -497,16 +591,13 @@
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
   // ============================================================
-  // 6. URL PARAMETER PRE-FILLING
+  // 7. URL PARAMETER PRE-FILLING
   // ============================================================
   (function prefillFromURL() {
     const params = new URLSearchParams(window.location.search);
     
-    // Check if joiner type is specified
     if (params.get('type') === 'joiner') {
       selectBookingType('joiner');
-      
-      // Pre-fill date if provided
       const date = params.get('date');
       if (date) {
         const select = document.getElementById('tour_date');
@@ -516,9 +607,7 @@
         }
       }
     } else {
-      // Private booking pre-fill
       selectBookingType('private');
-      
       const checkin  = params.get('checkin');
       const checkout = params.get('checkout');
       const guests   = params.get('guests');
@@ -530,6 +619,7 @@
       if (guests) {
         const g = document.getElementById('guests');
         if ([...g.options].some(o => o.value === guests)) g.value = guests;
+        handleGuestChange();
       }
       if (room) {
         const a = document.getElementById('accommodation');
@@ -541,7 +631,7 @@
   })();
 
   // ============================================================
-  // 7. GHL FORM SUBMISSION
+  // 8. GHL FORM SUBMISSION
   // ============================================================
   const form = document.getElementById('inquiryForm');
   const formWrap = document.getElementById('formWrap');
@@ -557,7 +647,6 @@
     const data = Object.fromEntries(new FormData(form).entries());
     formError.classList.add('hidden');
 
-    // Build required fields based on booking type
     const bookingType = document.getElementById('booking_type').value;
     let required = ['full_name', 'email', 'phone'];
     
@@ -574,7 +663,6 @@
       return;
     }
 
-    // Private stay validation
     if (bookingType === 'private' && data.check_out <= data.check_in) {
       formError.textContent = 'Check-out must be after check-in.';
       formError.classList.remove('hidden');
@@ -593,13 +681,19 @@
         body: formData
       });
 
-      // Show success
       const firstName = (data.full_name || '').trim().split(' ')[0] || 'there';
       const typeLabel = bookingType === 'joiner' ? 'Joiner Tour Inquiry' : 'Private Stay Inquiry';
       
       document.getElementById('successHeading').textContent = 'Thank you, ' + firstName + '!';
-      document.getElementById('successMsg').innerHTML = 
-        `Your <strong>${typeLabel}</strong> has been received. We'll get back to you within <strong>24 hours</strong>.`;
+      
+      if (bookingType === 'joiner') {
+        document.getElementById('successMsg').innerHTML = 
+          `Your <strong>4D/3N Balabac Island Tour</strong> inquiry has been received. We'll send you payment instructions for the ₱1,000/head deposit within <strong>24 hours</strong>.`;
+      } else {
+        document.getElementById('successMsg').innerHTML = 
+          `Your <strong>Private Stay Inquiry</strong> has been received. We'll get back to you within <strong>24 hours</strong> with room options.`;
+      }
+      
       document.getElementById('successEmail').textContent = 'A confirmation email has been sent to ' + data.email;
 
       formWrap.classList.add('hidden');
@@ -613,20 +707,18 @@
       formError.textContent = 'Something went wrong. Please try again or contact us directly.';
       formError.classList.remove('hidden');
       submitBtn.disabled = false;
-      submitBtn.textContent = bookingType === 'joiner' ? 'Submit Joiner Inquiry →' : 'Check Availability →';
+      submitBtn.textContent = bookingType === 'joiner' ? 'Submit Joiner Inquiry &rarr;' : 'Check Availability &rarr;';
     }
   });
 
   // ============================================================
-  // 8. INIT
+  // 9. INIT
   // ============================================================
   document.addEventListener('DOMContentLoaded', function() {
     populateJoinerDates();
-    
-    // Setup pax change listener
     document.getElementById('pax_count').addEventListener('change', handlePaxChange);
+    document.getElementById('guests').addEventListener('change', handleGuestChange);
     
-    // Setup date validation for private
     const checkIn = document.getElementById('check_in');
     const checkOut = document.getElementById('check_out');
     
