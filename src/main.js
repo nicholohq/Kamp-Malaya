@@ -1,0 +1,83 @@
+// ---------- FUNNEL URL ----------
+const FUNNEL_URL = 'funnel.html';
+
+// ---------- Navbar scroll state ----------
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ---------- Mobile menu ----------
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+let menuOpen = false;
+function toggleMenu(open) {
+  menuOpen = open;
+  menuBtn.setAttribute('aria-expanded', String(open));
+  menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  mobileMenu.classList.toggle('opacity-0', !open);
+  mobileMenu.classList.toggle('-translate-y-4', !open);
+  mobileMenu.classList.toggle('pointer-events-none', !open);
+}
+menuBtn.addEventListener('click', () => toggleMenu(!menuOpen));
+document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => toggleMenu(false)));
+
+// ---------- Intersection Observer reveals ----------
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ---------- BOOK NOW BUTTONS - REDIRECT ----------
+const bookBtns = document.querySelectorAll('.book-btn');
+bookBtns.forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const room = this.dataset.room;
+    window.location.href = FUNNEL_URL + '?room=' + encodeURIComponent(room);
+  });
+});
+
+// ---------- TOUR LEARN MORE - ALERT (KEEP THIS) ----------
+const learnMoreBtns = document.querySelectorAll('.learn-more');
+learnMoreBtns.forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    alert(this.dataset.tour + '\n\n' + this.dataset.detail);
+  });
+});
+
+// ---------- CAROUSEL ----------
+const slides = [
+  { img: '/gallery/aerial_view.jpg', caption: 'Island Hopping' },
+  { img: '/gallery/reefsanctuary.webp', caption: 'Reef Sanctuary Snorkeling' },
+  { img: '/gallery/fireflylagoon.webp', caption: 'Firefly Lagoon Night Tour' },
+  { img: '/gallery/villagevisit.webp', caption: 'Local Village Visit' },
+];
+const carouselImg = document.getElementById('carouselImg');
+const carouselCaption = document.getElementById('carouselCaption');
+const dots = document.querySelectorAll('.dot');
+let current = 0, carouselTimer;
+
+function goTo(i) {
+  current = i;
+  carouselImg.style.opacity = 0;
+  setTimeout(() => {
+    carouselImg.src = slides[i].img;
+    carouselImg.alt = slides[i].caption;
+    carouselCaption.textContent = slides[i].caption;
+    carouselImg.style.opacity = 1;
+  }, 300);
+  dots.forEach((d, di) => d.classList.toggle('active', di === i));
+}
+
+if (dots.length > 0) {
+  dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); resetTimer(); }));
+}
+
+function nextSlide() { goTo((current + 1) % slides.length); }
+function resetTimer() { 
+  if (carouselTimer) clearInterval(carouselTimer); 
+  carouselTimer = setInterval(nextSlide, 4500); 
+}
+resetTimer();

@@ -3,143 +3,34 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Kamp Malaya — Reserve Your Balabac Escape</title>
-<meta name="description" content="Secure your stay at Kamp Malaya, Balabac's luxury eco-sanctuary. Check availability in under a minute." />
-<link rel="icon" type="image/png" href="icons/kampmalaya.png" />
+<title>Reserve Your Balabac Escape | Kamp Malaya Booking</title>
+<meta name="description" content="Secure your stay at Kamp Malaya, Balabac's luxury eco-sanctuary. Private stays and 4D/3N joiner tours — check availability in under a minute." />
+<!-- TODO before launch: replace YOUR-DOMAIN.com everywhere and uncomment canonical + og:url below. -->
+<!-- <link rel="canonical" href="https://YOUR-DOMAIN.com/funnel.html" /> -->
+<!-- A booking funnel usually shouldn't compete in search with the home page -->
+<meta name="robots" content="noindex,follow" />
+<meta name="theme-color" content="#1A1A1A" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Kamp Malaya" />
+<meta property="og:title" content="Reserve Your Balabac Escape | Kamp Malaya" />
+<meta property="og:description" content="Book your stay or joiner tour at Balabac's hidden luxury eco-sanctuary." />
+<!-- <meta property="og:url" content="https://YOUR-DOMAIN.com/funnel.html" /> -->
+<meta property="og:image" content="https://YOUR-DOMAIN.com/gallery/panorama.webp" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Reserve Your Balabac Escape | Kamp Malaya" />
+<meta name="twitter:image" content="https://YOUR-DOMAIN.com/gallery/panorama.webp" />
+
+<link rel="icon" type="image/png" href="/icons/kampmalaya.png" />
 
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
 
-<!-- Tailwind CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          ink: '#1A1A1A', charcoal: '#2C2C2C', graytext: '#6B6B6B',
-          offwhite: '#F8F9FA', warmgray: '#F1F0EB', sand: '#F9F6F0',
-          coral: '#E76F51', seagrass: '#2A9D8F', gold: '#D4AF37', line: '#E5E5E5',
-        },
-        fontFamily: {
-          display: ['"Playfair Display"', 'serif'],
-          body: ['Inter', 'sans-serif'],
-          quote: ['"Cormorant Garamond"', 'serif'],
-        },
-      },
-    },
-  };
-</script>
-
-<style>
-  :root {
-    --ink:#1A1A1A; --charcoal:#2C2C2C; --graytext:#6B6B6B;
-    --offwhite:#F8F9FA; --warmgray:#F1F0EB; --sand:#F9F6F0;
-    --coral:#E76F51; --seagrass:#2A9D8F; --gold:#D4AF37; --line:#E5E5E5;
-  }
-  * { -webkit-font-smoothing: antialiased; }
-  html { scroll-behavior: smooth; }
-  body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var(--charcoal); }
-  .font-display { font-family: 'Playfair Display', serif; }
-  .font-quote   { font-family: 'Cormorant Garamond', serif; }
-
-  .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--line);
-  }
-  .btn-coral-solid {
-    background: var(--coral); color: #fff;
-    transition: all .35s ease; letter-spacing: .06em; border: 1.5px solid var(--coral);
-  }
-  .btn-coral-solid:hover { background: transparent; color: var(--coral); }
-  .btn-coral-solid:disabled { opacity:.6; cursor:not-allowed; }
-
-  .btn-type {
-    transition: all .35s ease;
-    border: 2px solid transparent;
-    cursor: pointer;
-  }
-  .btn-type.active {
-    border-color: var(--coral);
-    background: var(--sand);
-    box-shadow: 0 4px 12px rgba(231, 111, 81, 0.12);
-  }
-  .btn-type .icon { font-size: 1.5rem; }
-  
-  .field-group { transition: all .4s ease; }
-  .field-group.hidden { display: none; }
-
-  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1); }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-  .reveal-delay-1 { transition-delay: .1s; } .reveal-delay-2 { transition-delay: .2s; }
-
-  @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
-  .hero-anim { opacity:0; animation: fadeUp 1s cubic-bezier(.22,1,.36,1) forwards; }
-  .hero-anim.d1 { animation-delay:.2s; } .hero-anim.d2 { animation-delay:.4s; } .hero-anim.d3 { animation-delay:.6s; }
-
-  .lift { transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s ease; }
-  .lift:hover { transform: translateY(-6px); box-shadow: 0 18px 40px -20px rgba(0,0,0,.18); }
-
-  .field {
-    width:100%; background:#fff; color:var(--charcoal);
-    border:1px solid var(--line); border-radius:12px;
-    padding:.75rem 1rem; font-size:.95rem; transition:all .25s ease;
-  }
-  .field::placeholder { color:#9AA0A6; }
-  .field:focus { outline:none; border-color:var(--coral); box-shadow:0 0 0 3px rgba(231,111,81,.18); }
-  .field-label { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--graytext); margin-bottom:.35rem; display:block; }
-
-  .price-placeholder {
-    background: #FFF8F0;
-    border: 1px dashed var(--gold);
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-  }
-  
-  .package-details {
-    background: var(--sand);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 16px;
-  }
-  .package-details ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .package-details li {
-    padding: 4px 0;
-    font-size: 0.85rem;
-    color: var(--charcoal);
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .package-details li::before {
-    content: "✓";
-    color: var(--seagrass);
-    font-weight: bold;
-    flex-shrink: 0;
-  }
-  .package-details .sub-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--graytext);
-    margin-top: 8px;
-    margin-bottom: 4px;
-    font-weight: 600;
-  }
-  .package-details .sub-label:first-of-type {
-    margin-top: 0;
-  }
-
-  ::selection { background: var(--gold); color: var(--ink); }
-</style>
+<!-- Vite will inject CSS here -->
+<link rel="stylesheet" href="/src/funnel.css">
 </head>
 
 <body class="font-body text-charcoal">
@@ -153,7 +44,7 @@
 
 <section class="relative overflow-hidden">
   <div class="absolute inset-0 bg-cover bg-center"
-       style="background-image:url('https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?auto=format&fit=crop&w=1920&q=80');"></div>
+       style="background-image:url('/gallery/panorama.webp');"></div>
   <div class="absolute inset-0 bg-gradient-to-b from-black/45 via-black/35 to-black/60"></div>
 
   <div class="relative z-10 max-w-5xl mx-auto px-5 pt-16 pb-20 md:pt-24 md:pb-28 text-center">
@@ -231,17 +122,14 @@
               <input class="field" type="tel" id="phone" name="phone" placeholder="Phone Number" required />
             </div>
             <div>
-              <label class="field-label" for="guests">Guests</label>
-              <select class="field" id="guests" name="guests" required>
-                <option value="" disabled selected>Select guests</option>
+              <label class="field-label" for="pax_count">Number of Pax</label>
+              <select class="field" id="pax_count" name="pax_count" required>
+                <option value="" disabled selected>Select number of pax</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8+ (Contact us for large groups)</option>
+                <option value="5+">5+ (Contact us for large groups)</option>
               </select>
             </div>
             <div>
@@ -278,7 +166,7 @@
             
             <!-- Large group note for private stays -->
             <div id="private-large-group-note" class="mt-3 p-3 bg-gold/10 rounded-lg border border-gold/20 hidden">
-              <p class="text-xs text-gold">👥 <span class="font-medium">Large group (5+ guests):</span> We'll contact you to arrange the best accommodation setup for your group size.</p>
+              <p class="text-xs text-gold">👥 <span class="font-medium">Large group (5+ pax):</span> We'll contact you to arrange the best accommodation setup for your group size.</p>
             </div>
           </div>
 
@@ -331,8 +219,8 @@
                 </select>
               </div>
               <div>
-                <label class="field-label" for="pax_count">Number of Pax</label>
-                <select class="field" id="pax_count" name="pax_count" required>
+                <label class="field-label" for="pax_count_joiner">Number of Pax</label>
+                <select class="field" id="pax_count_joiner" name="pax_count" required>
                   <option value="1">1 Pax</option>
                   <option value="2">2 Pax</option>
                   <option value="3">3 Pax</option>
@@ -356,7 +244,7 @@
             </div>
           </div>
 
-          <p id="formError" class="hidden text-coral text-sm mt-4"></p>
+          <p id="formError" class="hidden text-coral text-sm mt-4" role="alert" aria-live="polite"></p>
 
           <button type="submit" id="submitBtn" class="btn-coral-solid w-full mt-6 rounded-full px-6 py-3.5 text-base font-semibold uppercase">
             Submit Inquiry &rarr;
@@ -414,329 +302,9 @@
   <p class="text-white/50 text-sm mt-2">&copy; 2026 Kamp Malaya. All rights reserved. <span class="font-quote text-gold italic">Wildly yours.</span></p>
 </footer>
 
-<script>
-  // ============================================================
-  // 1. JOINER DATES (2026 Schedule)
-  // ============================================================
-  const JOINER_SCHEDULE = [
-    // January
-    { start: '2026-01-08', end: '2026-01-11', label: 'Jan 8-11' },
-    { start: '2026-01-15', end: '2026-01-18', label: 'Jan 15-18' },
-    { start: '2026-01-22', end: '2026-01-25', label: 'Jan 22-25' },
-    { start: '2026-01-29', end: '2026-02-01', label: 'Jan 29 - Feb 1' },
-    // February
-    { start: '2026-02-05', end: '2026-02-08', label: 'Feb 5-8' },
-    { start: '2026-02-12', end: '2026-02-15', label: 'Feb 12-15' },
-    { start: '2026-02-14', end: '2026-02-17', label: 'Feb 14-17' },
-    { start: '2026-02-17', end: '2026-02-20', label: 'Feb 17-20' },
-    { start: '2026-02-19', end: '2026-02-22', label: 'Feb 19-22' },
-    { start: '2026-02-22', end: '2026-02-25', label: 'Feb 22-25' },
-    { start: '2026-02-25', end: '2026-02-28', label: 'Feb 25-28' },
-    { start: '2026-02-26', end: '2026-03-01', label: 'Feb 26 - Mar 1' },
-    // March
-    { start: '2026-03-05', end: '2026-03-08', label: 'Mar 5-8' },
-    { start: '2026-03-12', end: '2026-03-15', label: 'Mar 12-15' },
-    { start: '2026-03-19', end: '2026-03-22', label: 'Mar 19-22' },
-    { start: '2026-03-26', end: '2026-03-29', label: 'Mar 26-29' },
-    { start: '2026-03-28', end: '2026-03-31', label: 'Mar 28-31' },
-    // April
-    { start: '2026-04-01', end: '2026-04-04', label: 'Apr 1-4' },
-    { start: '2026-04-02', end: '2026-04-05', label: 'Apr 2-5' },
-    { start: '2026-04-09', end: '2026-04-12', label: 'Apr 9-12' },
-    { start: '2026-04-16', end: '2026-04-19', label: 'Apr 16-19' },
-    { start: '2026-04-23', end: '2026-04-26', label: 'Apr 23-26' },
-    { start: '2026-04-30', end: '2026-05-03', label: 'Apr 30 - May 3' },
-    // May
-    { start: '2026-05-01', end: '2026-05-04', label: 'May 1-4' },
-    { start: '2026-05-07', end: '2026-05-10', label: 'May 7-10' },
-    { start: '2026-05-14', end: '2026-05-17', label: 'May 14-17' },
-    { start: '2026-05-21', end: '2026-05-24', label: 'May 21-24' },
-    { start: '2026-05-23', end: '2026-05-26', label: 'May 23-26' },
-    { start: '2026-05-24', end: '2026-05-27', label: 'May 24-27' },
-    { start: '2026-05-27', end: '2026-05-30', label: 'May 27-30' },
-    { start: '2026-05-28', end: '2026-05-31', label: 'May 28-31' },
-    // July
-    { start: '2026-07-02', end: '2026-07-05', label: 'Jul 2-5' },
-    { start: '2026-07-09', end: '2026-07-12', label: 'Jul 9-12' },
-    { start: '2026-07-16', end: '2026-07-19', label: 'Jul 16-19' },
-    { start: '2026-07-23', end: '2026-07-26', label: 'Jul 23-26' },
-    { start: '2026-07-30', end: '2026-08-02', label: 'Jul 30 - Aug 2' },
-    // August
-    { start: '2026-08-06', end: '2026-08-09', label: 'Aug 6-9' },
-    { start: '2026-08-13', end: '2026-08-16', label: 'Aug 13-16' },
-    { start: '2026-08-20', end: '2026-08-23', label: 'Aug 20-23' },
-    { start: '2026-08-27', end: '2026-08-30', label: 'Aug 27-30' },
-    { start: '2026-08-28', end: '2026-08-31', label: 'Aug 28-31' },
-    // September
-    { start: '2026-09-03', end: '2026-09-06', label: 'Sep 3-6' },
-    { start: '2026-09-10', end: '2026-09-13', label: 'Sep 10-13' },
-    { start: '2026-09-17', end: '2026-09-20', label: 'Sep 17-20' },
-    { start: '2026-09-24', end: '2026-09-27', label: 'Sep 24-27' },
-    { start: '2026-09-27', end: '2026-09-30', label: 'Sep 27-30' },
-    // October
-    { start: '2026-10-01', end: '2026-10-04', label: 'Oct 1-4' },
-    { start: '2026-10-08', end: '2026-10-11', label: 'Oct 8-11' },
-    { start: '2026-10-15', end: '2026-10-18', label: 'Oct 15-18' },
-    { start: '2026-10-22', end: '2026-10-25', label: 'Oct 22-25' },
-    { start: '2026-10-29', end: '2026-11-01', label: 'Oct 29 - Nov 1' },
-    // November
-    { start: '2026-11-01', end: '2026-11-04', label: 'Nov 1-4' },
-    { start: '2026-11-05', end: '2026-11-08', label: 'Nov 5-8' },
-    { start: '2026-11-12', end: '2026-11-15', label: 'Nov 12-15' },
-    { start: '2026-11-19', end: '2026-11-22', label: 'Nov 19-22' },
-    { start: '2026-11-26', end: '2026-11-29', label: 'Nov 26-29' },
-    { start: '2026-11-27', end: '2026-11-30', label: 'Nov 27-30' },
-    { start: '2026-11-29', end: '2026-12-02', label: 'Nov 29 - Dec 2' },
-    // December
-    { start: '2026-12-03', end: '2026-12-06', label: 'Dec 3-6' },
-    { start: '2026-12-05', end: '2026-12-08', label: 'Dec 5-8' },
-    { start: '2026-12-08', end: '2026-12-11', label: 'Dec 8-11' },
-    { start: '2026-12-10', end: '2026-12-13', label: 'Dec 10-13' },
-    { start: '2026-12-17', end: '2026-12-20', label: 'Dec 17-20' },
-    { start: '2026-12-20', end: '2026-12-23', label: 'Dec 20-23' },
-    { start: '2026-12-27', end: '2026-12-30', label: 'Dec 27-30' }
-  ];
-
-  // ============================================================
-  // 2. POPULATE JOINER DATES
-  // ============================================================
-  function populateJoinerDates() {
-    const select = document.getElementById('tour_date');
-    if (!select) return;
-    
-    while (select.options.length > 1) {
-      select.remove(1);
-    }
-    
-    JOINER_SCHEDULE.forEach(tour => {
-      const option = document.createElement('option');
-      option.value = tour.start;
-      option.textContent = `${tour.label} (${tour.start} to ${tour.end})`;
-      select.appendChild(option);
-    });
-  }
-
-  // ============================================================
-  // 3. BOOKING TYPE TOGGLE
-  // ============================================================
-  function selectBookingType(type) {
-    document.getElementById('booking_type').value = type;
-    
-    document.getElementById('private-toggle').classList.toggle('active', type === 'private');
-    document.getElementById('joiner-toggle').classList.toggle('active', type === 'joiner');
-    
-    const privateFields = document.getElementById('private-fields');
-    const joinerFields = document.getElementById('joiner-fields');
-    
-    if (type === 'private') {
-      privateFields.classList.remove('hidden');
-      joinerFields.classList.add('hidden');
-      document.querySelectorAll('#private-fields [required]').forEach(el => el.disabled = false);
-      document.querySelectorAll('#joiner-fields [required]').forEach(el => el.disabled = true);
-      document.getElementById('submitBtn').innerHTML = 'Check Availability &rarr;';
-      
-      // Show large group note if 8+ selected
-      const guests = document.getElementById('guests');
-      if (guests && guests.value === '8+') {
-        document.getElementById('private-large-group-note').classList.remove('hidden');
-      } else {
-        document.getElementById('private-large-group-note').classList.add('hidden');
-      }
-    } else {
-      joinerFields.classList.remove('hidden');
-      privateFields.classList.add('hidden');
-      document.querySelectorAll('#joiner-fields [required]').forEach(el => el.disabled = false);
-      document.querySelectorAll('#private-fields [required]').forEach(el => el.disabled = true);
-      document.getElementById('submitBtn').innerHTML = 'Submit Joiner Inquiry &rarr;';
-    }
-    
-    handlePaxChange();
-  }
-
-  // ============================================================
-  // 4. PAX CHANGE HANDLER
-  // ============================================================
-  function handlePaxChange() {
-    const paxSelect = document.getElementById('pax_count');
-    const note = document.getElementById('large-group-note');
-    if (paxSelect && note) {
-      if (paxSelect.value === '5+') {
-        note.classList.remove('hidden');
-      } else {
-        note.classList.add('hidden');
-      }
-    }
-  }
-
-  // ============================================================
-  // 5. GUEST COUNT CHANGE HANDLER
-  // ============================================================
-  function handleGuestChange() {
-    const guests = document.getElementById('guests');
-    const note = document.getElementById('private-large-group-note');
-    if (guests && note) {
-      if (guests.value === '8+') {
-        note.classList.remove('hidden');
-      } else {
-        note.classList.add('hidden');
-      }
-    }
-  }
-
-  // ============================================================
-  // 6. REVEAL ON SCROLL
-  // ============================================================
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-  }, { threshold: 0.15 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-  // ============================================================
-  // 7. URL PARAMETER PRE-FILLING
-  // ============================================================
-  (function prefillFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    
-    if (params.get('type') === 'joiner') {
-      selectBookingType('joiner');
-      const date = params.get('date');
-      if (date) {
-        const select = document.getElementById('tour_date');
-        if (select) {
-          const option = Array.from(select.options).find(opt => opt.value === date);
-          if (option) select.value = date;
-        }
-      }
-    } else {
-      selectBookingType('private');
-      const checkin  = params.get('checkin');
-      const checkout = params.get('checkout');
-      const guests   = params.get('guests');
-      const room     = params.get('room');
-
-      if (checkin)  document.getElementById('check_in').value  = checkin;
-      if (checkout) document.getElementById('check_out').value = checkout;
-
-      if (guests) {
-        const g = document.getElementById('guests');
-        if ([...g.options].some(o => o.value === guests)) g.value = guests;
-        handleGuestChange();
-      }
-      if (room) {
-        const a = document.getElementById('accommodation');
-        const decoded = decodeURIComponent(room).trim();
-        const match = [...a.options].find(o => o.value.toLowerCase() === decoded.toLowerCase());
-        if (match) a.value = match.value;
-      }
-    }
-  })();
-
-  // ============================================================
-  // 8. GHL FORM SUBMISSION
-  // ============================================================
-  const form = document.getElementById('inquiryForm');
-  const formWrap = document.getElementById('formWrap');
-  const successWrap = document.getElementById('successWrap');
-  const formError = document.getElementById('formError');
-  const submitBtn = document.getElementById('submitBtn');
-
-  const GHL_FORM_URL = 'https://api.leadconnectorhq.com/widget/form/SQTfOzAK45gQEoeaKGYz';
-
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const data = Object.fromEntries(new FormData(form).entries());
-    formError.classList.add('hidden');
-
-    const bookingType = document.getElementById('booking_type').value;
-    let required = ['full_name', 'email', 'phone'];
-    
-    if (bookingType === 'private') {
-      required.push('guests', 'accommodation', 'check_in', 'check_out');
-    } else {
-      required.push('tour_date', 'pax_count');
-    }
-
-    const missing = required.filter(k => !data[k]);
-    if (missing.length) {
-      formError.textContent = 'Please complete all required fields.';
-      formError.classList.remove('hidden');
-      return;
-    }
-
-    if (bookingType === 'private' && data.check_out <= data.check_in) {
-      formError.textContent = 'Check-out must be after check-in.';
-      formError.classList.remove('hidden');
-      return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
-
-    try {
-      const formData = new FormData(form);
-      
-      await fetch(GHL_FORM_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: formData
-      });
-
-      const firstName = (data.full_name || '').trim().split(' ')[0] || 'there';
-      const typeLabel = bookingType === 'joiner' ? 'Joiner Tour Inquiry' : 'Private Stay Inquiry';
-      
-      document.getElementById('successHeading').textContent = 'Thank you, ' + firstName + '!';
-      
-      if (bookingType === 'joiner') {
-        document.getElementById('successMsg').innerHTML = 
-          `Your <strong>4D/3N Balabac Island Tour</strong> inquiry has been received. We'll send you payment instructions for the ₱1,000/head deposit within <strong>24 hours</strong>.`;
-      } else {
-        document.getElementById('successMsg').innerHTML = 
-          `Your <strong>Private Stay Inquiry</strong> has been received. We'll get back to you within <strong>24 hours</strong> with room options.`;
-      }
-      
-      document.getElementById('successEmail').textContent = 'A confirmation email has been sent to ' + data.email;
-
-      formWrap.classList.add('hidden');
-      successWrap.classList.remove('hidden');
-      successWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      console.log('Inquiry submitted to GHL ->', data);
-
-    } catch (error) {
-      console.error('Submission error:', error);
-      formError.textContent = 'Something went wrong. Please try again or contact us directly.';
-      formError.classList.remove('hidden');
-      submitBtn.disabled = false;
-      submitBtn.textContent = bookingType === 'joiner' ? 'Submit Joiner Inquiry &rarr;' : 'Check Availability &rarr;';
-    }
-  });
-
-  // ============================================================
-  // 9. INIT
-  // ============================================================
-  document.addEventListener('DOMContentLoaded', function() {
-    populateJoinerDates();
-    document.getElementById('pax_count').addEventListener('change', handlePaxChange);
-    document.getElementById('guests').addEventListener('change', handleGuestChange);
-    
-    const checkIn = document.getElementById('check_in');
-    const checkOut = document.getElementById('check_out');
-    
-    checkIn.addEventListener('change', function() {
-      checkOut.min = this.value;
-      if (checkOut.value && checkOut.value <= this.value) {
-        checkOut.value = '';
-      }
-    });
-  });
-</script>
-
-<!-- GHL External Tracking Script -->
-<script
-  src="https://link.msgsndr.com/js/external-tracking.js"
-  data-tracking-id="tk_46b574507f59433792ebc13b29db7da4"
-></script>
-
+<!-- Vite entry script -->
+<script type="module" src="/src/funnel.js"></script>
+<!-- GHL External Tracking Script (keep this) -->
+<script src="https://link.msgsndr.com/js/external-tracking.js" data-tracking-id="tk_46b574507f59433792ebc13b29db7da4"></script>
 </body>
 </html>

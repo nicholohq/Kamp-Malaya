@@ -3,153 +3,41 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Kamp Malaya</title>
-<meta name="description" content="Kamp Malaya — a luxury eco-resort in Balabac, Palawan. Untouched paradise, sustainable luxury, authentic Filipino hospitality." />
+<title>Kamp Malaya | Luxury Eco-Resort & Island Tours in Balabac, Palawan</title>
+<meta name="description" content="Kamp Malaya is a sustainable luxury eco-resort in Balabac, Palawan. Beachfront huts, island-hopping and joiner tours from ₱14,799. Book Balabac's hidden sanctuary." />
+<!-- TODO before launch: get a domain, then replace YOUR-DOMAIN.com everywhere and uncomment canonical + og:url below. -->
+<!-- <link rel="canonical" href="https://YOUR-DOMAIN.com/" /> -->
+<meta name="robots" content="index,follow" />
+<meta name="theme-color" content="#1A1A1A" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Kamp Malaya" />
+<meta property="og:title" content="Kamp Malaya | Luxury Eco-Resort in Balabac, Palawan" />
+<meta property="og:description" content="Sustainable luxury at the last frontier — beachfront sanctuaries and island tours in Balabac, Palawan." />
+<!-- <meta property="og:url" content="https://YOUR-DOMAIN.com/" /> -->
+<meta property="og:image" content="https://YOUR-DOMAIN.com/gallery/panorama.webp" />
+<meta property="og:image:width" content="1376" />
+<meta property="og:image:height" content="768" />
+<meta property="og:locale" content="en_PH" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Kamp Malaya | Eco-Resort in Balabac, Palawan" />
+<meta name="twitter:description" content="Balabac's hidden sanctuary — sustainable luxury, island tours, untouched paradise." />
+<meta name="twitter:image" content="https://YOUR-DOMAIN.com/gallery/panorama.webp" />
 
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
-<link rel="icon" type="image/png" href="icons/kampmalaya.png">
-<!-- Tailwind CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          ink: '#1A1A1A',
-          charcoal: '#2C2C2C',
-          graytext: '#6B6B6B',
-          offwhite: '#F8F9FA',
-          warmgray: '#F1F0EB',
-          sand: '#F9F6F0',
-          coral: '#E76F51',
-          seagrass: '#2A9D8F',
-          gold: '#D4AF37',
-          line: '#E5E5E5',
-        },
-        fontFamily: {
-          display: ['"Playfair Display"', 'serif'],
-          body: ['Inter', 'sans-serif'],
-          quote: ['"Cormorant Garamond"', 'serif'],
-        },
-      },
-    },
-  };
-</script>
+<link rel="icon" type="image/png" href="/icons/kampmalaya.png">
 
-<style>
-  :root {
-    --ink: #1A1A1A;
-    --charcoal: #2C2C2C;
-    --graytext: #6B6B6B;
-    --offwhite: #F8F9FA;
-    --warmgray: #F1F0EB;
-    --sand: #F9F6F0;
-    --coral: #E76F51;
-    --seagrass: #2A9D8F;
-    --gold: #D4AF37;
-    --line: #E5E5E5;
-  }
+<!-- Preload hero poster for fast LCP -->
+<link rel="preload" as="image" href="/gallery/photo-landscape-1.jpg" fetchpriority="high" />
 
-  * { -webkit-font-smoothing: antialiased; }
-  html { scroll-behavior: smooth; }
-  body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charcoal); overflow-x: hidden; }
-
-  .font-display { font-family: 'Playfair Display', serif; }
-  .font-quote   { font-family: 'Cormorant Garamond', serif; }
-
-  /* Glassmorphism — light/white tints */
-  .glass {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-  }
-  .glass-dark {
-    background: rgba(26, 26, 26, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .glass-light {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--line);
-  }
-
-  /* Fade / slide-up on scroll */
-  .reveal { opacity: 0; transform: translateY(40px); transition: opacity .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1); }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-  .reveal-delay-1 { transition-delay: .12s; }
-  .reveal-delay-2 { transition-delay: .24s; }
-  .reveal-delay-3 { transition-delay: .36s; }
-
-  /* Hero text fade-in */
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-  .hero-anim { opacity: 0; animation: fadeUp 1.2s cubic-bezier(.22,1,.36,1) forwards; }
-  .hero-anim.d1 { animation-delay: .3s; }
-  .hero-anim.d2 { animation-delay: .6s; }
-  .hero-anim.d3 { animation-delay: .9s; }
-  .hero-anim.d4 { animation-delay: 1.2s; }
-
-  /* Parallax */
-  .parallax { background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; }
-  @media (max-width: 768px) { .parallax { background-attachment: scroll; } }
-
-  /* Coral button (primary accent) */
-  .btn-coral {
-    border: 1.5px solid var(--coral);
-    color: var(--coral);
-    transition: all .35s ease;
-    letter-spacing: .12em;
-  }
-  .btn-coral:hover { background: var(--coral); color: #fff; }
-  .btn-coral-solid {
-    background: var(--coral); color: #fff;
-    transition: all .35s ease; letter-spacing: .12em;
-  }
-  .btn-coral-solid:hover { background: transparent; color: var(--coral); border: 1.5px solid var(--coral); }
-
-  /* Card hover lift — minimal neutral elevation */
-  .lift { transition: transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s ease; }
-  .lift:hover { transform: translateY(-8px); box-shadow: 0 18px 40px -20px rgba(0,0,0,.18); }
-
-  /* Image zoom container */
-  .zoom-wrap { overflow: hidden; }
-  .zoom-img { transition: transform .7s cubic-bezier(.22,1,.36,1); }
-  .zoom-wrap:hover .zoom-img { transform: scale(1.08); }
-
-  /* Gold border on image hover (premium selected touch) */
-  .gold-frame { transition: box-shadow .4s ease; box-shadow: 0 0 0 0 rgba(212,175,55,0); }
-  .lift:hover .gold-frame { box-shadow: 0 0 0 2px var(--gold); }
-
-  /* Experience card reveal text */
-  .exp-sub { color: var(--charcoal); transition: color .4s ease; }
-  .exp-card:hover .exp-sub { color: var(--coral); }
-
-  /* Nav scrolled state — off-white with charcoal text */
-  #navbar.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--line); }
-  #navbar.scrolled .brand { color: var(--charcoal); }
-  #navbar.scrolled .nav-link { color: var(--charcoal); }
-  #navbar.scrolled .nav-link:hover { color: var(--coral); }
-  #navbar.scrolled #menuBtn { color: var(--charcoal); }
-
-  /* Carousel */
-  .carousel-track { transition: opacity .6s ease; }
-  .dot { transition: all .3s ease; cursor: pointer; }
-  .dot.active { background: var(--gold); width: 28px; border-radius: 9999px; }
-
-  /* Mobile menu */
-  #mobileMenu { transition: transform .4s cubic-bezier(.22,1,.36,1), opacity .4s ease; }
-
-  /* placeholder image bg for missing assets — neutral warm */
-  img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
-
-  ::selection { background: var(--gold); color: var(--ink); }
-</style>
+<!-- Vite will inject CSS here -->
+<link rel="stylesheet" href="/src/style.css">
 </head>
 
 <body class="font-body text-charcoal">
@@ -167,8 +55,8 @@
       <li><a href="funnel.html" class="btn-coral px-5 py-2 rounded-full text-xs">Inquire</a></li>
     </ul>
 
-    <button id="menuBtn" class="md:hidden text-white" aria-label="Open menu">
-      <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    <button id="menuBtn" class="md:hidden text-white" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
   </div>
 
@@ -186,14 +74,11 @@
 
 <!-- ===================== SECTION 1: HERO ===================== -->
 <header id="hero" class="relative h-[100svh] w-full overflow-hidden">
-  <!-- Video for ALL devices (mobile + desktop) -->
-  <video class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline poster="gallery/photo-landscape-1.jpg">
-    <source src="hero-video/kampmalaya.mp4" type="video/mp4" />
+  <!-- Background video (poster shows first for fast LCP; falls back to poster if video unsupported) -->
+  <video class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline
+         preload="metadata" poster="/gallery/photo-landscape-1.jpg" aria-hidden="true">
+    <source src="/hero-video/kampmalaya.mp4" type="video/mp4" />
   </video>
-  
-  <!-- Fallback image for browsers that don't support video -->
-  <img src="gallery/drone-portrait-placeholder.jpg" alt="Aerial drone view of Balabac's turquoise lagoon at Kamp Malaya"
-       class="absolute inset-0 w-full h-full object-cover hidden [&_video]:hidden" />
 
   <!-- gradient overlay (neutral) -->
   <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70"></div>
@@ -224,7 +109,8 @@
   <div class="grid md:grid-cols-2">
     <!-- Portrait drone -->
     <div class="reveal zoom-wrap h-[50vh] sm:h-[60vh] md:h-auto">
-      <img src="gallery/drone-portrait-placeholder.jpg" alt="Portrait drone shot of a secluded Balabac lagoon and island"
+      <img src="/gallery/drone-portrait-placeholder.jpg" width="1440" height="1080" decoding="async"
+           alt="Portrait drone shot of a secluded Balabac lagoon and island in Palawan"
            class="zoom-img w-full h-full object-cover" />
     </div>
     <!-- Text -->
@@ -257,7 +143,7 @@
     <!-- 1 -->
     <article class="exp-card reveal lift bg-white rounded-2xl overflow-hidden border border-line">
       <div class="zoom-wrap h-56 sm:h-64 md:h-72">
-        <img src="gallery/night_stay.jpg" alt="Guests gathered around a beachfront bonfire at night" class="zoom-img w-full h-full object-cover" />
+        <img src="/gallery/night_stay.jpg" width="960" height="640" loading="lazy" decoding="async" alt="Guests gathered around a beachfront bonfire at Kamp Malaya, Balabac" class="zoom-img w-full h-full object-cover" />
       </div>
       <div class="p-5 sm:p-6 md:p-8">
         <h3 class="exp-sub font-display text-xl sm:text-2xl">Island Camping</h3>
@@ -267,7 +153,7 @@
     <!-- 2 -->
     <article class="exp-card reveal reveal-delay-1 lift bg-white rounded-2xl overflow-hidden border border-line">
       <div class="zoom-wrap h-56 sm:h-64 md:h-72">
-        <img src="gallery/seasidefeast.png" alt="A spread of freshly grilled seafood served on banana leaves" class="zoom-img w-full h-full object-cover" />
+        <img src="/gallery/seasidefeast.webp" width="1376" height="768" loading="lazy" decoding="async" alt="A spread of freshly grilled Balabac seafood served on banana leaves" class="zoom-img w-full h-full object-cover" />
       </div>
       <div class="p-5 sm:p-6 md:p-8">
         <h3 class="exp-sub font-display text-xl sm:text-2xl">Local Feasts</h3>
@@ -277,7 +163,7 @@
     <!-- 3 -->
     <article class="exp-card reveal reveal-delay-2 lift bg-white rounded-2xl overflow-hidden border border-line">
       <div class="zoom-wrap h-56 sm:h-64 md:h-72">
-        <img src="gallery/sunset_boat.jpg" alt="A wooden boat drifting across calm water at sunset" class="zoom-img w-full h-full object-cover" />
+        <img src="/gallery/sunset_boat.jpg" width="1024" height="1440" loading="lazy" decoding="async" alt="A wooden boat drifting across calm Balabac water at sunset" class="zoom-img w-full h-full object-cover" />
       </div>
       <div class="p-5 sm:p-6 md:p-8">
         <h3 class="exp-sub font-display text-xl sm:text-2xl">Sunset Drift</h3>
@@ -299,7 +185,7 @@
   <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 mt-6">
     <!-- Card 1 -->
     <article class="reveal lift bg-offwhite rounded-2xl overflow-hidden border border-line">
-      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="gallery/beachside.jpg" alt="Beachfront native hut with a thatched roof at the shoreline" class="zoom-img w-full h-full object-cover" /></div>
+      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="/gallery/beachside.jpg" width="720" height="960" loading="lazy" decoding="async" alt="Beachfront native kubo hut with a thatched roof at the shoreline" class="zoom-img w-full h-full object-cover" /></div>
       <div class="p-7">
         <h3 class="font-display text-charcoal text-2xl">Kubo by the Shore</h3>
         <p class="text-graytext mt-2 leading-relaxed text-sm">A beachfront native hut where the sea is your front yard. Crafted from local bamboo and nipa, steps from the water.</p>
@@ -314,7 +200,7 @@
     </article>
     <!-- Card 2 -->
     <article class="reveal reveal-delay-1 lift bg-offwhite rounded-2xl overflow-hidden border border-line">
-      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="gallery/beachside_hut.jpg" alt="Elevated jungle tent nestled among tropical canopy" class="zoom-img w-full h-full object-cover" /></div>
+      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="/gallery/beachside_hut.jpg" width="1080" height="810" loading="lazy" decoding="async" alt="Elevated jungle canopy tent nestled among tropical trees" class="zoom-img w-full h-full object-cover" /></div>
       <div class="p-7">
         <h3 class="font-display text-charcoal text-2xl">Canopy Tent</h3>
         <p class="text-graytext mt-2 leading-relaxed text-sm">An elevated jungle tent wrapped in green. Drift to sleep among the treetops with the chorus of the forest below.</p>
@@ -329,7 +215,7 @@
     </article>
     <!-- Card 3 -->
     <article class="reveal reveal-delay-2 lift bg-offwhite rounded-2xl overflow-hidden border border-line">
-      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="gallery/beachside_house.jpg" alt="Private beach villa with an open deck facing the ocean" class="zoom-img w-full h-full object-cover" /></div>
+      <div class="zoom-wrap gold-frame rounded-t-2xl h-64"><img src="/gallery/beachside_house.jpg" width="1600" height="747" loading="lazy" decoding="async" alt="Private Malaya beach villa with an open deck facing the ocean" class="zoom-img w-full h-full object-cover" /></div>
       <div class="p-7">
         <h3 class="font-display text-charcoal text-2xl">Malaya Villa</h3>
         <p class="text-graytext mt-2 leading-relaxed text-sm">Our private beach villa for those who want it all — space, seclusion, and an unobstructed stretch of sand to call your own.</p>
@@ -406,17 +292,17 @@
     <!-- Carousel -->
     <div class="reveal reveal-delay-1">
       <div class="relative rounded-2xl overflow-hidden shadow-sm h-[460px]">
-        <img id="carouselImg" src="gallery/tour-island.jpg" alt="Scenic view of a Balabac island hopping tour" class="carousel-track w-full h-full object-cover" />
+        <img id="carouselImg" src="/gallery/aerial_view.jpg" width="1440" height="810" loading="lazy" decoding="async" alt="Aerial view of Balabac islands on the Kamp Malaya island-hopping tour" class="carousel-track w-full h-full object-cover" />
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
         <div class="absolute bottom-6 left-6">
           <h4 id="carouselCaption" class="font-display text-white text-2xl">Island Hopping</h4>
         </div>
         <!-- dots -->
         <div class="absolute bottom-6 right-6 flex gap-2">
-          <span class="dot active w-2.5 h-2.5 rounded-full bg-white/60" data-i="0"></span>
-          <span class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="1"></span>
-          <span class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="2"></span>
-          <span class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="3"></span>
+          <button type="button" class="dot active w-2.5 h-2.5 rounded-full bg-white/60" data-i="0" aria-label="Show Island Hopping"></button>
+          <button type="button" class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="1" aria-label="Show Reef Sanctuary Snorkeling"></button>
+          <button type="button" class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="2" aria-label="Show Firefly Lagoon Night Tour"></button>
+          <button type="button" class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="3" aria-label="Show Local Village Visit"></button>
         </div>
       </div>
     </div>
@@ -436,23 +322,23 @@
   <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 auto-rows-[180px] sm:auto-rows-[200px] gap-3 sm:gap-4 mt-6">
     <!-- wide landscape spans 2 cols on all screens -->
     <div class="reveal zoom-wrap col-span-2 row-span-1 rounded-xl overflow-hidden">
-      <img src="gallery/panorama.png" alt="Panoramic landscape of a Balabac beach and turquoise sea" class="zoom-img w-full h-full object-cover" />
+      <img src="/gallery/panorama.webp" srcset="/gallery/panorama-768.webp 768w, /gallery/panorama.webp 1376w" sizes="(max-width: 768px) 100vw, 50vw" width="1376" height="768" loading="lazy" decoding="async" alt="Panoramic landscape of a Balabac beach and turquoise sea" class="zoom-img w-full h-full object-cover" />
     </div>
     <!-- portrait tall - full height on mobile -->
     <div class="reveal reveal-delay-1 zoom-wrap row-span-2 rounded-xl overflow-hidden">
-      <img src="gallery/onok_island.jpg" alt="Tall drone shot of a winding sandbar from above" class="zoom-img w-full h-full object-cover" />
+      <img src="/gallery/onok_island.jpg" width="1440" height="810" loading="lazy" decoding="async" alt="Drone shot of a winding Balabac sandbar from above" class="zoom-img w-full h-full object-cover" />
     </div>
     <!-- portrait tall -->
     <div class="reveal reveal-delay-2 zoom-wrap row-span-2 rounded-xl overflow-hidden">
-      <img src="gallery/coralreef.png" alt="Aerial portrait of an island ringed by coral reef" class="zoom-img w-full h-full object-cover" />
+      <img src="/gallery/coralreef.webp" srcset="/gallery/coralreef-768.webp 768w, /gallery/coralreef.webp 1376w" sizes="(max-width: 768px) 50vw, 25vw" width="1376" height="768" loading="lazy" decoding="async" alt="Aerial view of a Balabac island ringed by coral reef" class="zoom-img w-full h-full object-cover" />
     </div>
     <!-- landscape - becomes full width on mobile -->
     <div class="reveal zoom-wrap col-span-2 md:col-span-1 rounded-xl overflow-hidden">
-      <img src="gallery/tallportrait2.jpg" alt="Sunset over the Balabac horizon" class="zoom-img w-full h-full object-cover" />
+      <img src="/gallery/tallportrait2.jpg" width="720" height="538" loading="lazy" decoding="async" alt="Golden light over the Balabac horizon" class="zoom-img w-full h-full object-cover" />
     </div>
     <!-- landscape -->
     <div class="reveal reveal-delay-1 zoom-wrap col-span-2 md:col-span-1 rounded-xl overflow-hidden">
-      <img src="gallery/whitesand.jpg" alt="Clear shallow waters lapping a white sand beach" class="zoom-img w-full h-full object-cover" />
+      <img src="/gallery/whitesand.jpg" width="999" height="540" loading="lazy" decoding="async" alt="Clear shallow waters lapping a white sand Balabac beach" class="zoom-img w-full h-full object-cover" />
     </div>
   </div>
 </section>
@@ -494,24 +380,26 @@
 <section id="location" class="bg-white py-16 px-6">
   <div class="max-w-7xl mx-auto text-center reveal">
     <p class="font-quote text-gold text-2xl tracking-widest uppercase">Getting Here</p>
-    <h2 class="font-display text-4xl md:text-5xl mt-2" style="color: #1A1A1A;">Where to Find Us</h2>
+    <h2 class="font-display text-ink text-4xl md:text-5xl mt-2">Where to Find Us</h2>
     <div class="w-20 h-px bg-gold mx-auto my-6"></div>
     <p class="text-gray-600 max-w-2xl mx-auto mb-8">
       Located in the remote paradise of Balabac, Palawan. The journey is part of the adventure.
     </p>
   </div>
 
-  <!-- Google Map Embed -->
-  <div class="max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-xl reveal">
-    <div class="relative" style="padding-bottom: 56.25%; height: 0;">
-      <iframe 
-        src="https://maps.app.goo.gl/zVqe9ZjmcKybgYza7" 
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" 
-        allowfullscreen="" 
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
-    </div>
+  <!-- Google Map Embed — keyless embed of the Balabac area (exact camp pin shared on booking).
+       NOTE: maps.app.goo.gl share links CANNOT be iframed; the &output=embed form below can. -->
+  <div class="max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-xl reveal bg-warmgray">
+    <iframe
+      title="Map of Sicsican Island, Balabac, Palawan — area of Kamp Malaya"
+      src="https://www.google.com/maps?q=Sicsican+Island,+Balabac,+Palawan,+Philippines&z=11&output=embed"
+      class="w-full aspect-video block opacity-0 transition-opacity duration-700"
+      style="border:0;"
+      loading="lazy"
+      allowfullscreen
+      referrerpolicy="no-referrer-when-downgrade"
+      onload="this.classList.remove('opacity-0')">
+    </iframe>
   </div>
 
   <!-- Address & Directions -->
@@ -551,7 +439,7 @@
 </section>
 
 <!-- ===================== SECTION 8: CTA ===================== -->
-<section id="cta" class="parallax relative py-24 px-6 bg-cover bg-center bg-fixed" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.45)), url('gallery/booknow.jpg');">
+<section id="cta" class="parallax relative py-24 px-6 bg-cover bg-center bg-fixed" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.45)), url('/gallery/booknow.jpg');">
   <div class="reveal max-w-2xl mx-auto text-center glass rounded-3xl p-10 shadow-sm">
     <h2 class="font-display text-charcoal text-3xl md:text-4xl leading-tight">Your Balabac story begins now</h2>
     <p class="font-quote text-graytext text-xl mt-3">No crowds. No rush. Just you and the wild.</p>
@@ -638,95 +526,58 @@
   </div>
 </footer>
 
-<script>
-  // ---------- FUNNEL URL ----------
-  const FUNNEL_URL = 'funnel.html';
-
-  // ---------- Navbar scroll state ----------
-  const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 60);
-  });
-
-  // ---------- Mobile menu ----------
-  const menuBtn = document.getElementById('menuBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  let menuOpen = false;
-  function toggleMenu(open) {
-    menuOpen = open;
-    mobileMenu.classList.toggle('opacity-0', !open);
-    mobileMenu.classList.toggle('-translate-y-4', !open);
-    mobileMenu.classList.toggle('pointer-events-none', !open);
-  }
-  menuBtn.addEventListener('click', () => toggleMenu(!menuOpen));
-  document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => toggleMenu(false)));
-
-  // ---------- Intersection Observer reveals ----------
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-  }, { threshold: 0.15 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-
-  // ---------- BOOK NOW BUTTONS - REDIRECT ----------
-  const bookBtns = document.querySelectorAll('.book-btn');
-  bookBtns.forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      const room = this.dataset.room;
-      window.location.href = FUNNEL_URL + '?room=' + encodeURIComponent(room);
-    });
-  });
-
-  // ---------- INQUIRE NOW BUTTON - REDIRECT ----------
-  // Removed - now using direct href on the CTA button
-
-  // ---------- TOUR LEARN MORE - ALERT (KEEP THIS) ----------
-  const learnMoreBtns = document.querySelectorAll('.learn-more');
-  learnMoreBtns.forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      alert(this.dataset.tour + '\n\n' + this.dataset.detail);
-    });
-  });
-
-  // ---------- CAROUSEL ----------
-  const slides = [
-    { img: 'gallery/aerial_view.jpg', caption: 'Island Hopping' },
-    { img: 'gallery/reefsanctuary.png', caption: 'Reef Sanctuary Snorkeling' },
-    { img: 'gallery/fireflylagoon.png', caption: 'Firefly Lagoon Night Tour' },
-    { img: 'gallery/villagevisit.png', caption: 'Local Village Visit' },
-  ];
-  const carouselImg = document.getElementById('carouselImg');
-  const carouselCaption = document.getElementById('carouselCaption');
-  const dots = document.querySelectorAll('.dot');
-  let current = 0, carouselTimer;
-
-  function goTo(i) {
-    current = i;
-    carouselImg.style.opacity = 0;
-    setTimeout(() => {
-      carouselImg.src = slides[i].img;
-      carouselImg.alt = slides[i].caption;
-      carouselCaption.textContent = slides[i].caption;
-      carouselImg.style.opacity = 1;
-    }, 300);
-    dots.forEach((d, di) => d.classList.toggle('active', di === i));
-  }
-  
-  if (dots.length > 0) {
-    dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); resetTimer(); }));
-  }
-  
-  function nextSlide() { goTo((current + 1) % slides.length); }
-  function resetTimer() { 
-    if (carouselTimer) clearInterval(carouselTimer); 
-    carouselTimer = setInterval(nextSlide, 4500); 
-  }
-  resetTimer();
+<!-- Structured data. TODO: replace YOUR-DOMAIN.com once a domain is live. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Resort",
+  "name": "Kamp Malaya",
+  "description": "Sustainable luxury eco-resort and island-tour operator in Balabac, Palawan, Philippines.",
+  "url": "https://YOUR-DOMAIN.com/",
+  "image": "https://YOUR-DOMAIN.com/gallery/panorama.webp",
+  "logo": "https://YOUR-DOMAIN.com/icons/kampmalaya.png",
+  "email": "kampmalayabalabac@gmail.com",
+  "telephone": "+63-962-240-3861",
+  "priceRange": "₱₱",
+  "currenciesAccepted": "PHP",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Balabac",
+    "addressRegion": "Palawan",
+    "addressCountry": "PH"
+  },
+  "sameAs": [
+    "https://facebook.com/kampmalaya",
+    "https://www.instagram.com/kampmalayabalabac/"
+  ],
+  "makesOffer": [
+    { "@type": "Offer", "name": "Kubo by the Shore", "price": "4500", "priceCurrency": "PHP",
+      "itemOffered": { "@type": "Accommodation", "occupancy": { "@type": "QuantitativeValue", "maxValue": 2 } } },
+    { "@type": "Offer", "name": "Canopy Tent", "price": "3800", "priceCurrency": "PHP",
+      "itemOffered": { "@type": "Accommodation", "occupancy": { "@type": "QuantitativeValue", "maxValue": 2 } } },
+    { "@type": "Offer", "name": "Malaya Villa", "price": "8500", "priceCurrency": "PHP",
+      "itemOffered": { "@type": "Accommodation", "occupancy": { "@type": "QuantitativeValue", "maxValue": 4 } } },
+    { "@type": "Offer", "name": "4D/3N Balabac Island Joiner Tour", "price": "14799", "priceCurrency": "PHP" }
+  ]
+}
 </script>
 
-<script src="https://link.msgsndr.com/js/external-tracking.js" data-tracking-id="tk_46b574507f59433792ebc13b29db7da4"></script>
+<!-- TODO: once REAL Facebook reviews are collected, paste this inside the JSON-LD object above,
+     right after the "makesOffer" array (add a comma after the closing "]"). Use only genuine,
+     attributable reviews — fabricated review markup risks a Google manual penalty.
+  "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "12", "bestRating": "5" },
+  "review": [
+    { "@type": "Review",
+      "author": { "@type": "Person", "name": "Real Guest Name" },
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+      "reviewBody": "Actual review text copied from the Facebook comment/review." }
+  ]
+-->
 
+
+<!-- Vite entry script -->
+<script type="module" src="/src/main.js"></script>
+<!-- GHL External Tracking Script (keep this) -->
+<script src="https://link.msgsndr.com/js/external-tracking.js" data-tracking-id="tk_46b574507f59433792ebc13b29db7da4"></script>
 </body>
 </html>
