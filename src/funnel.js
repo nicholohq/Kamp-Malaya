@@ -103,7 +103,8 @@ function populateJoinerDates() {
 // 3. BOOKING TYPE TOGGLE
 // ============================================================
 function selectBookingType(type) {
-  document.getElementById('booking_type').value = type;
+  // Set the hidden field value to match GHL's expected values
+  document.getElementById('booking_type').value = type === 'private' ? 'Private Stay' : 'Joiner Tour';
   
   document.getElementById('private-toggle').classList.toggle('active', type === 'private');
   document.getElementById('joiner-toggle').classList.toggle('active', type === 'joiner');
