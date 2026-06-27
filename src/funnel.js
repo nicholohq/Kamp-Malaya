@@ -239,21 +239,27 @@ form.addEventListener('submit', async function (e) {
   const data = Object.fromEntries(new FormData(form).entries());
   formError.classList.add('hidden');
 
+  // 🔍 DEBUG: Log all form data
+  console.log('📝 Form Data:', data);
+  
   const bookingType = document.getElementById('booking_type').value;
+  console.log('📌 Booking Type:', bookingType);
+  
   let required = ['full_name', 'email', 'phone'];
   
-  // Check based on the actual string value from the hidden field
   if (bookingType === 'Private Stay') {
     required.push('pax_count', 'accommodation', 'check_in', 'check_out');
   } else if (bookingType === 'Joiner Tour') {
     required.push('tour_date', 'pax_count');
   } else {
-    // Fallback: default to Private Stay if booking_type is unexpected
     required.push('pax_count', 'accommodation', 'check_in', 'check_out');
   }
+  
+  console.log('✅ Required fields:', required);
 
-  // Check for missing fields (trim to handle empty strings)
   const missing = required.filter(k => !data[k] || data[k].trim() === '');
+  console.log('❌ Missing fields:', missing);
+  
   if (missing.length) {
     formError.textContent = 'Please complete all required fields.';
     formError.classList.remove('hidden');
