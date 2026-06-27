@@ -242,20 +242,26 @@ form.addEventListener('submit', async function (e) {
   const bookingType = document.getElementById('booking_type').value;
   let required = ['full_name', 'email', 'phone'];
   
-  if (bookingType === 'private') {
+  // Check based on the actual string value from the hidden field
+  if (bookingType === 'Private Stay') {
     required.push('pax_count', 'accommodation', 'check_in', 'check_out');
-  } else {
+  } else if (bookingType === 'Joiner Tour') {
     required.push('tour_date', 'pax_count');
+  } else {
+    // Fallback: default to Private Stay if booking_type is unexpected
+    required.push('pax_count', 'accommodation', 'check_in', 'check_out');
   }
 
-  const missing = required.filter(k => !data[k]);
+  // Check for missing fields (trim to handle empty strings)
+  const missing = required.filter(k => !data[k] || data[k].trim() === '');
   if (missing.length) {
     formError.textContent = 'Please complete all required fields.';
     formError.classList.remove('hidden');
     return;
   }
 
-  if (bookingType === 'private' && data.check_out <= data.check_in) {
+  // Check-out must be after check-in (only for Private Stay)
+  if (bookingType === 'Private Stay' && data.check_out <= data.check_in) {
     formError.textContent = 'Check-out must be after check-in.';
     formError.classList.remove('hidden');
     return;
@@ -274,11 +280,10 @@ form.addEventListener('submit', async function (e) {
     });
 
     const firstName = (data.full_name || '').trim().split(' ')[0] || 'there';
-    const typeLabel = bookingType === 'joiner' ? 'Joiner Tour Inquiry' : 'Private Stay Inquiry';
     
     document.getElementById('successHeading').textContent = 'Thank you, ' + firstName + '!';
     
-    if (bookingType === 'joiner') {
+    if (bookingType === 'Joiner Tour') {
       document.getElementById('successMsg').innerHTML = 
         `Your <strong>4D/3N Balabac Island Tour</strong> inquiry has been received. We'll send you payment instructions for the ₱1,000/head deposit within <strong>24 hours</strong>.`;
     } else {
@@ -299,7 +304,7 @@ form.addEventListener('submit', async function (e) {
     formError.textContent = 'Something went wrong. Please try again or contact us directly.';
     formError.classList.remove('hidden');
     submitBtn.disabled = false;
-    submitBtn.textContent = bookingType === 'joiner' ? 'Submit Joiner Inquiry &rarr;' : 'Check Availability &rarr;';
+    submitBtn.textContent = bookingType === 'Joiner Tour' ? 'Submit Joiner Inquiry &rarr;' : 'Check Availability &rarr;';
   }
 });
 
