@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('joiner-toggle').addEventListener('click', function() {
     selectBookingType('joiner');
   });
-  
+
   const checkIn = document.getElementById('check_in');
   const checkOut = document.getElementById('check_out');
   
@@ -328,4 +328,13 @@ document.addEventListener('DOMContentLoaded', function() {
       checkOut.value = '';
     }
   });
-});
+}); 
+
+// ============================================================
+// 10. EXPOSE FUNCTIONS GLOBALLY (for debugging and onclick)
+// ============================================================
+window.selectBookingType = selectBookingType;
+window.handlePaxChange = handlePaxChange;
+window.handlePaxMainChange = handlePaxMainChange;
+
+console.log('✅ funnel.js loaded — functions exposed globally');
