@@ -310,6 +310,15 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('pax_count_joiner').addEventListener('change', handlePaxChange);
   document.getElementById('pax_count').addEventListener('change', handlePaxMainChange);
   
+  // Add booking type toggle event listeners
+  document.getElementById('private-toggle').addEventListener('click', function() {
+    selectBookingType('private');
+  });
+  
+  document.getElementById('joiner-toggle').addEventListener('click', function() {
+    selectBookingType('joiner');
+  });
+  
   const checkIn = document.getElementById('check_in');
   const checkOut = document.getElementById('check_out');
   
