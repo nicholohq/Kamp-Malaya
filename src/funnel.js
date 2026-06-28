@@ -240,16 +240,19 @@ const GHL_STANDARD_FIELDS = new Set(['full_name', 'email', 'phone']);
 
 // Friendly form `name` -> GHL custom-field ID (Kamp Malaya sub-account).
 // These are the random field IDs, NOT the {{contact.*}} merge keys.
+// Verified 2026-06-28 against the Kamp Malaya location (YBLbWASoQgsSEqY0V5KV)
+// via GHL API GET /locations/{id}/customFields?model=contact — these are the
+// real contact custom-field IDs (a prior capture had several wrong characters).
 const GHL_FIELD_IDS = {
-  booking_type:         'Hypk6o0YeW0d0Q7y1EPH',
-  accommodation:        'UUYJjY2Yo1A2c0v3lh',
-  check_in:             'qkTonvqTT73KgTARRoP1',
-  check_out:            '7uXW4exTH1YEFKiW0ykX',
-  tour_date:            'XgOt9Jk9F26KuGbWjKNp',
-  pax_count:            'cMUayvSNtZ1d80VvmySy',
-  special_requests:     'ZqB9bwF0eYDSy8XrA1t2',
-  dietary_restrictions: 'Vtrtrxab6IBSSvWhbTkP',
-  source:               'PC38bar67FIYRsioCIOS',
+  booking_type:         'Hypk6oOYeW0d0Q7y1EPH',  // SINGLE_OPTIONS: "Private Stay" | "Joiner Tour"
+  accommodation:        'UuYJj1y2YRo1A2c0v3lh',  // MULTIPLE_OPTIONS
+  check_in:             'uuuPxVb2mfNcyuXy7a1S',  // DATE
+  check_out:            'geN5xXdqNSTOKv75CCWd',  // DATE
+  tour_date:            'XgOt9Jk9F26KuGbWjKNp',  // DATE
+  pax_count:            'cMUayvSNtZ1d80VvmySy',  // SINGLE_OPTIONS: 1..5+
+  special_requests:     'ZqB9bwF0eYDSy8XrA1t2',  // LARGE_TEXT
+  dietary_restrictions: 'Vtrtrxab6IBSSvWhbTkP',  // LARGE_TEXT
+  source:               'PC38bar67FIYRsi0CIOS',  // TEXT ("Booking Source")
 };
 
 // Map a friendly form field name to the key GHL expects in the payload.

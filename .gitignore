@@ -1,0 +1,30 @@
+# Dependencies (Vercel runs `npm install` — committing these breaks the
+# Linux build because executables lose their +x bit on Windows checkout)
+node_modules/
+
+# Build output (Vercel rebuilds via `npm run build`)
+dist/
+dist-ssr/
+
+# Local backups / scratch — not needed in the repo or the deploy
+originals-backup/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/*
+.idea/
+
+# Env
+.env
+.env.*
+.local
+
+# Vercel
+.vercel

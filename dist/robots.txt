@@ -1,7 +1,0 @@
-User-agent: *
-Allow: /
-
-# The booking funnel is intentionally noindex; no need to crawl it for ranking.
-Disallow: /funnel.html
-
-Sitemap: https://kampmalaya.tours/sitemap.xml
