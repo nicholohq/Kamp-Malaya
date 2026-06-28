@@ -29,7 +29,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
 
 <!-- Vite will inject CSS here -->
-  <script type="module" crossorigin src="/assets/funnel-CylWLlRd.js"></script>
+  <script type="module" crossorigin src="/assets/funnel-CCtgLTsH.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-Dezn_h7o.js">
   <link rel="stylesheet" crossorigin href="/assets/funnel-B65QsW_E.css">
 </head>
@@ -80,7 +80,7 @@
 
         <!-- ===== BOOKING TYPE TOGGLE ===== -->
         <div class="grid grid-cols-2 gap-3 mb-6">
-          <button onclick="selectBookingType('private')" id="private-toggle" class="btn-type active p-4 rounded-xl text-left bg-white hover:shadow-md transition">
+          <button id="private-toggle" class="btn-type active p-4 rounded-xl text-left bg-white hover:shadow-md transition">
             <div class="flex items-start gap-3">
               <span class="icon">🏖️</span>
               <div>
@@ -90,7 +90,7 @@
               </div>
             </div>
           </button>
-          <button onclick="selectBookingType('joiner')" id="joiner-toggle" class="btn-type p-4 rounded-xl text-left bg-white hover:shadow-md transition">
+          <button id="joiner-toggle" class="btn-type p-4 rounded-xl text-left bg-white hover:shadow-md transition">
             <div class="flex items-start gap-3">
               <span class="icon">🚐</span>
               <div>
@@ -105,7 +105,7 @@
         <!-- ===== FORM ===== -->
         <form id="inquiryForm" novalidate>
           <!-- Hidden field for booking type -->
-          <input type="hidden" name="booking_type" id="booking_type" value="private">
+          <input type="hidden" name="booking_type" id="booking_type" value="Private Stay">
           <input type="hidden" name="source" value="Kamp Malaya Funnel">
 
           <!-- Shared fields -->

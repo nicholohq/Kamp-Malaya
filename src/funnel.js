@@ -231,7 +231,50 @@ const successWrap = document.getElementById('successWrap');
 const formError = document.getElementById('formError');
 const submitBtn = document.getElementById('submitBtn');
 
-const GHL_FORM_URL = 'https://api.leadconnectorhq.com/widget/form/SQTfOzAK45gQEoeaKGYz';
+const GHL_FORM_ID     = 'SQTfOzAK45gQEoeaKGYz';
+const GHL_FORM_URL    = `https://api.leadconnectorhq.com/widget/form/${GHL_FORM_ID}`;
+const GHL_LOCATION_ID = 'YBLbWASoQgsSEqY0V5KV';
+
+// Standard contact fields submit by their simple GHL name (no ID needed).
+const GHL_STANDARD_FIELDS = new Set(['full_name', 'email', 'phone']);
+
+// Friendly form `name` -> GHL custom-field ID (Kamp Malaya sub-account).
+// These are the random field IDs, NOT the {{contact.*}} merge keys.
+const GHL_FIELD_IDS = {
+  booking_type:         'Hypk6o0YeW0d0Q7y1EPH',
+  accommodation:        'UUYJjY2Yo1A2c0v3lh',
+  check_in:             'qkTonvqTT73KgTARRoP1',
+  check_out:            '7uXW4exTH1YEFKiW0ykX',
+  tour_date:            'XgOt9Jk9F26KuGbWjKNp',
+  pax_count:            'cMUayvSNtZ1d80VvmySy',
+  special_requests:     'ZqB9bwF0eYDSy8XrA1t2',
+  dietary_restrictions: 'Vtrtrxab6IBSSvWhbTkP',
+  source:               'PC38bar67FIYRsioCIOS',
+};
+
+// Map a friendly form field name to the key GHL expects in the payload.
+function ghlKeyFor(name) {
+  if (GHL_STANDARD_FIELDS.has(name)) return name;   // email / phone / full_name
+  return GHL_FIELD_IDS[name] || null;               // custom -> ID, else drop
+}
+
+// Build the { fieldNameOrId: value } object GHL expects, from the live form.
+// new FormData() only includes enabled, named controls, so disabled
+// (inactive-mode) fields are naturally excluded — exactly what we want.
+function buildGhlPayloadObject(form) {
+  const out = {};
+  for (const [name, value] of new FormData(form).entries()) {
+    const v = (value ?? '').toString().trim();
+    if (v === '') continue;
+    const key = ghlKeyFor(name);
+    if (!key) {
+      console.warn(`[GHL] No mapping for field "${name}" — skipped`);
+      continue;
+    }
+    out[key] = v;
+  }
+  return out;
+}
 
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
@@ -277,12 +320,25 @@ form.addEventListener('submit', async function (e) {
   submitBtn.textContent = 'Submitting...';
 
   try {
-    const formData = new FormData(form);
-    
+    // GHL widget endpoint expects all answers wrapped in a single `formData`
+    // JSON string, with custom fields keyed by their field ID (see GHL_FIELD_IDS).
+    const payloadObject = buildGhlPayloadObject(form);
+    console.log('[GHL] formData payload:', payloadObject);
+
+    const body = new FormData();
+    body.set('formData', JSON.stringify(payloadObject));
+    body.set('locationId', GHL_LOCATION_ID);
+    body.set('formId', GHL_FORM_ID);
+    body.set('eventData', JSON.stringify({
+      type: 'page-visit',
+      pageVisitType: 'form',
+      page: { url: window.location.href, title: document.title },
+    }));
+
     await fetch(GHL_FORM_URL, {
       method: 'POST',
       mode: 'no-cors',
-      body: formData
+      body
     });
 
     const firstName = (data.full_name || '').trim().split(' ')[0] || 'there';
