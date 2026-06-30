@@ -6,9 +6,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (!req.body || typeof req.body !== 'object' || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ success: false, error: 'Request body is empty or invalid' });
+    }
+
     const data = req.body;
 
-    // Map your form fields to GHL custom field IDs
     const GHL_FIELD_IDS = {
       'booking_type': 'Hypk6o0YeW0d0Q7y1EPH',
       'full_name': 'full_name',
@@ -26,9 +29,6 @@ export default async function handler(req, res) {
 
     // Build GHL payload
     const payload = {};
-    
-    // Standard fields (these use the field name as-is)
-    const standardFields = ['full_name', 'email', 'phone'];
     
     Object.keys(data).forEach(key => {
       if (data[key] && data[key].trim() !== '') {
@@ -54,14 +54,20 @@ export default async function handler(req, res) {
       })
     };
 
-    // Send to GHL
+    // Send to GHL with 8-second timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     const response = await fetch('https://api.leadconnectorhq.com/widget/form/SQTfOzAK45gQEoeaKGYz', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(ghlPayload)
+      body: JSON.stringify(ghlPayload),
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`GHL API returned ${response.status}`);
@@ -77,6 +83,14 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Webhook error:', error);
+
+    if (error.name === 'AbortError') {
+      return res.status(504).json({
+        success: false,
+        error: 'GHL API timed out — please try again later'
+      });
+    }
+
     return res.status(500).json({
       success: false,
       error: error.message

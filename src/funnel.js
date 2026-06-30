@@ -307,10 +307,16 @@ form.addEventListener('submit', async function (e) {
 
   } catch (error) {
     console.error('❌ Submission error:', error);
-    formError.textContent = error.message || 'Something went wrong. Please try again or contact us directly.';
+
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      formError.textContent = 'Connection error — please check your internet and try again. If this persists, email us directly.';
+    } else {
+      formError.textContent = error.message || 'Something went wrong. Please try again or contact us directly.';
+    }
+
     formError.classList.remove('hidden');
     submitBtn.disabled = false;
-    submitBtn.textContent = bookingType === 'Joiner Tour' ? 'Submit Joiner Inquiry &rarr;' : 'Check Availability &rarr;';
+    submitBtn.textContent = bookingType === 'Joiner Tour' ? 'Submit Joiner Inquiry →' : 'Check Availability →';
   }
 });
 
