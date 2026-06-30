@@ -231,7 +231,6 @@ const successWrap = document.getElementById('successWrap');
 const formError = document.getElementById('formError');
 const submitBtn = document.getElementById('submitBtn');
 
-// Webhook endpoint (Vercel/Netlify serverless function)
 const WEBHOOK_URL = '/api/ghl-webhook';
 
 form.addEventListener('submit', async function (e) {
@@ -240,12 +239,9 @@ form.addEventListener('submit', async function (e) {
   const data = Object.fromEntries(new FormData(form).entries());
   formError.classList.add('hidden');
 
-  // 🔍 DEBUG: Log all form data
   console.log('📝 Form Data:', data);
-  
+
   const bookingType = document.getElementById('booking_type').value;
-  console.log('📌 Booking Type:', bookingType);
-  
   let required = ['full_name', 'email', 'phone'];
   
   if (bookingType === 'Private Stay') {
@@ -255,19 +251,14 @@ form.addEventListener('submit', async function (e) {
   } else {
     required.push('pax_count', 'accommodation', 'check_in', 'check_out');
   }
-  
-  console.log('✅ Required fields:', required);
 
   const missing = required.filter(k => !data[k] || data[k].trim() === '');
-  console.log('❌ Missing fields:', missing);
-  
   if (missing.length) {
     formError.textContent = 'Please complete all required fields.';
     formError.classList.remove('hidden');
     return;
   }
 
-  // Check-out must be after check-in (only for Private Stay)
   if (bookingType === 'Private Stay' && data.check_out <= data.check_in) {
     formError.textContent = 'Check-out must be after check-in.';
     formError.classList.remove('hidden');
@@ -278,7 +269,6 @@ form.addEventListener('submit', async function (e) {
   submitBtn.textContent = 'Submitting...';
 
   try {
-    // Send to webhook endpoint
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: {
@@ -288,6 +278,7 @@ form.addEventListener('submit', async function (e) {
     });
 
     const result = await response.json();
+    console.log('📤 Webhook response:', result);
 
     if (!result.success) {
       throw new Error(result.error || 'Submission failed');
