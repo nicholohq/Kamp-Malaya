@@ -1,3 +1,22 @@
+# GHL REST API Fix Plan
+
+## Root Cause
+
+The webhook handler POSTs to `https://api.leadconnectorhq.com/widget/form/SQTfOzAK45gQEoeaKGYz` which is a **GHL widget/embed URL** — it returns an HTML page (the form widget itself), not JSON API data. When `response.json()` tries to parse HTML as JSON, it throws a SyntaxError.
+
+## Fix
+
+Replace the widget URL with GHL's **Contacts REST API** endpoint, passing the API key via `Authorization: Bearer` header.
+
+---
+
+## File Changes
+
+### `api/ghl-webhook.js` — Full rewrite
+
+Replace the entire file content with:
+
+```js
 // /api/ghl-webhook.js
 export default async function handler(req, res) {
   const origin = req.headers.origin || '*';
@@ -87,3 +106,27 @@ export default async function handler(req, res) {
     });
   }
 }
+```
+
+### Key Changes
+
+| Before | After |
+|--------|-------|
+| POST to `api.leadconnectorhq.com/widget/form/...` | POST to `rest.gohighlevel.com/v1/contacts/` |
+| No auth header | `Authorization: Bearer ${process.env.GHL_API_KEY}` |
+| Wraps data in `formData`, `eventData` | Direct contact payload with `customFields` array |
+| Ignores GHL API key (not needed) | Requires `GHL_API_KEY` env var |
+| `response.json()` crashes on HTML | `response.json()` parses valid JSON API response |
+| Returns `data: result` (GHL raw response) | Returns `contactId` from GHL response |
+
+### No changes needed to:
+- `src/funnel.js` — WEBHOOK_URL already points to `www.kampmalaya.tours/api/ghl-webhook`
+- `vercel.json` — rewrites already removed
+- `funnel.html` — no changes needed
+
+## Testing Steps
+
+1. **Verify env var is set** — deploy and check the handler doesn't return "GHL API key not configured"
+2. **Submit the form** — fill out the form on `www.kampmalaya.tours/funnel.html` and submit
+3. **Check GHL dashboard** — verify the contact was created with all custom field values
+4. **Check browser console** — verify the success message appears
