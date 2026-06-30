@@ -231,7 +231,7 @@ const successWrap = document.getElementById('successWrap');
 const formError = document.getElementById('formError');
 const submitBtn = document.getElementById('submitBtn');
 
-const WEBHOOK_URL = '/api/ghl-webhook';
+const WEBHOOK_URL = 'https://kampmalaya.tours/api/ghl-webhook';
 
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
