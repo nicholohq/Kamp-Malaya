@@ -223,7 +223,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 })();
 
 // ============================================================
-// 8. GHL FORM SUBMISSION
+// 8. GHL FORM SUBMISSION (Webhook Approach)
 // ============================================================
 const form = document.getElementById('inquiryForm');
 const formWrap = document.getElementById('formWrap');
@@ -231,53 +231,8 @@ const successWrap = document.getElementById('successWrap');
 const formError = document.getElementById('formError');
 const submitBtn = document.getElementById('submitBtn');
 
-const GHL_FORM_ID     = 'SQTfOzAK45gQEoeaKGYz';
-const GHL_FORM_URL    = `https://api.leadconnectorhq.com/widget/form/${GHL_FORM_ID}`;
-const GHL_LOCATION_ID = 'YBLbWASoQgsSEqY0V5KV';
-
-// Standard contact fields submit by their simple GHL name (no ID needed).
-const GHL_STANDARD_FIELDS = new Set(['full_name', 'email', 'phone']);
-
-// Friendly form `name` -> GHL custom-field ID (Kamp Malaya sub-account).
-// These are the random field IDs, NOT the {{contact.*}} merge keys.
-// Verified 2026-06-28 against the Kamp Malaya location (YBLbWASoQgsSEqY0V5KV)
-// via GHL API GET /locations/{id}/customFields?model=contact — these are the
-// real contact custom-field IDs (a prior capture had several wrong characters).
-const GHL_FIELD_IDS = {
-  booking_type:         'Hypk6oOYeW0d0Q7y1EPH',  // SINGLE_OPTIONS: "Private Stay" | "Joiner Tour"
-  accommodation:        'UuYJj1y2YRo1A2c0v3lh',  // MULTIPLE_OPTIONS
-  check_in:             'uuuPxVb2mfNcyuXy7a1S',  // DATE
-  check_out:            'geN5xXdqNSTOKv75CCWd',  // DATE
-  tour_date:            'XgOt9Jk9F26KuGbWjKNp',  // DATE
-  pax_count:            'cMUayvSNtZ1d80VvmySy',  // SINGLE_OPTIONS: 1..5+
-  special_requests:     'ZqB9bwF0eYDSy8XrA1t2',  // LARGE_TEXT
-  dietary_restrictions: 'Vtrtrxab6IBSSvWhbTkP',  // LARGE_TEXT
-  source:               'PC38bar67FIYRsi0CIOS',  // TEXT ("Booking Source")
-};
-
-// Map a friendly form field name to the key GHL expects in the payload.
-function ghlKeyFor(name) {
-  if (GHL_STANDARD_FIELDS.has(name)) return name;   // email / phone / full_name
-  return GHL_FIELD_IDS[name] || null;               // custom -> ID, else drop
-}
-
-// Build the { fieldNameOrId: value } object GHL expects, from the live form.
-// new FormData() only includes enabled, named controls, so disabled
-// (inactive-mode) fields are naturally excluded — exactly what we want.
-function buildGhlPayloadObject(form) {
-  const out = {};
-  for (const [name, value] of new FormData(form).entries()) {
-    const v = (value ?? '').toString().trim();
-    if (v === '') continue;
-    const key = ghlKeyFor(name);
-    if (!key) {
-      console.warn(`[GHL] No mapping for field "${name}" — skipped`);
-      continue;
-    }
-    out[key] = v;
-  }
-  return out;
-}
+// Webhook endpoint (Vercel/Netlify serverless function)
+const WEBHOOK_URL = '/api/ghl-webhook';
 
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
@@ -323,27 +278,22 @@ form.addEventListener('submit', async function (e) {
   submitBtn.textContent = 'Submitting...';
 
   try {
-    // GHL widget endpoint expects all answers wrapped in a single `formData`
-    // JSON string, with custom fields keyed by their field ID (see GHL_FIELD_IDS).
-    const payloadObject = buildGhlPayloadObject(form);
-    console.log('[GHL] formData payload:', payloadObject);
-
-    const body = new FormData();
-    body.set('formData', JSON.stringify(payloadObject));
-    body.set('locationId', GHL_LOCATION_ID);
-    body.set('formId', GHL_FORM_ID);
-    body.set('eventData', JSON.stringify({
-      type: 'page-visit',
-      pageVisitType: 'form',
-      page: { url: window.location.href, title: document.title },
-    }));
-
-    await fetch(GHL_FORM_URL, {
+    // Send to webhook endpoint
+    const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
-      mode: 'no-cors',
-      body
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
     });
 
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.error || 'Submission failed');
+    }
+
+    // Show success
     const firstName = (data.full_name || '').trim().split(' ')[0] || 'there';
     
     document.getElementById('successHeading').textContent = 'Thank you, ' + firstName + '!';
@@ -362,11 +312,11 @@ form.addEventListener('submit', async function (e) {
     successWrap.classList.remove('hidden');
     successWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-    console.log('Inquiry submitted to GHL ->', data);
+    console.log('✅ Inquiry submitted via webhook ->', data);
 
   } catch (error) {
-    console.error('Submission error:', error);
-    formError.textContent = 'Something went wrong. Please try again or contact us directly.';
+    console.error('❌ Submission error:', error);
+    formError.textContent = error.message || 'Something went wrong. Please try again or contact us directly.';
     formError.classList.remove('hidden');
     submitBtn.disabled = false;
     submitBtn.textContent = bookingType === 'Joiner Tour' ? 'Submit Joiner Inquiry &rarr;' : 'Check Availability &rarr;';
@@ -399,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
       checkOut.value = '';
     }
   });
-}); 
+});
 
 // ============================================================
 // 10. EXPOSE FUNCTIONS GLOBALLY (for debugging and onclick)
