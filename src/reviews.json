@@ -1,0 +1,26 @@
+{
+  "_comment": "Single source of truth for guest reviews. Add a new object to `items` for each REAL review. It renders the testimonial cards AND the Google review schema automatically. Only use genuine, attributable reviews — fabricated review markup risks a Google manual penalty. rating = 1-5. date = ISO YYYY-MM-DD (optional, used for schema + display).",
+  "items": [
+    {
+      "author": "Osuga's Family",
+      "location": "Balabac, Philippines",
+      "rating": 5,
+      "date": "",
+      "body": "Thank you for teaching me how to fly the drone and for capturing beautiful footage that will forever be part of our family's memories. We were blessed with good weather, and even more blessed to have you as our guide."
+    },
+    {
+      "author": "Nickolo Masongsong",
+      "location": "Manila, Philippines",
+      "rating": 5,
+      "date": "",
+      "body": "Super saya ng experience namin! From start to finish, ang smooth ng lahat — wala nang stress sa planning. Yung tour guide namin na si kuya macmac sobrang bait, joker din at entertaining pa. Parang barkada trip pero well-organized!"
+    },
+    {
+      "author": "Satisfied Guest",
+      "location": "Puerto Princesa, Philippines",
+      "rating": 5,
+      "date": "",
+      "body": "Ang babait ng staff at hindi kami pinababayaan. Nahihiya na nga kami sa sobrang sikaso lalo na si Aga at Chris. Genuine ang service! Mahusay ang team — smooth ang byahe, maayos lahat."
+    }
+  ]
+}

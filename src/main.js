@@ -1,3 +1,6 @@
+// ---------- CURATED REVIEWS (renders cards + injects review schema) ----------
+import './reviews.js';
+
 // ---------- FUNNEL URL ----------
 const FUNNEL_URL = 'funnel.html';
 
