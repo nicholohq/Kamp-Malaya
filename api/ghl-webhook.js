@@ -6,9 +6,18 @@
 // Header:    Version: 2021-07-28  (required by the v2 API)
 // Upsert de-duplicates on email/phone, so repeat inquiries update the same contact.
 
-const GHL_API = 'https://services.leadconnectorhq.com/contacts/upsert';
+const GHL_BASE = 'https://services.leadconnectorhq.com';
+const GHL_API = `${GHL_BASE}/contacts/upsert`;
 const GHL_VERSION = '2021-07-28';
 const LOCATION_ID = 'YBLbWASoQgsSEqY0V5KV';
+
+// Tags added (additively) per booking type so a GHL workflow can trigger on
+// "Contact Tag". Additive tagging fires reliably for BOTH new and returning
+// contacts (unlike "Contact Created", which upsert skips for existing ones).
+const BOOKING_TAGS = {
+  'Private Stay': ['Booking Inquiry', 'Private Stay Inquiry'],
+  'Joiner Tour':  ['Booking Inquiry', 'Joiner Tour Inquiry'],
+};
 
 // GHL custom-field IDs (verified against the live location's custom fields).
 const CUSTOM_FIELDS = {
@@ -22,6 +31,17 @@ const CUSTOM_FIELDS = {
   dietary_restrictions: 'Vtrtrxab6IBSSvWhbTkP',
   source:               'PC38bar67FIYRsi0CIOS',
 };
+
+// fetch with an abort timeout (Vercel Hobby caps functions at 10s total).
+async function fetchWithTimeout(url, options, ms) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || '*';
@@ -40,6 +60,12 @@ export default async function handler(req, res) {
   if (!process.env.GHL_API_KEY) {
     return res.status(500).json({ success: false, error: 'GHL API key not configured' });
   }
+
+  const authHeaders = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${process.env.GHL_API_KEY}`,
+    'Version': GHL_VERSION,
+  };
 
   try {
     if (!req.body || typeof req.body !== 'object' || Object.keys(req.body).length === 0) {
@@ -73,27 +99,16 @@ export default async function handler(req, res) {
       phone: data.phone || '',
       source: data.source || 'Kamp Malaya Funnel',
       customFields,
+      // NOTE: tags are intentionally NOT sent here — the upsert endpoint
+      // OVERWRITES a contact's tags. They're added additively below instead.
     };
 
-    // Send to GHL with an 8s timeout (Vercel Hobby has a 10s function limit).
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-    let response;
-    try {
-      response = await fetch(GHL_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.GHL_API_KEY}`,
-          'Version': GHL_VERSION,
-        },
-        body: JSON.stringify(contactPayload),
-        signal: controller.signal,
-      });
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    // 1) Upsert the contact (6s of the 10s budget).
+    const response = await fetchWithTimeout(GHL_API, {
+      method: 'POST',
+      headers: authHeaders,
+      body: JSON.stringify(contactPayload),
+    }, 6000);
 
     // GHL should return JSON, but guard against an HTML error page.
     const raw = await response.text();
@@ -117,10 +132,36 @@ export default async function handler(req, res) {
       });
     }
 
+    const contactId = result.contact?.id || null;
+
+    // 2) Add booking-type tags additively so the GHL workflow can trigger on
+    //    "Contact Tag". A tagging failure must NOT fail the booking — the
+    //    contact is already saved, so we log and still return success.
+    let tagsAdded = [];
+    const tags = BOOKING_TAGS[data.booking_type];
+    if (contactId && tags) {
+      try {
+        const tagRes = await fetchWithTimeout(`${GHL_BASE}/contacts/${contactId}/tags`, {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify({ tags }),
+        }, 3000);
+        if (tagRes.ok) {
+          const tagJson = await tagRes.json().catch(() => ({}));
+          tagsAdded = tagJson.tags || tags;
+        } else {
+          console.error('GHL tag error:', tagRes.status, await tagRes.text().catch(() => ''));
+        }
+      } catch (tagErr) {
+        console.error('GHL tagging failed:', tagErr.name || tagErr.message);
+      }
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Booking submitted successfully',
-      contactId: result.contact?.id || null,
+      contactId,
+      tagsAdded,
     });
 
   } catch (error) {
