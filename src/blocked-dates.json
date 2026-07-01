@@ -1,8 +1,0 @@
-{
-  "_readme": "Booked/blocked dates per room. To block a booking, add an object {\"start\":\"YYYY-MM-DD\",\"end\":\"YYYY-MM-DD\"} to that room's list, where start = check-in and end = check-out. The nights from check-in up to (but NOT including) check-out are greyed out in the booking form — so a 15th->18th booking blocks the 15th, 16th, 17th and leaves the 18th open for the next guest. Room keys must exactly match the accommodation names in the booking form. Example: \"Malaya Villa\": [{\"start\":\"2026-08-15\",\"end\":\"2026-08-18\"}]",
-  "rooms": {
-    "Kubo by the Shore": [],
-    "Canopy Tent": [],
-    "Malaya Villa": []
-  }
-}
