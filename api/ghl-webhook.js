@@ -1,10 +1,14 @@
 // /api/ghl-webhook.js
 //
-// Proxies the Kamp Malaya booking form to the GoHighLevel v1 REST API.
-// Endpoint:  POST https://rest.gohighlevel.com/v1/contacts/
-// Auth:      Bearer <Location API Key>  (Settings -> Business Profile -> API Keys)
-// Note:      the v1 key is location-scoped, so we do NOT send locationId in the body,
-//            and custom fields go in `customField` as an { id: value } object map.
+// Proxies the Kamp Malaya booking form to the GoHighLevel v2 (LeadConnector) API.
+// Endpoint:  POST https://services.leadconnectorhq.com/contacts/upsert
+// Auth:      Bearer <Private Integration Token>  (Settings -> Private Integrations)
+// Header:    Version: 2021-07-28  (required by the v2 API)
+// Upsert de-duplicates on email/phone, so repeat inquiries update the same contact.
+
+const GHL_API = 'https://services.leadconnectorhq.com/contacts/upsert';
+const GHL_VERSION = '2021-07-28';
+const LOCATION_ID = 'YBLbWASoQgsSEqY0V5KV';
 
 // GHL custom-field IDs (verified against the live location's custom fields).
 const CUSTOM_FIELDS = {
@@ -50,24 +54,25 @@ export default async function handler(req, res) {
     const firstName = nameParts.shift() || '';
     const lastName = nameParts.join(' ');
 
-    // Build the custom-field map, skipping empties so DATE / OPTION fields
-    // never receive an empty string (which the v1 API rejects).
-    const customField = {};
+    // Build the custom-field array, skipping empties so DATE / OPTION fields
+    // never receive an empty value.
+    const customFields = [];
     for (const [key, id] of Object.entries(CUSTOM_FIELDS)) {
       const value = data[key];
       if (value !== undefined && value !== null && String(value).trim() !== '') {
-        customField[id] = value;
+        customFields.push({ id, value });
       }
     }
 
     const contactPayload = {
+      locationId: LOCATION_ID,
       firstName,
       lastName,
       name: fullName,
       email: data.email || '',
       phone: data.phone || '',
       source: data.source || 'Kamp Malaya Funnel',
-      customField,
+      customFields,
     };
 
     // Send to GHL with an 8s timeout (Vercel Hobby has a 10s function limit).
@@ -76,11 +81,12 @@ export default async function handler(req, res) {
 
     let response;
     try {
-      response = await fetch('https://rest.gohighlevel.com/v1/contacts/', {
+      response = await fetch(GHL_API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.GHL_API_KEY}`,
+          'Version': GHL_VERSION,
         },
         body: JSON.stringify(contactPayload),
         signal: controller.signal,
@@ -104,16 +110,17 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       console.error('GHL API error:', response.status, result);
+      const msg = Array.isArray(result.message) ? result.message.join(', ') : result.message;
       return res.status(response.status === 401 ? 401 : 502).json({
         success: false,
-        error: result.message || result.msg || `GHL API returned ${response.status}`,
+        error: msg || `GHL API returned ${response.status}`,
       });
     }
 
     return res.status(200).json({
       success: true,
       message: 'Booking submitted successfully',
-      contactId: result.contact?.id || result.id || null,
+      contactId: result.contact?.id || null,
     });
 
   } catch (error) {
