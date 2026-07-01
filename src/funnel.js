@@ -1,3 +1,6 @@
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+
 // ============================================================
 // 1. JOINER DATES (2026 Schedule)
 // ============================================================
@@ -337,15 +340,45 @@ document.addEventListener('DOMContentLoaded', function() {
     selectBookingType('joiner');
   });
 
-  const checkIn = document.getElementById('check_in');
-  const checkOut = document.getElementById('check_out');
-  
-  checkIn.addEventListener('change', function() {
-    checkOut.min = this.value;
-    if (checkOut.value && checkOut.value <= this.value) {
-      checkOut.value = '';
-    }
+  // ---- Flatpickr date pickers with availability blocking ----
+  const checkOutFp = flatpickr('#check_out', {
+    dateFormat: 'Y-m-d',
+    minDate: 'today',
+    disableMobile: true, // force flatpickr UI so blocked dates are honored on mobile
   });
+  const checkInFp = flatpickr('#check_in', {
+    dateFormat: 'Y-m-d',
+    minDate: 'today',
+    disableMobile: true,
+    onChange: (sel, dateStr) => {
+      // Check-out must be after check-in.
+      checkOutFp.set('minDate', dateStr || 'today');
+      if (checkOutFp.selectedDates[0] && checkOutFp.selectedDates[0] <= sel[0]) {
+        checkOutFp.clear();
+      }
+    },
+  });
+
+  // Fetch booked dates for the chosen room and grey them out.
+  async function refreshAvailability(room) {
+    if (!room) return;
+    let blocked = [];
+    try {
+      const r = await fetch(`/api/availability?room=${encodeURIComponent(room)}`);
+      const data = await r.json();
+      blocked = data.blockedDates || [];
+    } catch {
+      blocked = []; // degrade gracefully — dates just aren't blocked
+    }
+    checkInFp.set('disable', blocked);
+    checkOutFp.set('disable', blocked);
+  }
+
+  const accEl = document.getElementById('accommodation');
+  if (accEl) {
+    accEl.addEventListener('change', () => refreshAvailability(accEl.value));
+    if (accEl.value) refreshAvailability(accEl.value); // handle URL-prefilled room
+  }
 });
 
 // ============================================================

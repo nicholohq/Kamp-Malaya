@@ -150,25 +150,30 @@
                 <label class="field-label" for="accommodation">Accommodation</label>
                 <select class="field" id="accommodation" name="accommodation" required>
                   <option value="" disabled selected>Select a sanctuary</option>
-                  <option value="Kubo by the Shore">Kubo by the Shore (2 guests) — from ₱4,500/night</option>
-                  <option value="Canopy Tent">Canopy Tent (2 guests) — from ₱3,800/night</option>
-                  <option value="Malaya Villa">Malaya Villa (4 guests) — from ₱8,500/night</option>
-                  <option value="Multiple Rooms">Multiple Rooms (5+ guests) — Contact us for rates</option>
+                  <option value="Kubo by the Shore">Kubo by the Shore — Standard, included (2–3 guests)</option>
+                  <option value="Canopy Tent">Canopy Tent (1–2 guests) — from ₱3,800/night</option>
+                  <option value="Malaya Villa">Malaya Villa (8–10 guests) — from ₱8,500/night</option>
+                  <option value="Multiple Rooms">Multiple Rooms (large groups) — Contact us for rates</option>
                 </select>
               </div>
               <div>
                 <label class="field-label" for="check_in">Check-in</label>
-                <input class="field" type="date" id="check_in" name="check_in" required />
+                <input class="field" type="text" id="check_in" name="check_in" placeholder="Select date" autocomplete="off" required />
               </div>
               <div>
                 <label class="field-label" for="check_out">Check-out</label>
-                <input class="field" type="date" id="check_out" name="check_out" required />
+                <input class="field" type="text" id="check_out" name="check_out" placeholder="Select date" autocomplete="off" required />
               </div>
               <div class="flex items-end">
                 <p class="text-xs text-graytext">💡 <span class="font-medium">Note:</span> 2-night minimum. For 5+ guests, we'll help arrange multiple rooms or group accommodations.</p>
               </div>
             </div>
             
+            <!-- Transport & inclusions note for private stays -->
+            <div class="mt-3 p-3 bg-seagrass/10 rounded-lg border border-seagrass/20">
+              <p class="text-xs text-graytext">🛥️ <span class="font-medium">Included:</span> private boat transfer + Kubo by the Shore (standard). The total rate is divided among your group. <span class="font-medium">Optional:</span> private air-conditioned van at a higher rate — just ask.</p>
+            </div>
+
             <!-- Large group note for private stays -->
             <div id="private-large-group-note" class="mt-3 p-3 bg-gold/10 rounded-lg border border-gold/20 hidden">
               <p class="text-xs text-gold">👥 <span class="font-medium">Large group (5+ pax):</span> We'll contact you to arrange the best accommodation setup for your group size.</p>
@@ -237,6 +242,10 @@
                 <label class="field-label" for="dietary_restrictions">Dietary Restrictions <span class="text-graytext/60 normal-case tracking-normal">(optional)</span></label>
                 <input class="field" type="text" id="dietary_restrictions" name="dietary_restrictions" placeholder="Vegetarian, allergies, etc." />
               </div>
+            </div>
+
+            <div class="mt-3 p-3 bg-coral/10 rounded-lg border border-coral/20">
+              <p class="text-xs text-graytext">👥 <span class="font-medium">Minimum 10 pax per departure.</span> If the minimum isn't reached, the per-head rate is adjusted to the final confirmed group size. <span class="font-medium">Tent</span> accommodation is standard (included); upgrades to Kubo or Malaya Villa are available — ask for pricing.</p>
             </div>
 
             <div class="mt-3 p-3 bg-sand/50 rounded-lg border border-gold/20">
