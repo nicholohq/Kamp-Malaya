@@ -1,4 +1,24 @@
 // /api/ghl-webhook.js
+//
+// Proxies the Kamp Malaya booking form to the GoHighLevel v1 REST API.
+// Endpoint:  POST https://rest.gohighlevel.com/v1/contacts/
+// Auth:      Bearer <Location API Key>  (Settings -> Business Profile -> API Keys)
+// Note:      the v1 key is location-scoped, so we do NOT send locationId in the body,
+//            and custom fields go in `customField` as an { id: value } object map.
+
+// GHL custom-field IDs (verified against the live location's custom fields).
+const CUSTOM_FIELDS = {
+  booking_type:         'Hypk6oOYeW0d0Q7y1EPH',
+  pax_count:            'cMUayvSNtZ1d80VvmySy',
+  accommodation:        'UuYJj1y2YRo1A2c0v3lh',
+  check_in:             'uuuPxVb2mfNcyuXy7a1S',
+  check_out:            'geN5xXdqNSTOKv75CCWd',
+  tour_date:            'XgOt9Jk9F26KuGbWjKNp',
+  special_requests:     'ZqB9bwF0eYDSy8XrA1t2',
+  dietary_restrictions: 'Vtrtrxab6IBSSvWhbTkP',
+  source:               'PC38bar67FIYRsi0CIOS',
+};
+
 export default async function handler(req, res) {
   const origin = req.headers.origin || '*';
   res.setHeader('Access-Control-Allow-Origin', origin);
@@ -24,51 +44,76 @@ export default async function handler(req, res) {
 
     const data = req.body;
 
-    // Build contact payload for GHL Contacts API
+    // Split "Full Name" into first / last for the standard GHL name fields.
+    const fullName = (data.full_name || '').trim();
+    const nameParts = fullName.split(/\s+/);
+    const firstName = nameParts.shift() || '';
+    const lastName = nameParts.join(' ');
+
+    // Build the custom-field map, skipping empties so DATE / OPTION fields
+    // never receive an empty string (which the v1 API rejects).
+    const customField = {};
+    for (const [key, id] of Object.entries(CUSTOM_FIELDS)) {
+      const value = data[key];
+      if (value !== undefined && value !== null && String(value).trim() !== '') {
+        customField[id] = value;
+      }
+    }
+
     const contactPayload = {
-      locationId: 'YBLbWASoQgsSEqY0V5KV',
-      contactName: data.full_name || '',
+      firstName,
+      lastName,
+      name: fullName,
       email: data.email || '',
       phone: data.phone || '',
-      customFields: [
-        { id: 'Hypk6o0YeW0d0Q7y1EPH', value: data.booking_type || '' },
-        { id: 'cMUayvSNtZ1d80VvmySy', value: data.pax_count || '' },
-        { id: 'UUYJjY2Yo1A2c0v3lh', value: data.accommodation || '' },
-        { id: 'qkTonvqTT73KgTARRoP1', value: data.check_in || '' },
-        { id: '7uXW4exTH1YEFKiW0ykX', value: data.check_out || '' },
-        { id: 'XgOt9Jk9F26KuGbWjKNp', value: data.tour_date || '' },
-        { id: 'ZqB9bwF0eYDSy8XrA1t2', value: data.special_requests || '' },
-        { id: 'Vtrtrxab6IBSSvWhbTkP', value: data.dietary_restrictions || '' },
-        { id: 'PC38bar67FIYRsioCIOS', value: data.source || '' },
-      ]
+      source: data.source || 'Kamp Malaya Funnel',
+      customField,
     };
 
-    // Send to GHL Contacts API with 8-second timeout
+    // Send to GHL with an 8s timeout (Vercel Hobby has a 10s function limit).
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-    const response = await fetch('https://rest.gohighlevel.com/v1/contacts/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GHL_API_KEY}`
-      },
-      body: JSON.stringify(contactPayload),
-      signal: controller.signal
-    });
+    let response;
+    try {
+      response = await fetch('https://rest.gohighlevel.com/v1/contacts/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.GHL_API_KEY}`,
+        },
+        body: JSON.stringify(contactPayload),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
-    clearTimeout(timeoutId);
-
-    const result = await response.json();
+    // GHL should return JSON, but guard against an HTML error page.
+    const raw = await response.text();
+    let result;
+    try {
+      result = raw ? JSON.parse(raw) : {};
+    } catch {
+      console.error('GHL non-JSON response:', response.status, raw.slice(0, 500));
+      return res.status(502).json({
+        success: false,
+        error: `GHL returned a non-JSON response (status ${response.status})`,
+      });
+    }
 
     if (!response.ok) {
-      throw new Error(result.message || `GHL API returned ${response.status}`);
+      console.error('GHL API error:', response.status, result);
+      return res.status(response.status === 401 ? 401 : 502).json({
+        success: false,
+        error: result.message || result.msg || `GHL API returned ${response.status}`,
+      });
     }
 
     return res.status(200).json({
       success: true,
       message: 'Booking submitted successfully',
-      contactId: result.contact?.id || result.id
+      contactId: result.contact?.id || result.id || null,
     });
 
   } catch (error) {
@@ -77,13 +122,13 @@ export default async function handler(req, res) {
     if (error.name === 'AbortError') {
       return res.status(504).json({
         success: false,
-        error: 'GHL API timed out — please try again later'
+        error: 'GHL API timed out — please try again later',
       });
     }
 
     return res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 }
