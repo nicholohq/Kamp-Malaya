@@ -43,6 +43,18 @@ function pick(body, keys) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // Shared-secret gate: once BLOCK_DATES_TOKEN is set in Vercel, the GHL workflow
+  // must include the matching token (?token=... or X-Webhook-Token header) so
+  // random actors can't POST fake blocks to grey out the calendar.
+  const requiredToken = process.env.BLOCK_DATES_TOKEN;
+  if (requiredToken) {
+    const provided = req.query.token || req.headers['x-webhook-token'];
+    if (provided !== requiredToken) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  }
+
   if (!process.env.GHL_API_KEY) return res.status(500).json({ error: 'GHL API key not configured' });
 
   const body = req.body || {};
