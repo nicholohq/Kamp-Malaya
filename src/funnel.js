@@ -1,5 +1,6 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import './chat-widget.js';
 
 // ============================================================
 // 1. JOINER DATES (2026 Schedule)

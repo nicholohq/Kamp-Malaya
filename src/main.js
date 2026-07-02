@@ -1,6 +1,9 @@
 // ---------- CURATED REVIEWS (renders cards + injects review schema) ----------
 import './reviews.js';
 
+// ---------- FLOATING CHAT WIDGET (WhatsApp + Messenger + Book) ----------
+import './chat-widget.js';
+
 // ---------- FUNNEL URL ----------
 const FUNNEL_URL = 'funnel.html';
 
