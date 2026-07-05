@@ -73,21 +73,51 @@ export default async function handler(req, res) {
   }
 
   const title = `[${room}] ${name || 'Booking'}`.slice(0, 120);
+  const startTime = `${checkIn}T00:00:00+08:00`;
+  const endTime = `${checkOut}T00:00:00+08:00`;
+
+  const authHeaders = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${process.env.GHL_API_KEY}`,
+    Version: '2021-04-15',
+  };
 
   try {
+    // Idempotency: if an identical block (same title + exact dates) already
+    // exists, skip creating another. The GHL workflow can re-fire the tag, so
+    // without this the calendar accumulates duplicate blocks for one booking.
+    try {
+      const windowStart = Date.parse(startTime);
+      const windowEnd = Date.parse(endTime) + 86400000; // pad a day so the block is returned
+      const existingRes = await fetch(
+        `${GHL_BASE}/calendars/blocked-slots?locationId=${LOCATION_ID}`
+          + `&calendarId=${CALENDAR_ID}&startTime=${windowStart}&endTime=${windowEnd}`,
+        { headers: authHeaders },
+      );
+      if (existingRes.ok) {
+        const existing = await existingRes.json().catch(() => ({}));
+        const dup = (existing.events || []).find(ev =>
+          ev.title === title
+          && String(ev.startTime).slice(0, 10) === checkIn
+          && String(ev.endTime).slice(0, 10) === checkOut);
+        if (dup) {
+          return res.status(200).json({ blocked: true, duplicate: true, eventId: dup.id, title, checkIn, checkOut });
+        }
+      }
+    } catch (dupErr) {
+      // Non-fatal: if the dedup check fails, fall through and create the block.
+      console.error('block-dates dedup check failed:', dupErr.name || dupErr.message);
+    }
+
     const ghl = await fetch(`${GHL_BASE}/calendars/events/block-slots`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.GHL_API_KEY}`,
-        Version: '2021-04-15',
-      },
+      headers: authHeaders,
       body: JSON.stringify({
         locationId: LOCATION_ID,
         calendarId: CALENDAR_ID,
         title,
-        startTime: `${checkIn}T00:00:00+08:00`,
-        endTime: `${checkOut}T00:00:00+08:00`,
+        startTime,
+        endTime,
       }),
     });
 
