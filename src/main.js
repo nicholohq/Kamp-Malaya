@@ -63,7 +63,7 @@ const slides = [
 const carouselImg = document.getElementById('carouselImg');
 const carouselCaption = document.getElementById('carouselCaption');
 const dots = document.querySelectorAll('.dot');
-let current = 0, carouselTimer;
+let current = 0;
 
 function goTo(i) {
   current = i;
@@ -81,7 +81,26 @@ if (dots.length > 0) {
   dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); resetTimer(); }));
 }
 
-function nextSlide() { goTo((current + 1) % slides.length); }
+function prevSlide() { goTo((current - 1 + slides.length) % slides.length); resetTimer(); }
+function nextSlide() { goTo((current + 1) % slides.length); resetTimer(); }
+
+document.getElementById('carouselPrev')?.addEventListener('click', prevSlide);
+document.getElementById('carouselNext')?.addEventListener('click', nextSlide);
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') prevSlide();
+  if (e.key === 'ArrowRight') nextSlide();
+});
+
+// Pause on hover
+const carouselEl = document.querySelector('#adventures .carousel-track')?.closest('.relative');
+if (carouselEl) {
+  carouselEl.addEventListener('mouseenter', () => { if (carouselTimer) clearInterval(carouselTimer); });
+  carouselEl.addEventListener('mouseleave', resetTimer);
+}
+
+let carouselTimer;
 function resetTimer() { 
   if (carouselTimer) clearInterval(carouselTimer); 
   carouselTimer = setInterval(nextSlide, 4500); 
