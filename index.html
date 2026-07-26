@@ -78,18 +78,17 @@
 
 <!-- ===================== SECTION 1: HERO ===================== -->
 <header id="hero" class="relative h-[100svh] w-full overflow-hidden">
-  <!-- Background video (poster shows first for fast LCP; falls back to poster if video unsupported) -->
-  <video class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline
+  <!-- solid warm background (coral) -->
+  <div class="absolute inset-0 bg-[#E76F51]/20"></div>
+
+  <!-- background video — multiply-blended onto coral -->
+  <video class="absolute inset-0 w-full h-full object-cover mix-blend-multiply" autoplay muted loop playsinline
          preload="metadata" poster="/gallery/photo-landscape-1.jpg" aria-hidden="true">
     <source src="/hero-video/upscaled-video.mp4" type="video/mp4" />
   </video>
 
-  <!-- warm multiply tint -->
-  <div class="absolute inset-0 bg-[#E76F51] opacity-[0.08] mix-blend-multiply"></div>
-  <!-- warm radial vignette -->
-  <div class="hero-vignette"></div>
-  <!-- warm gradient overlay -->
-  <div class="absolute inset-0 bg-gradient-to-b from-[#E76F51]/25 via-[#D4AF37]/10 to-[#1A1A1A]/80"></div>
+  <!-- warm gradient overlay for depth -->
+  <div class="absolute inset-0 bg-gradient-to-b from-[#E76F51]/15 via-[#D4AF37]/15 to-[#1A1A1A]/80"></div>
 
   <!-- Hero content - responsive text sizes -->
   <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 sm:px-6">
@@ -252,10 +251,8 @@
     <!-- Tour list -->
     <div class="reveal space-y-4 self-start">
       <!-- Tour item template -->
-      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all border-l-4 hover:border-coral cursor-pointer">
-        <div class="text-coral mt-1">
-          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/><path d="M7 3v18"/></svg>
-        </div>
+      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all cursor-pointer">
+        <div class="text-coral mt-1 shrink-0 text-xl"><i class="fa-solid fa-compass"></i></div>
         <div class="flex-1">
           <h3 class="font-display text-charcoal text-xl">Island Hopping</h3>
           <p class="text-graytext text-sm mt-1">Chase sandbars and secret coves across the Balabac archipelago.</p>
@@ -263,10 +260,8 @@
         </div>
       </div>
 
-      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all border-l-4 hover:border-coral cursor-pointer">
-        <div class="text-coral mt-1">
-          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
-        </div>
+      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all cursor-pointer">
+        <div class="text-coral mt-1 shrink-0 text-xl"><i class="fa-solid fa-water"></i></div>
         <div class="flex-1">
           <h3 class="font-display text-charcoal text-xl">Reef Sanctuary Snorkeling</h3>
           <p class="text-graytext text-sm mt-1">Glide above living coral gardens teeming with marine life.</p>
@@ -274,10 +269,8 @@
         </div>
       </div>
 
-      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all border-l-4 hover:border-coral cursor-pointer">
-        <div class="text-coral mt-1">
-          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
-        </div>
+      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all cursor-pointer">
+        <div class="text-coral mt-1 shrink-0 text-xl"><i class="fa-solid fa-fire"></i></div>
         <div class="flex-1">
           <h3 class="font-display text-charcoal text-xl">Firefly Lagoon Night Tour</h3>
           <p class="text-graytext text-sm mt-1">Drift through mangroves lit by thousands of fireflies.</p>
@@ -285,10 +278,8 @@
         </div>
       </div>
 
-      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all border-l-4 hover:border-coral cursor-pointer">
-        <div class="text-coral mt-1">
-          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9v.01M9 13v.01M9 17v.01"/></svg>
-        </div>
+      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all cursor-pointer">
+        <div class="text-coral mt-1 shrink-0 text-xl"><i class="fa-solid fa-people-roof"></i></div>
         <div class="flex-1">
           <h3 class="font-display text-charcoal text-xl">Local Village Visit</h3>
           <p class="text-graytext text-sm mt-1">Meet the Molbog community and share in their way of life.</p>

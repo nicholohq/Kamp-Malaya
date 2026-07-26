@@ -70,15 +70,6 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 .hero-anim.d3 { animation-delay: .9s; }
 .hero-anim.d4 { animation-delay: 1.2s; }
 
-/* Warm vignette for hero video */
-.hero-vignette {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 35%, rgba(231, 111, 81, 0.15) 65%, rgba(26, 26, 26, 0.45) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-
 /* Parallax */
 .parallax { background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; }
 @media (max-width: 768px) { .parallax { background-attachment: scroll; } }
