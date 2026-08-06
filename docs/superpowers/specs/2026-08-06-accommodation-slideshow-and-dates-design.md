@@ -90,5 +90,6 @@ May 27–31 (5 days) and Dec 21–24 (off the weekly rhythm) are exactly as prin
 
 ## Future work (parked)
 
+- **Photo enhancement pass** (requested by Jamie 2026-08-06): after he finishes renaming, Claude reviews the photos and adds a batch adjustment step (brightness/contrast/saturation lift for dim shots, mild sharpening after downsize) — implemented with sharp, applied consistently, likely as part of `scripts/convert-photos.mjs` or a sibling script.
 - Itinerary section → boat photos (`public/gallery/boats/`, includes `speedboat(10-12pax)` and `katig(25pax)` shots).
 - Sicsican Island camp section → CR photos (`public/gallery/cr/`).
