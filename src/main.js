@@ -112,9 +112,9 @@ resetTimer();
 // The cover (first) photo is the static <img> already in the HTML markup;
 // these arrays hold the ADDITIONAL slides. Empty array = static card.
 const ROOM_SLIDES = {
-  canopy: [],
-  kubo: [],
-  villa: [],
+  canopy: ['canopy-2.webp'],
+  kubo: ['kubo-2.webp', 'kubo-3.webp', 'kubo-4.webp', 'kubo-5.webp', 'kubo-6.webp', 'kubo-7.webp'],
+  villa: ['villa-2.webp', 'villa-3.webp', 'villa-4.webp', 'villa-5.webp', 'villa-6.webp', 'villa-7.webp', 'villa-8.webp', 'villa-9.webp', 'villa-10.webp'],
 };
 const ROOM_ALTS = {
   canopy: 'Canopy Tent at Kamp Malaya',
