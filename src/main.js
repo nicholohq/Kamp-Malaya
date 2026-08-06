@@ -121,7 +121,7 @@ const ROOM_ALTS = {
   kubo: 'Kubo by the Shore at Kamp Malaya',
   villa: 'Malaya Villa at Kamp Malaya',
 };
-const SLIDE_INTERVAL_MS = 2000;
+const SLIDE_INTERVAL_MS = 1200;
 
 const canHover = window.matchMedia('(hover: hover)').matches;
 

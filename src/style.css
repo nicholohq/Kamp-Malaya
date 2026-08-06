@@ -111,12 +111,15 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 .lift:hover .gold-frame { box-shadow: inset 0 0 0 2px var(--gold); }
 
 /* Accommodation card slideshow (extra slides stacked over the cover image) */
+/* Portrait room photos show in full via object-contain; the warm-gray wrapper
+   background fills the letterbox area beside them. */
+[data-slides-key] { background-color: var(--warmgray); }
 .room-slide {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   opacity: 0;
   transition: opacity .6s ease;
   pointer-events: none;
