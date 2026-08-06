@@ -18,11 +18,18 @@
 - Do not change: pricing copy, Book Now buttons, GHL form field names/values, the flatpickr private-stay pickers, or the `?date=` deep-link behavior (`tour_date` option `value` stays the ISO start date, e.g. `2027-03-04`).
 - `package.json` has no `"type": "module"` — any file Node imports directly as ESM must use the `.mjs` extension.
 - The repo runs on Windows; commands below work in both PowerShell and Git Bash unless noted.
-- Task 5 is blocked until the site owner renames the accommodation HEIC originals (see Task 5 preamble). Tasks 1–4 have no such dependency.
+- Task 5 is blocked until the site owner renames the converted accommodation WebPs in `photos-to-rename/` (see Task 5 preamble). Task 1 is already done; Tasks 2–4 have no dependency on the renaming.
 
 ---
 
-### Task 1: Photo conversion script (`npm run photos`)
+### Task 1: Photo conversion script (`npm run photos`) — ✅ ALREADY DONE (2026-08-06)
+
+**This task was completed ahead of plan execution** (the owner needed viewable images to rename, since Windows can't display HEIC). Differences from the original draft:
+
+- Accommodation photos output to **`photos-to-rename/`** (project root, gitignored) instead of `public/gallery/rooms/` — the owner renames the WebPs there while viewing them, and Task 5 **moves** the renamed files into `public/gallery/rooms/` (no re-conversion).
+- The script exists at `scripts/convert-photos.mjs`; `npm run photos` is wired; `sharp` + `heic-convert` are installed as devDependencies; boats (16 files) and CR (9 files) WebPs are converted into `public/gallery/boats/` and `public/gallery/cr/`; all 65 conversions succeeded, idempotency verified.
+
+**Skip to Task 2.** The steps below are retained only as a record of what the script does.
 
 **Files:**
 - Create: `scripts/convert-photos.mjs`
@@ -30,7 +37,7 @@
 
 **Interfaces:**
 - Consumes: image originals in `originals-backup/Accommodations/`, `originals-backup/Boats/`, `originals-backup/CR/` (HEIC, JFIF, JPG, PNG).
-- Produces: WebP files (max width 1200, quality 80, slugified lowercase names) in `public/gallery/rooms/`, `public/gallery/boats/`, `public/gallery/cr/`. Task 5 relies on `originals-backup/Accommodations/canopy-1.heic` → `public/gallery/rooms/canopy-1.webp` naming.
+- Produces: WebP files (max width 1200, quality 80, slugified lowercase names) in `photos-to-rename/`, `public/gallery/boats/`, `public/gallery/cr/`. Task 5 relies on the owner renaming `photos-to-rename/*.webp` to `canopy-N.webp` / `kubo-N.webp` / `villa-N.webp`.
 
 - [ ] **Step 1: Install dev dependencies**
 
@@ -598,33 +605,34 @@ Verify with `git diff --cached` before committing that `ROOM_SLIDES` arrays are 
 
 ### Task 5: Wire the real accommodation photos (BLOCKED on owner renaming)
 
-**Precondition — do not start until:** the owner has renamed the HEIC files in `originals-backup/Accommodations/` to `canopy-1.heic`, `canopy-2.heic`, …, `kubo-1.heic`, …, `villa-1.heic`, … (`-1` = cover photo per room). If files named `img_50xx`/`IMG_50xx` still dominate that folder, stop and ask the owner.
+**Precondition — do not start until:** the owner has renamed the WebP files in `photos-to-rename/` (project root) to `canopy-1.webp`, `canopy-2.webp`, …, `kubo-1.webp`, …, `villa-1.webp`, … (`-1` = cover photo per room). If files named `img-50xx.webp` still dominate that folder, stop and ask the owner. Leftover un-renamed files (photos the owner chose not to use) are simply not copied.
 
 **Files:**
+- Create: `public/gallery/rooms/` (copied from `photos-to-rename/`)
 - Modify: `src/main.js` (`ROOM_SLIDES` arrays from Task 4)
 - Modify: `index.html` (the three cover `<img>` tags, currently lines 196, 211, 226)
-- Possibly delete: stale `public/gallery/rooms/img-50xx.webp` files from Task 1
 
 **Interfaces:**
-- Consumes: renamed originals; `npm run photos` (Task 1); `ROOM_SLIDES` manifest (Task 4).
+- Consumes: renamed WebPs in `photos-to-rename/`; `ROOM_SLIDES` manifest (Task 4).
 - Produces: live slideshows with real photos; new cover images.
 
-- [ ] **Step 1: Convert the renamed photos**
+- [ ] **Step 1: Copy the renamed photos into the site**
 
-Run: `npm run photos`
-Expected: `public/gallery/rooms/` gains `canopy-1.webp` … `villa-N.webp`. Then list them:
-
-Run (PowerShell): `ls public/gallery/rooms`
-
-- [ ] **Step 2: Remove stale outputs from before the renaming**
-
-Delete any `public/gallery/rooms/img-*.webp`, `tent-area.webp`, `tent-inside.webp` files whose source no longer exists under those names (the renamed sources produce the new canopy/kubo/villa outputs). PowerShell:
+PowerShell:
 
 ```powershell
-Remove-Item public/gallery/rooms/img-*.webp, public/gallery/rooms/tent-*.webp -Confirm:$false
+New-Item -ItemType Directory -Force public/gallery/rooms
+Copy-Item photos-to-rename/canopy-*.webp, photos-to-rename/kubo-*.webp, photos-to-rename/villa-*.webp public/gallery/rooms/
 ```
 
-(Skip whichever patterns don't exist; only remove files NOT referenced by the new naming scheme.)
+Then list what arrived:
+
+Run (PowerShell): `ls public/gallery/rooms`
+Expected: only `canopy-N.webp`, `kubo-N.webp`, `villa-N.webp` files — no `img-*.webp`.
+
+- [ ] **Step 2: Confirm every room has a cover**
+
+Verify `canopy-1.webp`, `kubo-1.webp`, and `villa-1.webp` all exist in `public/gallery/rooms/`. If any is missing, stop and ask the owner which photo is that room's cover.
 
 - [ ] **Step 3: Fill the manifest**
 

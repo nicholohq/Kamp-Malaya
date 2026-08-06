@@ -8,6 +8,7 @@ dist-ssr/
 
 # Local backups / scratch — not needed in the repo or the deploy
 originals-backup/
+photos-to-rename/
 
 # Logs
 *.log

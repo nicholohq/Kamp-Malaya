@@ -15,16 +15,21 @@ Out of scope (noted for future work): a new itinerary section using the boat pho
 
 ## 1. Photo pipeline & naming convention
 
-**Source folders** (already in repo): `originals-backup/Accommodations/`, `originals-backup/Boats/`, `originals-backup/CR/` — iPhone HEIC files plus a few `.jfif`.
+**Source folders** (local only — gitignored): `originals-backup/Accommodations/`, `originals-backup/Boats/`, `originals-backup/CR/` — iPhone HEIC files plus a few `.jfif`.
 
-**Naming convention (Jamie renames the originals):** accommodation photos become `canopy-1.heic`, `canopy-2.heic`, `kubo-1.heic`, `villa-1.heic`, etc. Any count per room. `-1` is the cover image (shown before any interaction). Boats and CR files can keep any descriptive name; they convert as-is.
+**Convert first, rename after** (Jamie can't view HEIC files on Windows, so renaming happens on the converted WebPs):
 
-**Conversion script:** `scripts/convert-photos.mjs`, run manually via `npm run photos`.
+1. `npm run photos` converts everything to viewable WebP (done 2026-08-06).
+2. Accommodation photos land in `photos-to-rename/` (project root, gitignored). Jamie views them there and renames each to `canopy-1.webp`, `canopy-2.webp`, `kubo-1.webp`, `villa-1.webp`, etc. Any count per room; `-1` is the cover image (shown before any interaction).
+3. The renamed files then get moved into `public/gallery/rooms/` (implementation Task 5) — no re-conversion needed.
+4. Boat and CR photos need no renaming and convert straight to `public/gallery/boats/` and `public/gallery/cr/`.
+
+**Conversion script:** `scripts/convert-photos.mjs`, run manually via `npm run photos` (already implemented and run).
 
 - Dev dependencies: `heic-convert` (HEIC decode — sharp's prebuilt libvips cannot read HEIC) and `sharp` (resize/encode).
-- Reads HEIC/JFIF/JPG from the three source folders.
+- Reads HEIC/JFIF/JPG/PNG from the three source folders; slugifies names (lowercase, hyphens).
 - Outputs WebP, max width 1200px, quality ~80, to:
-  - `public/gallery/rooms/` (accommodations)
+  - `photos-to-rename/` (accommodations — staging for manual renaming)
   - `public/gallery/boats/`
   - `public/gallery/cr/`
 - Idempotent: skips outputs that already exist and are newer than the source.
