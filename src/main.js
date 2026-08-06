@@ -67,14 +67,19 @@ let current = 0;
 
 function goTo(i) {
   current = i;
+  dots.forEach((d, di) => d.classList.toggle('active', di === i));
   carouselImg.style.opacity = 0;
   setTimeout(() => {
-    carouselImg.src = slides[i].img;
-    carouselImg.alt = slides[i].caption;
-    carouselCaption.textContent = slides[i].caption;
-    carouselImg.style.opacity = 1;
+    const next = new Image();
+    next.src = slides[i].img;
+    const show = () => {
+      carouselImg.src = slides[i].img;
+      carouselImg.alt = slides[i].caption;
+      carouselCaption.textContent = slides[i].caption;
+      carouselImg.style.opacity = 1;
+    };
+    (next.decode ? next.decode().then(show).catch(show) : show());
   }, 300);
-  dots.forEach((d, di) => d.classList.toggle('active', di === i));
 }
 
 if (dots.length > 0) {
@@ -99,6 +104,22 @@ if (carouselEl) {
   carouselEl.addEventListener('mouseenter', () => { if (carouselTimer) clearInterval(carouselTimer); });
   carouselEl.addEventListener('mouseleave', resetTimer);
 }
+
+// Warm the cache for the non-initial slides so switching is instant instead of
+// lingering on the first (Island Hopping) image while the others download.
+let slidesPreloaded = false;
+function preloadSlides() {
+  if (slidesPreloaded) return;
+  slidesPreloaded = true;
+  slides.forEach(s => { const im = new Image(); im.src = s.img; });
+}
+if (carouselEl) {
+  const pobs = new IntersectionObserver((entries, obs) => {
+    if (entries.some(e => e.isIntersecting)) { preloadSlides(); obs.disconnect(); }
+  }, { rootMargin: '600px' });
+  pobs.observe(carouselEl);
+}
+window.addEventListener('load', preloadSlides);
 
 let carouselTimer;
 function resetTimer() {
