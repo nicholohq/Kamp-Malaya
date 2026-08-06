@@ -57,8 +57,8 @@ learnMoreBtns.forEach(function(btn) {
 const slides = [
   { img: '/gallery/aerial_view.jpg', caption: 'Island Hopping' },
   { img: '/gallery/reefsanctuary.webp', caption: 'Reef Sanctuary Snorkeling' },
-  { img: '/gallery/fireflylagoon.webp', caption: 'Firefly Lagoon Night Tour' },
-  { img: '/gallery/villagevisit.webp', caption: 'Local Village Visit' },
+  { img: '/gallery/sicsican.webp', caption: 'Sicsican Island Camp' },
+  { img: '/gallery/localvillage-2.webp', caption: 'Local Village Visit' },
 ];
 const carouselImg = document.getElementById('carouselImg');
 const carouselCaption = document.getElementById('carouselCaption');
