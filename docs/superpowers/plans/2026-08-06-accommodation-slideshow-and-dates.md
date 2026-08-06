@@ -605,7 +605,7 @@ Verify with `git diff --cached` before committing that `ROOM_SLIDES` arrays are 
 
 ### Task 5: Wire the real accommodation photos (BLOCKED on owner renaming)
 
-**Precondition — do not start until:** the owner has renamed the WebP files in `photos-to-rename/` (project root) to `canopy-1.webp`, `canopy-2.webp`, …, `kubo-1.webp`, …, `villa-1.webp`, … (`-1` = cover photo per room). If files named `img-50xx.webp` still dominate that folder, stop and ask the owner. Leftover un-renamed files (photos the owner chose not to use) are simply not copied.
+**Precondition — SATISFIED 2026-08-06:** the owner renamed the WebP files in `photos-to-rename/` (project root): `canopy-1..2`, `kubo-1..7`, `villa-1..10` (19 photos; `-1` = cover). They were then batch-enhanced in place via `scripts/enhance-photos.mjs`. This task is ready to execute.
 
 **Files:**
 - Create: `public/gallery/rooms/` (copied from `photos-to-rename/`)
