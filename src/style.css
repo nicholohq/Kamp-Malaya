@@ -110,6 +110,19 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 .gold-frame { transition: box-shadow .4s ease; }
 .lift:hover .gold-frame { box-shadow: inset 0 0 0 2px var(--gold); }
 
+/* Accommodation card slideshow (extra slides stacked over the cover image) */
+.room-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .6s ease;
+  pointer-events: none;
+}
+.room-slide.show { opacity: 1; }
+
 /* Experience card reveal text */
 .exp-sub { color: var(--charcoal); transition: color .4s ease; }
 .exp-card:hover .exp-sub { color: var(--coral); }
