@@ -4,108 +4,157 @@ import './chat-widget.js';
 import { JOINER_SCHEDULE, todayISO, upcomingTours, formatTourLabel, groupByMonth } from './joiner-schedule.mjs';
 
 // ============================================================
-// 2. POPULATE JOINER DATES
+// 2. RENDER TOUR DATE CARDS + MONTH PILLS
 // ============================================================
-function populateJoinerDates() {
-  const select = document.getElementById('tour_date');
-  if (!select) return;
+let selectedTourDate = null;
+let tourGroups = [];
 
-  // keep only the disabled "Select departure date" placeholder (first child)
-  while (select.children.length > 1) {
-    select.lastChild.remove();
-  }
+function renderTourCards() {
+  const pillsContainer = document.getElementById('month-pills');
+  const gridContainer = document.getElementById('tour-card-grid');
+  if (!pillsContainer || !gridContainer) return;
 
-  const groups = groupByMonth(upcomingTours(JOINER_SCHEDULE, todayISO()));
-  groups.forEach(group => {
-    const optgroup = document.createElement('optgroup');
-    optgroup.label = group.label;
-    group.tours.forEach(tour => {
-      const option = document.createElement('option');
-      option.value = tour.start;
-      option.textContent = formatTourLabel(tour);
-      optgroup.appendChild(option);
+  tourGroups = groupByMonth(upcomingTours(JOINER_SCHEDULE, todayISO()));
+  const firstMonth = tourGroups.length > 0 ? tourGroups[0].label : null;
+
+  pillsContainer.innerHTML = '';
+  tourGroups.forEach(group => {
+    const pill = document.createElement('button');
+    pill.type = 'button';
+    pill.className = 'month-pill' + (group.label === firstMonth ? ' active' : '');
+    pill.textContent = group.label;
+    pill.dataset.month = group.label;
+    pill.addEventListener('click', () => filterByMonth(group.label));
+    pillsContainer.appendChild(pill);
+  });
+
+  if (firstMonth) filterByMonth(firstMonth);
+}
+
+function filterByMonth(monthLabel) {
+  const pillsContainer = document.getElementById('month-pills');
+  const gridContainer = document.getElementById('tour-card-grid');
+  const hiddenInput = document.getElementById('tour_date');
+  if (!gridContainer) return;
+
+  pillsContainer.querySelectorAll('.month-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.month === monthLabel);
+  });
+
+  const group = tourGroups.find(g => g.label === monthLabel);
+  gridContainer.innerHTML = '';
+  if (!group) return;
+
+  group.tours.forEach(tour => {
+    const card = document.createElement('div');
+    card.className = 'tour-card';
+    card.dataset.date = tour.start;
+    const slotsClass = tour.slots <= 5 ? ' low' : '';
+    card.innerHTML = `
+      <div class="tour-card-date">${formatTourLabel(tour)}</div>
+      <div class="tour-card-price">&#8369;${tour.price.toLocaleString()}/head</div>
+      <div class="tour-card-slots${slotsClass}">${tour.slots} slot${tour.slots !== 1 ? 's' : ''} left</div>
+    `;
+    card.addEventListener('click', () => {
+      gridContainer.querySelectorAll('.tour-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      hiddenInput.value = tour.start;
+      selectedTourDate = tour.start;
+      const joinerPax = document.getElementById('pax-stepper-joiner');
+      if (joinerPax) joinerPax.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
-    select.appendChild(optgroup);
+    gridContainer.appendChild(card);
   });
 }
 
 // ============================================================
-// 3. BOOKING TYPE TOGGLE
+// 3. PAX STEPPER LOGIC
+// ============================================================
+function initStepper(inputId, options = {}) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const container = input.closest('.stepper');
+  const minusBtn = container.querySelector('.stepper-minus');
+  const plusBtn = container.querySelector('.stepper-plus');
+  const max = parseInt(input.max, 10) || 10;
+  const min = parseInt(input.min, 10) || 1;
+
+  function update(val) {
+    const clamped = Math.max(min, Math.min(max, val));
+    input.value = clamped;
+    minusBtn.disabled = clamped <= min;
+    plusBtn.disabled = clamped >= max;
+    if (options.onChange) options.onChange(clamped);
+  }
+
+  minusBtn.addEventListener('click', () => update((parseInt(input.value, 10) || min) - 1));
+  plusBtn.addEventListener('click', () => update((parseInt(input.value, 10) || min) + 1));
+  input.addEventListener('change', () => update(parseInt(input.value, 10) || min));
+  input.addEventListener('focus', () => input.select());
+
+  update(parseInt(input.value, 10) || min);
+}
+
+function initChildrenToggle(toggleId, wrapId, mainInputId, childInputId) {
+  const toggle = document.getElementById(toggleId);
+  const wrap = document.getElementById(wrapId);
+  const mainInput = document.getElementById(mainInputId);
+  const childInput = document.getElementById(childInputId);
+  if (!toggle || !wrap) return;
+
+  toggle.addEventListener('click', () => {
+    wrap.classList.toggle('hidden');
+    if (wrap.classList.contains('hidden')) childInput.value = 0;
+  });
+
+  function checkToggle() {
+    const val = parseInt(mainInput.value, 10) || 0;
+    if (val >= 3) {
+      toggle.classList.remove('hidden');
+    } else {
+      toggle.classList.add('hidden');
+      wrap.classList.add('hidden');
+      childInput.value = 0;
+    }
+  }
+
+  mainInput.addEventListener('change', checkToggle);
+  const container = mainInput.closest('.stepper');
+  container.querySelectorAll('.stepper-btn').forEach(btn => {
+    btn.addEventListener('click', () => setTimeout(checkToggle, 0));
+  });
+  checkToggle();
+}
+
+// ============================================================
+// 4. BOOKING TYPE TOGGLE
 // ============================================================
 function selectBookingType(type) {
-  // Set the hidden field value to match GHL's expected values
   document.getElementById('booking_type').value = type === 'private' ? 'Private Stay' : 'Joiner Tour';
-  
+
   document.getElementById('private-toggle').classList.toggle('active', type === 'private');
   document.getElementById('joiner-toggle').classList.toggle('active', type === 'joiner');
-  
+
   const privateFields = document.getElementById('private-fields');
   const joinerFields = document.getElementById('joiner-fields');
-  
+
   if (type === 'private') {
     privateFields.classList.remove('hidden');
     joinerFields.classList.add('hidden');
     document.querySelectorAll('#private-fields [required]').forEach(el => el.disabled = false);
     document.querySelectorAll('#joiner-fields [required]').forEach(el => el.disabled = true);
     document.getElementById('submitBtn').innerHTML = 'Check Availability &rarr;';
-    
-    // Show large group note if 5+ selected
-    const pax = document.getElementById('pax_count');
-    if (pax && pax.value === '5+') {
-      document.getElementById('private-large-group-note').classList.remove('hidden');
-    } else {
-      document.getElementById('private-large-group-note').classList.add('hidden');
-    }
   } else {
     joinerFields.classList.remove('hidden');
     privateFields.classList.add('hidden');
     document.querySelectorAll('#joiner-fields [required]').forEach(el => el.disabled = false);
     document.querySelectorAll('#private-fields [required]').forEach(el => el.disabled = true);
     document.getElementById('submitBtn').innerHTML = 'Submit Joiner Inquiry &rarr;';
-    
-    // Sync pax value to joiner select if needed
-    const paxMain = document.getElementById('pax_count');
-    const paxJoiner = document.getElementById('pax_count_joiner');
-    if (paxMain && paxJoiner && paxMain.value) {
-      paxJoiner.value = paxMain.value;
-    }
-  }
-  
-  handlePaxChange();
-}
-
-// ============================================================
-// 4. PAX CHANGE HANDLER
-// ============================================================
-function handlePaxChange() {
-  const paxSelect = document.getElementById('pax_count_joiner');
-  const note = document.getElementById('large-group-note');
-  if (paxSelect && note) {
-    if (paxSelect.value === '5+') {
-      note.classList.remove('hidden');
-    } else {
-      note.classList.add('hidden');
-    }
   }
 }
 
 // ============================================================
-// 5. PAX COUNT CHANGE HANDLER (Main)
-// ============================================================
-function handlePaxMainChange() {
-  const pax = document.getElementById('pax_count');
-  const note = document.getElementById('private-large-group-note');
-  if (pax && note) {
-    if (pax.value === '5+') {
-      note.classList.remove('hidden');
-    } else {
-      note.classList.add('hidden');
-    }
-  }
-}
-
-// ============================================================
-// 6. REVEAL ON SCROLL
+// 5. REVEAL ON SCROLL
 // ============================================================
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
@@ -113,19 +162,23 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 // ============================================================
-// 7. URL PARAMETER PRE-FILLING
+// 6. URL PARAMETER PRE-FILLING
 // ============================================================
 (function prefillFromURL() {
   const params = new URLSearchParams(window.location.search);
-  
+
   if (params.get('type') === 'joiner') {
     selectBookingType('joiner');
+    renderTourCards();
     const date = params.get('date');
     if (date) {
-      const select = document.getElementById('tour_date');
-      if (select) {
-        const option = Array.from(select.options).find(opt => opt.value === date);
-        if (option) select.value = date;
+      const group = tourGroups.find(g => g.tours.some(t => t.start === date));
+      if (group) {
+        filterByMonth(group.label);
+        setTimeout(() => {
+          const card = document.querySelector(`.tour-card[data-date="${date}"]`);
+          if (card) card.click();
+        }, 50);
       }
     }
   } else {
@@ -140,8 +193,8 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
     if (pax) {
       const p = document.getElementById('pax_count');
-      if ([...p.options].some(o => o.value === pax)) p.value = pax;
-      handlePaxMainChange();
+      const num = Math.max(1, Math.min(10, parseInt(pax, 10) || 2));
+      p.value = num;
     }
     if (room) {
       const a = document.getElementById('accommodation');
@@ -153,7 +206,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 })();
 
 // ============================================================
-// 8. GHL FORM SUBMISSION (Webhook Approach)
+// 7. GHL FORM SUBMISSION (Webhook Approach)
 // ============================================================
 const form = document.getElementById('inquiryForm');
 const formWrap = document.getElementById('formWrap');
@@ -173,7 +226,7 @@ form.addEventListener('submit', async function (e) {
 
   const bookingType = document.getElementById('booking_type').value;
   let required = ['full_name', 'email', 'phone'];
-  
+
   if (bookingType === 'Private Stay') {
     required.push('pax_count', 'accommodation', 'check_in', 'check_out');
   } else if (bookingType === 'Joiner Tour') {
@@ -216,17 +269,17 @@ form.addEventListener('submit', async function (e) {
 
     // Show success
     const firstName = (data.full_name || '').trim().split(' ')[0] || 'there';
-    
+
     document.getElementById('successHeading').textContent = 'Thank you, ' + firstName + '!';
-    
+
     if (bookingType === 'Joiner Tour') {
-      document.getElementById('successMsg').innerHTML = 
+      document.getElementById('successMsg').innerHTML =
         `Your <strong>4D/3N Balabac Island Tour</strong> inquiry has been received. We'll send you payment instructions for the ₱1,000/head deposit within <strong>24 hours</strong>.`;
     } else {
-      document.getElementById('successMsg').innerHTML = 
+      document.getElementById('successMsg').innerHTML =
         `Your <strong>Private Stay Inquiry</strong> has been received. We'll get back to you within <strong>24 hours</strong> with room options.`;
     }
-    
+
     document.getElementById('successEmail').textContent = 'A confirmation email has been sent to ' + data.email;
 
     formWrap.classList.add('hidden');
@@ -251,18 +304,28 @@ form.addEventListener('submit', async function (e) {
 });
 
 // ============================================================
-// 9. INIT
+// 8. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-  populateJoinerDates();
-  document.getElementById('pax_count_joiner').addEventListener('change', handlePaxChange);
-  document.getElementById('pax_count').addEventListener('change', handlePaxMainChange);
-  
-  // Add booking type toggle event listeners
+  if (window.location.search && window.location.search.includes('type=joiner')) {
+    // renderTourCards already ran in prefill for the joiner path
+  } else {
+    renderTourCards();
+  }
+
+  // Private Stay stepper
+  initStepper('pax_count');
+  initChildrenToggle('children-toggle', 'children-stepper-wrap', 'pax_count', 'children_count');
+
+  // Joiner Tour stepper
+  initStepper('pax_count_joiner');
+  initChildrenToggle('children-toggle-joiner', 'children-stepper-wrap-joiner', 'pax_count_joiner', 'children_count_joiner');
+
+  // Booking type toggles
   document.getElementById('private-toggle').addEventListener('click', function() {
     selectBookingType('private');
   });
-  
+
   document.getElementById('joiner-toggle').addEventListener('click', function() {
     selectBookingType('joiner');
   });
@@ -309,10 +372,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================================
-// 10. EXPOSE FUNCTIONS GLOBALLY (for debugging and onclick)
+// 9. EXPOSE FUNCTIONS GLOBALLY (for debugging and onclick)
 // ============================================================
 window.selectBookingType = selectBookingType;
-window.handlePaxChange = handlePaxChange;
-window.handlePaxMainChange = handlePaxMainChange;
+window.renderTourCards = renderTourCards;
 
 console.log('✅ funnel.js loaded — functions exposed globally');
