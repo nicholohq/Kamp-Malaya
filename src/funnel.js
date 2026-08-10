@@ -49,19 +49,34 @@ function filterByMonth(monthLabel) {
     const card = document.createElement('div');
     card.className = 'tour-card';
     card.dataset.date = tour.start;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-pressed', 'false');
+    card.setAttribute('aria-label', `Tour ${formatTourLabel(tour)}, ${tour.price.toLocaleString()} pesos per head, ${tour.slots} slots left`);
     const slotsClass = tour.slots <= 5 ? ' low' : '';
     card.innerHTML = `
       <div class="tour-card-date">${formatTourLabel(tour)}</div>
       <div class="tour-card-price">&#8369;${tour.price.toLocaleString()}/head</div>
       <div class="tour-card-slots${slotsClass}">${tour.slots} slot${tour.slots !== 1 ? 's' : ''} left</div>
     `;
-    card.addEventListener('click', () => {
-      gridContainer.querySelectorAll('.tour-card').forEach(c => c.classList.remove('selected'));
+    function selectCard() {
+      gridContainer.querySelectorAll('.tour-card').forEach(c => {
+        c.classList.remove('selected');
+        c.setAttribute('aria-pressed', 'false');
+      });
       card.classList.add('selected');
+      card.setAttribute('aria-pressed', 'true');
       hiddenInput.value = tour.start;
       selectedTourDate = tour.start;
       const joinerPax = document.getElementById('pax-stepper-joiner');
       if (joinerPax) joinerPax.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    card.addEventListener('click', selectCard);
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectCard();
+      }
     });
     gridContainer.appendChild(card);
   });
@@ -76,8 +91,8 @@ function initStepper(inputId, options = {}) {
   const container = input.closest('.stepper');
   const minusBtn = container.querySelector('.stepper-minus');
   const plusBtn = container.querySelector('.stepper-plus');
-  const max = parseInt(input.max, 10) || 10;
-  const min = parseInt(input.min, 10) || 1;
+  const max = Number.isFinite(Number(input.max)) ? Number(input.max) : 10;
+  const min = Number.isFinite(Number(input.min)) ? Number(input.min) : 1;
 
   function update(val) {
     const clamped = Math.max(min, Math.min(max, val));
@@ -100,7 +115,7 @@ function initChildrenToggle(toggleId, wrapId, mainInputId, childInputId) {
   const wrap = document.getElementById(wrapId);
   const mainInput = document.getElementById(mainInputId);
   const childInput = document.getElementById(childInputId);
-  if (!toggle || !wrap) return;
+  if (!toggle || !wrap) return () => {};
 
   toggle.addEventListener('click', () => {
     wrap.classList.toggle('hidden');
@@ -119,11 +134,8 @@ function initChildrenToggle(toggleId, wrapId, mainInputId, childInputId) {
   }
 
   mainInput.addEventListener('change', checkToggle);
-  const container = mainInput.closest('.stepper');
-  container.querySelectorAll('.stepper-btn').forEach(btn => {
-    btn.addEventListener('click', () => setTimeout(checkToggle, 0));
-  });
   checkToggle();
+  return checkToggle;
 }
 
 // ============================================================
@@ -180,6 +192,12 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
           if (card) card.click();
         }, 50);
       }
+    }
+    const pax = params.get('pax');
+    if (pax) {
+      const p = document.getElementById('pax_count_joiner');
+      const num = Math.max(1, Math.min(10, parseInt(pax, 10) || 2));
+      p.value = num;
     }
   } else {
     selectBookingType('private');
@@ -314,12 +332,14 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Private Stay stepper
-  initStepper('pax_count');
-  initChildrenToggle('children-toggle', 'children-stepper-wrap', 'pax_count', 'children_count');
+  const checkPrivateToggle = initChildrenToggle('children-toggle', 'children-stepper-wrap', 'pax_count', 'children_count');
+  initStepper('pax_count', { onChange: checkPrivateToggle });
+  initStepper('children_count');
 
   // Joiner Tour stepper
-  initStepper('pax_count_joiner');
-  initChildrenToggle('children-toggle-joiner', 'children-stepper-wrap-joiner', 'pax_count_joiner', 'children_count_joiner');
+  const checkJoinerToggle = initChildrenToggle('children-toggle-joiner', 'children-stepper-wrap-joiner', 'pax_count_joiner', 'children_count_joiner');
+  initStepper('pax_count_joiner', { onChange: checkJoinerToggle });
+  initStepper('children_count_joiner');
 
   // Booking type toggles
   document.getElementById('private-toggle').addEventListener('click', function() {
