@@ -119,3 +119,151 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
 }
 
 ::selection { background: var(--gold); color: var(--ink); }
+
+/* === Pax Stepper === */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+.stepper-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  user-select: none;
+}
+.stepper-btn:hover { background: var(--sand); color: var(--coral); }
+.stepper-btn:disabled { opacity: .3; cursor: not-allowed; }
+.stepper-btn:disabled:hover { background: transparent; color: var(--charcoal); }
+.stepper-input {
+  width: 52px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--charcoal);
+  -moz-appearance: textfield;
+}
+.stepper-input::-webkit-inner-spin-button,
+.stepper-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--graytext);
+  margin-top: 4px;
+}
+.stepper-sm .stepper-btn { width: 36px; height: 38px; font-size: 1rem; }
+.stepper-sm .stepper-input { width: 44px; font-size: 0.95rem; }
+
+.children-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--seagrass);
+  background: rgba(42, 157, 143, 0.08);
+  border: 1px solid rgba(42, 157, 143, 0.25);
+  border-radius: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.children-toggle-btn:hover { background: rgba(42, 157, 143, 0.15); }
+
+/* === Month Pills === */
+.month-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  scrollbar-width: thin;
+}
+.month-pills::-webkit-scrollbar { height: 4px; }
+.month-pills::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+.month-pill {
+  flex-shrink: 0;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  color: var(--graytext);
+  cursor: pointer;
+  transition: all .25s;
+  white-space: nowrap;
+}
+.month-pill:hover { border-color: var(--coral); color: var(--coral); }
+.month-pill.active { background: var(--coral); color: #fff; border-color: var(--coral); }
+
+/* === Tour Date Cards === */
+.tour-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (max-width: 480px) {
+  .tour-card-grid { grid-template-columns: 1fr; }
+}
+.tour-card {
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+}
+.tour-card:hover { border-color: var(--coral); box-shadow: 0 4px 12px rgba(231, 111, 81, .1); }
+.tour-card.selected {
+  border-color: var(--coral);
+  background: rgba(231, 111, 81, 0.04);
+  box-shadow: 0 0 0 3px rgba(231, 111, 81, .15);
+}
+.tour-card.selected::after {
+  content: '\f00c';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  color: var(--coral);
+  font-size: 0.8rem;
+}
+.tour-card-date { font-weight: 600; font-size: 0.92rem; color: var(--charcoal); }
+.tour-card-price { font-size: 0.82rem; color: var(--graytext); margin-top: 4px; }
+.tour-card-slots { font-size: 0.72rem; color: var(--seagrass); margin-top: 2px; font-weight: 500; }
+.tour-card-slots.low { color: var(--coral); }
+
+/* === Focus-visible rings (keyboard accessibility) === */
+.stepper-btn:focus-visible,
+.children-toggle-btn:focus-visible,
+.month-pill:focus-visible,
+.tour-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(231, 111, 81, .35);
+}
+
+/* === Reduced motion === */
+@media (prefers-reduced-motion: reduce) {
+  .tour-card, .month-pill, .stepper-btn, .children-toggle-btn {
+    transition: none;
+  }
+}
