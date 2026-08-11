@@ -128,26 +128,6 @@
               <input class="field" type="tel" id="phone" name="phone" placeholder="Phone Number" required />
             </div>
             <div>
-              <label class="field-label">Number of Pax</label>
-              <div class="stepper" id="pax-stepper">
-                <button type="button" class="stepper-btn stepper-minus" aria-label="Decrease pax">&minus;</button>
-                <input type="number" class="stepper-input" id="pax_count" name="pax_count" value="2" min="1" max="10" required>
-                <button type="button" class="stepper-btn stepper-plus" aria-label="Increase pax">+</button>
-              </div>
-              <span class="stepper-label">Adults</span>
-              <div id="children-toggle" class="hidden mt-2">
-                <button type="button" class="children-toggle-btn" id="children-toggle-btn"><i class="fa-solid fa-child-reaching"></i> Add children?</button>
-              </div>
-              <div id="children-stepper-wrap" class="hidden mt-2">
-                <div class="stepper stepper-sm">
-                  <button type="button" class="stepper-btn stepper-minus" aria-label="Decrease children">&minus;</button>
-                  <input type="number" class="stepper-input" id="children_count" name="children_count" value="0" min="0" max="10">
-                  <button type="button" class="stepper-btn stepper-plus" aria-label="Increase children">+</button>
-                </div>
-                <span class="stepper-label">Children (under 12)</span>
-              </div>
-            </div>
-            <div>
               <label class="field-label" for="special_requests">Special Requests <span class="text-graytext/60 normal-case tracking-normal">(optional)</span></label>
               <input class="field" type="text" id="special_requests" name="special_requests" placeholder="Dietary needs, celebrations, etc." />
             </div>
@@ -156,6 +136,26 @@
           <!-- ===== PRIVATE FIELDS ===== -->
           <div id="private-fields" class="field-group mt-4">
             <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="field-label">Number of Pax</label>
+                <div class="stepper" id="pax-stepper-private">
+                  <button type="button" class="stepper-btn stepper-minus" aria-label="Decrease pax">&minus;</button>
+                  <input type="number" class="stepper-input" id="pax_count" name="pax_count" value="2" min="1" max="10" required>
+                  <button type="button" class="stepper-btn stepper-plus" aria-label="Increase pax">+</button>
+                </div>
+                <span class="stepper-label">Adults</span>
+                <div id="children-toggle" class="hidden mt-2">
+                  <button type="button" class="children-toggle-btn" id="children-toggle-btn"><i class="fa-solid fa-child-reaching"></i> Add children?</button>
+                </div>
+                <div id="children-stepper-wrap" class="hidden mt-2">
+                  <div class="stepper stepper-sm">
+                    <button type="button" class="stepper-btn stepper-minus" aria-label="Decrease children">&minus;</button>
+                    <input type="number" class="stepper-input" id="children_count" name="children_count" value="0" min="0" max="10">
+                    <button type="button" class="stepper-btn stepper-plus" aria-label="Increase children">+</button>
+                  </div>
+                  <span class="stepper-label">Children (under 12)</span>
+                </div>
+              </div>
               <div>
                 <label class="field-label" for="accommodation">Accommodation</label>
                 <select class="field" id="accommodation" name="accommodation" required>
