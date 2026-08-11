@@ -54,6 +54,7 @@
     <ul class="hidden md:flex items-center gap-9 text-white/90 text-sm tracking-widest uppercase">
       <li><a href="#about" class="nav-link hover:text-coral transition-colors">About</a></li>
       <li><a href="#sanctuaries" class="nav-link hover:text-coral transition-colors">Sanctuaries</a></li>
+      <li><a href="#itinerary" class="nav-link hover:text-coral transition-colors">Itinerary</a></li>
       <li><a href="#experience" class="nav-link hover:text-coral transition-colors">Experiences</a></li>
       <li><a href="#gallery" class="nav-link hover:text-coral transition-colors">Gallery</a></li>
       <li><a href="funnel.html" class="btn-coral px-5 py-2 rounded-full text-xs">Inquire</a></li>
@@ -69,6 +70,7 @@
     <ul class="flex flex-col gap-6 text-white/90 text-lg tracking-widest uppercase">
       <li><a href="#about" class="mobile-link hover:text-coral">About</a></li>
       <li><a href="#sanctuaries" class="mobile-link hover:text-coral">Sanctuaries</a></li>
+      <li><a href="#itinerary" class="mobile-link hover:text-coral">Itinerary</a></li>
       <li><a href="#experience" class="mobile-link hover:text-coral">Experiences</a></li>
       <li><a href="#gallery" class="mobile-link hover:text-coral">Gallery</a></li>
       <li><a href="funnel.html" class="mobile-link text-coral">Inquire Now</a></li>
@@ -239,7 +241,169 @@
   </div>
 </section>
 
-<!-- ===================== SECTION 5: ADVENTURES ===================== -->
+<!-- ===================== SECTION 5: JOINER'S TOUR ITINERARY ===================== -->
+<section id="itinerary" class="bg-offwhite py-12 sm:py-16 px-4 sm:px-6">
+  <div class="max-w-7xl mx-auto text-center reveal">
+    <p class="font-quote text-seagrass text-xl sm:text-2xl tracking-widest uppercase">4 Days · 3 Nights</p>
+    <h2 class="font-display text-charcoal text-3xl sm:text-4xl md:text-5xl mt-2">The Joiner's Tour</h2>
+    <p class="text-graytext mt-3 text-lg">Your all-in Balabac adventure, mapped out day by day</p>
+    <p class="font-display text-charcoal text-2xl sm:text-3xl mt-3">₱14,799<span class="font-body text-base text-graytext"> / pax · joiner rate · min. 10 pax</span></p>
+    <div class="w-20 h-px bg-gold mx-auto my-5 sm:my-6"></div>
+  </div>
+
+  <!-- Day carousel (hero + island thumbnails) -->
+  <div class="max-w-4xl mx-auto mt-6 sm:mt-8 reveal">
+    <div class="relative">
+      <button type="button" id="itinPrev" class="carousel-arrow left-1 sm:-left-4" aria-label="Previous day"><i class="fa-solid fa-chevron-left"></i></button>
+      <button type="button" id="itinNext" class="carousel-arrow right-1 sm:-right-4" aria-label="Next day"><i class="fa-solid fa-chevron-right"></i></button>
+
+      <div id="itinPanels">
+        <!-- Island photos: island-onuk.jpg (Day 2) is a real CC-licensed photo. All others are
+             TEMPORARY tropical placeholders from /gallery. To swap in a real island photo: drop the
+             file in public/gallery/, then in that day's panel update (1) the hero <img src>, (2) the
+             matching .itin-thumb data-img, and (3) that thumb's inner <img src>. Update alt/data-name too.
+             Placeholder map — D1: aerial_view(Tangkahan) beachside(Patawan) sicsican(Sicsican) ·
+             D2: reefsanctuary(Nasubata Reef) · D3: whitesand(Starfish Sandbar) panorama(Candaraman)
+             coralreef(Rufos Coral Garden) · D4: sunset_boat(journey home). -->
+
+        <!-- Day 1 -->
+        <article class="itin-panel grid md:grid-cols-2 gap-6 items-stretch bg-white rounded-2xl border border-line p-5 sm:p-7" data-day="0">
+          <div>
+            <div class="rounded-2xl overflow-hidden border border-line h-56 sm:h-72"><img class="itin-hero w-full h-full object-cover" src="/gallery/aerial_view.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Tangkahan Island" /></div>
+            <p class="itin-heroCap text-graytext text-xs text-center mt-2">Tangkahan Island</p>
+            <div class="flex gap-2 mt-3 overflow-x-auto pb-1">
+              <button type="button" class="itin-thumb active shrink-0 w-20 h-16 rounded-lg overflow-hidden border border-line" data-img="/gallery/aerial_view.jpg" data-name="Tangkahan Island" aria-label="Show Tangkahan Island"><img src="/gallery/aerial_view.jpg" alt="Tangkahan Island" loading="lazy" class="w-full h-full object-cover" /></button>
+              <button type="button" class="itin-thumb shrink-0 w-20 h-16 rounded-lg overflow-hidden border border-line" data-img="/gallery/beachside.jpg" data-name="Patawan Island" aria-label="Show Patawan Island"><img src="/gallery/beachside.jpg" alt="Patawan Island" loading="lazy" class="w-full h-full object-cover" /></button>
+              <button type="button" class="itin-thumb shrink-0 w-20 h-16 rounded-lg overflow-hidden border border-line" data-img="/gallery/sicsican.webp" data-name="Sicsican Island" aria-label="Show Sicsican Island"><img src="/gallery/sicsican.webp" alt="Sicsican Island" loading="lazy" class="w-full h-full object-cover" /></button>
+            </div>
+          </div>
+          <div class="flex flex-col justify-center">
+            <h3 class="font-display text-charcoal text-xl sm:text-2xl">Arrival &amp; Island Hopping</h3>
+            <p class="text-graytext text-xs uppercase tracking-widest mt-2"><i class="fa-solid fa-utensils text-seagrass mr-1.5"></i>Day 1 · Lunch · Dinner</p>
+            <p class="text-graytext text-sm mt-3 leading-relaxed">2:30–3:00 AM hotel pick-up · 5–6 hr land transfer to Buliluyan Port · passenger speedboat to Bancalaan Port, then island hopping begins.</p>
+            <ul class="mt-3 space-y-1.5">
+              <li class="text-sm text-charcoal"><i class="fa-solid fa-location-dot text-coral mr-1.5"></i><span class="font-medium">Tangkahan Island</span></li>
+              <li class="text-sm text-charcoal"><i class="fa-solid fa-location-dot text-coral mr-1.5"></i><span class="font-medium">Patawan Island</span></li>
+              <li class="text-sm text-charcoal"><i class="fa-solid fa-location-dot text-coral mr-1.5"></i><span class="font-medium">Sicsican Island</span> <span class="text-graytext">(basecamp)</span></li>
+            </ul>
+            <p class="text-graytext text-sm mt-3"><i class="fa-solid fa-campground text-seagrass mr-1.5"></i>5:00 PM — camp at Sicsican, dinner &amp; rest.</p>
+          </div>
+        </article>
+
+        <!-- Day 2 -->
+        <article class="itin-panel hidden grid md:grid-cols-2 gap-6 items-stretch bg-white rounded-2xl border border-line p-5 sm:p-7" data-day="1">
+          <div>
+            <div class="rounded-2xl overflow-hidden border border-line h-56 sm:h-72"><img class="itin-hero w-full h-full object-cover" src="/gallery/island-onuk.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Onok Island" /></div>
+            <p class="itin-heroCap text-graytext text-xs text-center mt-2">Onok Island</p>
+            <div class="flex gap-2 mt-3 overflow-x-auto pb-1">
+              <button type="button" class="itin-thumb active shrink-0 w-20 h-16 rounded-lg overflow-hidden border border-line" data-img="/gallery/island-onuk.jpg" data-name="Onok Island" aria-label="Show Onok Island"><img src="/gallery/island-onuk.jpg" alt="Onok Island" loading="lazy" class="w-full h-full object-cover" /></button>
+              <button type="button" class="itin-thumb shrink-0 w-20 h-16 rounded-lg overflow-hidden border border-line" data-img="/gallery/reefsanctuary.webp" data-name="Nasubata Reef / Onok Wall" aria-label="Show Nasubata Reef"><img src="/gallery/reefsanctuary.webp" alt="Nasubata Reef snorkeling site" loading="lazy" class="w-full h-full object-cover" /></button>
+            </div>
+          </div>
+          <div class="flex flex-col justify-center">
+            <h3 class="font-display text-charcoal text-xl sm:text-2xl">Onok Island &amp; Snorkeling</h3>
+            <p class="text-graytext text-xs uppercase tracking-widest mt-2"><i class="fa-solid fa-utensils text-seagrass mr-1.5"></i>Day 2 · Breakfast · Lunch · Dinner</p>
+            <ul class="mt-3 space-y-1.5">
+              <li class="text-sm text-charcoal"><i class="fa-solid fa-location-dot text-coral mr-1.5"></i><span class="font-medium">Onok Island</span> <span class="text-graytext">(turtle watching, giant clams)</span></li>
+              <li class="text-sm text-charcoal"><i class="fa-solid fa-location-dot text-coral mr-1.5"></i><span class="font-medium">Nasubata Reef / Onok Wall</span> <span class="text-graytext">(snorkeling site)</span></li>
+            </ul>
+            <p class="text-graytext text-sm mt-3"><i class="fa-solid fa-campground text-seagrass mr-1.5"></i>5:00 PM — back to basecamp, dinner &amp; rest.</p>
+          </div>
+        </article>
+
+        <!-- Day 3 -->
+        <article class="itin-panel hidden grid md:grid-cols-2 gap-6 items-stretch bg-white rounded-2xl border border-line p-5 sm:p-7" data-day="2">
+          <div>
+            <div class="rounded-2xl overflow-hidden border border-line h-56 sm:h-72"><img class="itin-hero w-full h-full object-cover" src="/gallery/whitesand.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Starfish Sandbar" /></div>
+            <p class="itin-heroCap text-graytext text-xs text-center mt-2">Starfish Sandbar</p>
+            <div class="flex gap-2 mt-3 overflow-x-auto pb-1">
+              <button type="button" class="itin-thumb active shrink-0 w-20 h-16 rounded-lg overflow-hidden border border-line" data-img="/gallery/whitesand.jpg" data-name="Starfish Sandbar" aria-label="Show Starfish Sandbar"><img src="/gallery/whitesand.jpg" alt="Starfish Sandbar" loading="lazy" class="w-full h-full object-cover" /></button>
+              <button type="button" class="itin-thumb shrink-0 w-20 h-16 rounded-lg overflow-hidden border border-line" data-img="/gallery/panorama.jpg" data-name="Candaraman Island" aria-label="Show Candaraman Island"><img src="/gallery/panorama.jpg" alt="Candaraman Island" loading="lazy" class="w-full h-full object-cover" /></button>
+              <button type="button" class="itin-thumb shrink-0 w-20 h-16 rounded-lg overflow-hidden border border-line" data-img="/gallery/coralreef.webp" data-name="Rufos Coral Garden" aria-label="Show Rufos Coral Garden"><img src="/gallery/coralreef.webp" alt="Rufos Coral Garden snorkeling site" loading="lazy" class="w-full h-full object-cover" /></button>
+            </div>
+          </div>
+          <div class="flex flex-col justify-center">
+            <h3 class="font-display text-charcoal text-xl sm:text-2xl">Sandbars &amp; Coral Gardens</h3>
+            <p class="text-graytext text-xs uppercase tracking-widest mt-2"><i class="fa-solid fa-utensils text-seagrass mr-1.5"></i>Day 3 · Breakfast · Lunch · Dinner</p>
+            <ul class="mt-3 space-y-1.5">
+              <li class="text-sm text-charcoal"><i class="fa-solid fa-location-dot text-coral mr-1.5"></i><span class="font-medium">Starfish Sandbar</span></li>
+              <li class="text-sm text-charcoal"><i class="fa-solid fa-location-dot text-coral mr-1.5"></i><span class="font-medium">Candaraman Island</span></li>
+              <li class="text-sm text-charcoal"><i class="fa-solid fa-location-dot text-coral mr-1.5"></i><span class="font-medium">Rufos Coral Garden</span> <span class="text-graytext">(snorkeling site)</span></li>
+            </ul>
+            <p class="text-graytext text-sm mt-3"><i class="fa-solid fa-campground text-seagrass mr-1.5"></i>5:00 PM — back to basecamp, dinner &amp; rest.</p>
+          </div>
+        </article>
+
+        <!-- Day 4 -->
+        <article class="itin-panel hidden grid md:grid-cols-2 gap-6 items-stretch bg-white rounded-2xl border border-line p-5 sm:p-7" data-day="3">
+          <div>
+            <div class="rounded-2xl overflow-hidden border border-line h-56 sm:h-72"><img class="itin-hero w-full h-full object-cover" src="/gallery/sunset_boat.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Speedboat journey home from Balabac" /></div>
+            <p class="itin-heroCap text-graytext text-xs text-center mt-2">Journey home</p>
+          </div>
+          <div class="flex flex-col justify-center">
+            <h3 class="font-display text-charcoal text-xl sm:text-2xl">Farewell, Balabac</h3>
+            <p class="text-graytext text-xs uppercase tracking-widest mt-2"><i class="fa-solid fa-mug-saucer text-seagrass mr-1.5"></i>Day 4 · Light breakfast (coffee &amp; bread)</p>
+            <p class="text-graytext text-sm mt-3 leading-relaxed">6:00 AM speedboat back to Buliluyan Port, then land transfer to Puerto Princesa. Estimated arrival 2–3 PM.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- dots + counter -->
+    <div class="flex items-center justify-center gap-4 mt-5">
+      <div id="itinDots" class="flex gap-2">
+        <button type="button" class="itin-dot active w-2.5 h-2.5 rounded-full bg-graytext/30" data-i="0" aria-label="Day 1"></button>
+        <button type="button" class="itin-dot w-2.5 h-2.5 rounded-full bg-graytext/30" data-i="1" aria-label="Day 2"></button>
+        <button type="button" class="itin-dot w-2.5 h-2.5 rounded-full bg-graytext/30" data-i="2" aria-label="Day 3"></button>
+        <button type="button" class="itin-dot w-2.5 h-2.5 rounded-full bg-graytext/30" data-i="3" aria-label="Day 4"></button>
+      </div>
+      <span id="itinCounter" class="text-graytext text-xs uppercase tracking-widest">Day 1 of 4</span>
+    </div>
+  </div>
+
+  <!-- What's included / not included -->
+  <div class="max-w-4xl mx-auto mt-8 sm:mt-10 grid md:grid-cols-2 gap-5 sm:gap-6 reveal">
+    <div class="bg-white rounded-2xl border border-line p-6 sm:p-7">
+      <h3 class="font-display text-charcoal text-xl sm:text-2xl"><i class="fa-solid fa-circle-check text-seagrass mr-2"></i>What's included</h3>
+      <ul class="mt-4 space-y-2 text-sm text-graytext">
+        <li><i class="fa-solid fa-check text-seagrass mr-2"></i>RT AC van transfer (shared): Puerto Princesa ↔ Buliluyan Port</li>
+        <li><i class="fa-solid fa-check text-seagrass mr-2"></i>RT public speedboat transfer (shared)</li>
+        <li><i class="fa-solid fa-check text-seagrass mr-2"></i>Full board meals (breakfast · lunch · dinner)</li>
+        <li><i class="fa-solid fa-check text-seagrass mr-2"></i>All entrance fees</li>
+        <li><i class="fa-solid fa-check text-seagrass mr-2"></i>Onok Island day tour</li>
+        <li><i class="fa-solid fa-check text-seagrass mr-2"></i>Sicsican Island basecamp — tent with complete beddings <span class="text-graytext">(hut +₱200/head/night, subject to availability)</span></li>
+        <li><i class="fa-solid fa-check text-seagrass mr-2"></i>Environmental fee</li>
+        <li><i class="fa-solid fa-check text-seagrass mr-2"></i>Life vest</li>
+        <li><i class="fa-solid fa-check text-seagrass mr-2"></i>Local tour guide</li>
+      </ul>
+    </div>
+    <div class="bg-white rounded-2xl border border-line p-6 sm:p-7">
+      <h3 class="font-display text-charcoal text-xl sm:text-2xl"><i class="fa-solid fa-circle-xmark text-coral mr-2"></i>Not included</h3>
+      <ul class="mt-4 space-y-2 text-sm text-graytext">
+        <li><i class="fa-solid fa-xmark text-coral mr-2"></i>Airfare</li>
+        <li><i class="fa-solid fa-xmark text-coral mr-2"></i>Hotel accommodation in Puerto Princesa City</li>
+        <li><i class="fa-solid fa-xmark text-coral mr-2"></i>Day 1 breakfast <span class="text-graytext">(may eat at local stopovers · own expense)</span></li>
+        <li><i class="fa-solid fa-xmark text-coral mr-2"></i>Day 4 lunch &amp; dinner</li>
+        <li><i class="fa-solid fa-xmark text-coral mr-2"></i>Personal expenses</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Upcoming dates + CTA -->
+  <div class="max-w-4xl mx-auto mt-8 sm:mt-10 reveal">
+    <div class="bg-white rounded-2xl border border-line p-6 sm:p-8 text-center">
+      <p class="font-quote text-seagrass text-xl tracking-widest uppercase">Upcoming Departures</p>
+      <div id="itinDates" class="flex flex-wrap justify-center gap-2 sm:gap-3 mt-4"></div>
+      <a href="funnel.html" class="btn-coral-solid inline-block mt-6 px-8 py-3 rounded-full text-sm uppercase tracking-widest">Reserve your spot</a>
+    </div>
+  </div>
+
+  <!-- Photo credits (required for CC BY-SA images) -->
+  <p class="max-w-4xl mx-auto mt-6 text-center text-xs text-graytext">Onuk Island photo © <a href="https://commons.wikimedia.org/wiki/File:Sunset_in_Onuk_Island,_Balabac,_Palawan.jpg" class="underline hover:text-coral" target="_blank" rel="noopener">Hanna Zapant</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" class="underline hover:text-coral" target="_blank" rel="noopener">CC BY-SA 4.0</a>.</p>
+</section>
+
+<!-- ===================== SECTION 6: ADVENTURES ===================== -->
 <section id="adventures" class="bg-white py-6 px-6">
   <div class="max-w-7xl mx-auto text-center reveal">
     <p class="font-quote text-seagrass text-xl tracking-widest uppercase">Adventures Await</p>
@@ -333,7 +497,7 @@
     </div>
     <!-- portrait tall - full height on mobile -->
     <div class="reveal reveal-delay-1 zoom-wrap row-span-2 rounded-xl overflow-hidden">
-      <img src="/gallery/onok_island.jpg" width="1440" height="810" loading="lazy" decoding="async" alt="Drone shot of a winding Balabac sandbar from above" class="zoom-img w-full h-full object-cover" />
+      <img src="/gallery/island-onuk.jpg" width="1440" height="810" loading="lazy" decoding="async" alt="Drone shot of a winding Balabac sandbar from above" class="zoom-img w-full h-full object-cover" />
     </div>
     <!-- portrait tall -->
     <div class="reveal reveal-delay-2 zoom-wrap row-span-2 rounded-xl overflow-hidden">

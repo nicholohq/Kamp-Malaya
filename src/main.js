@@ -4,6 +4,9 @@ import './reviews.js';
 // ---------- FLOATING CHAT WIDGET (WhatsApp + Messenger + Book) ----------
 import './chat-widget.js';
 
+// ---------- ITINERARY: upcoming departures ----------
+import { JOINER_SCHEDULE, todayISO, upcomingTours, formatTourLabel } from './joiner-schedule.mjs';
+
 // ---------- FUNNEL URL ----------
 const FUNNEL_URL = 'funnel.html';
 
@@ -33,6 +36,47 @@ const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
 }, { threshold: 0.15 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ---------- ITINERARY: day carousel (hero + island thumbnails) ----------
+const itinPanels = Array.from(document.querySelectorAll('#itinPanels .itin-panel'));
+if (itinPanels.length) {
+  const itinDots = Array.from(document.querySelectorAll('#itinDots .itin-dot'));
+  const itinCounter = document.getElementById('itinCounter');
+  let day = 0;
+
+  function showDay(n) {
+    day = (n + itinPanels.length) % itinPanels.length;
+    itinPanels.forEach((p, i) => p.classList.toggle('hidden', i !== day));
+    itinDots.forEach((d, i) => d.classList.toggle('active', i === day));
+    if (itinCounter) itinCounter.textContent = `Day ${day + 1} of ${itinPanels.length}`;
+  }
+
+  document.getElementById('itinPrev')?.addEventListener('click', () => showDay(day - 1));
+  document.getElementById('itinNext')?.addEventListener('click', () => showDay(day + 1));
+  itinDots.forEach(d => d.addEventListener('click', () => showDay(+d.dataset.i)));
+
+  // Thumbnail → hero swap, scoped to each day's panel
+  itinPanels.forEach(panel => {
+    const hero = panel.querySelector('.itin-hero');
+    const cap = panel.querySelector('.itin-heroCap');
+    panel.querySelectorAll('.itin-thumb').forEach(t => t.addEventListener('click', () => {
+      if (hero) { hero.src = t.dataset.img; hero.alt = t.dataset.name || hero.alt; }
+      if (cap && t.dataset.name) cap.textContent = t.dataset.name;
+      panel.querySelectorAll('.itin-thumb').forEach(x => x.classList.toggle('active', x === t));
+    }));
+  });
+
+  showDay(0);
+}
+
+// ---------- ITINERARY: render next upcoming departures as chips ----------
+const itinDates = document.getElementById('itinDates');
+if (itinDates) {
+  const upcoming = upcomingTours(JOINER_SCHEDULE, todayISO()).slice(0, 6);
+  itinDates.innerHTML = upcoming.length
+    ? upcoming.map(t => `<span class="inline-block bg-offwhite border border-line text-charcoal text-xs sm:text-sm rounded-full px-4 py-2">${formatTourLabel(t)}</span>`).join('')
+    : '<span class="text-graytext text-sm">New dates announced soon — inquire to reserve.</span>';
+}
 
 // ---------- BOOK NOW BUTTONS - REDIRECT ----------
 const bookBtns = document.querySelectorAll('.book-btn');

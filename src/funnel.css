@@ -175,15 +175,16 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   align-items: center;
   gap: 6px;
   font-size: 0.78rem;
-  color: var(--seagrass);
-  background: rgba(42, 157, 143, 0.08);
-  border: 1px solid rgba(42, 157, 143, 0.25);
+  font-weight: 500;
+  color: #14776A;
+  background: #fff;
+  border: 1.5px solid rgba(42, 157, 143, 0.45);
   border-radius: 8px;
   padding: 5px 12px;
   cursor: pointer;
-  transition: background .2s;
+  transition: background .2s, border-color .2s;
 }
-.children-toggle-btn:hover { background: rgba(42, 157, 143, 0.15); }
+.children-toggle-btn:hover { background: rgba(42, 157, 143, 0.1); border-color: #14776A; }
 
 /* === Month Pills === */
 .month-pills {
@@ -205,13 +206,13 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   letter-spacing: 0.03em;
   border: 1.5px solid var(--line);
   background: #fff;
-  color: var(--graytext);
+  color: #4B4B4B;
   cursor: pointer;
   transition: all .25s;
   white-space: nowrap;
 }
 .month-pill:hover { border-color: var(--coral); color: var(--coral); }
-.month-pill.active { background: var(--coral); color: #fff; border-color: var(--coral); }
+.month-pill.active { background: #C14C33; color: #fff; border-color: #C14C33; }
 
 /* === Tour Date Cards === */
 .tour-card-grid {
@@ -248,9 +249,9 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   font-size: 0.8rem;
 }
 .tour-card-date { font-weight: 600; font-size: 0.92rem; color: var(--charcoal); }
-.tour-card-price { font-size: 0.82rem; color: var(--graytext); margin-top: 4px; }
-.tour-card-slots { font-size: 0.72rem; color: var(--seagrass); margin-top: 2px; font-weight: 500; }
-.tour-card-slots.low { color: var(--coral); }
+.tour-card-price { font-size: 0.82rem; color: #4B4B4B; margin-top: 4px; }
+.tour-card-slots { font-size: 0.72rem; color: #14776A; margin-top: 2px; font-weight: 500; }
+.tour-card-slots.low { color: #BF4628; }
 
 /* === Focus-visible rings (keyboard accessibility) === */
 .stepper-btn:focus-visible,
