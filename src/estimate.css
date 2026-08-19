@@ -293,12 +293,17 @@ body {
   box-shadow: 0 4px 14px rgba(231,111,81,.12);
 }
 .wiz-room-name {
+  /* All three need an explicit column. The price carries a definite grid-row,
+     so without one, auto-placement hands it column 1 and pushes the name to
+     column 2 — rendering every card price-first, name-last. */
+  grid-column: 1;
   font-family: 'Playfair Display', serif;
   font-size: 1.1rem; color: var(--charcoal);
 }
 .wiz-room-note { grid-column: 1; font-size: .78rem; color: var(--graytext); }
 .wiz-room-price {
-  grid-row: 1 / span 2; font-size: .8rem; font-weight: 600;
+  grid-column: 2; grid-row: 1 / span 2;
+  font-size: .8rem; font-weight: 600;
   color: var(--seagrass-deep); white-space: nowrap;
 }
 

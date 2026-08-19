@@ -2,7 +2,10 @@
 // All arithmetic and every peso amount lives in pricing.mjs; this file only
 // walks the guest through the questions and paints the result.
 
-import './chat-widget.js';
+// No chat widget on this page. Its fixed FAB sits at bottom-right with
+// z-index 9999 and covered ~31% of the Continue button in the wizard's own
+// action bar; that corner already belongs to Back/Continue here. The home page
+// and funnel still load it.
 import {
   ACCOMMODATIONS,
   ADDONS,
