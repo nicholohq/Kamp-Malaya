@@ -32,6 +32,21 @@ const CUSTOM_FIELDS = {
   source:               'PC38bar67FIYRsi0CIOS',
 };
 
+// Fields the form now sends that have no GHL custom field yet. Anything not in
+// CUSTOM_FIELDS above is silently dropped, which is why the children count has
+// never reached the CRM even though the form has always collected it.
+//
+// To promote one: create the custom field in GHL (Settings -> Custom Fields),
+// copy its id, and move the entry into CUSTOM_FIELDS. Until then these travel
+// as a note on the contact instead, so nothing is lost.
+const UNMAPPED_FIELDS = {
+  children_count:         'Children',
+  children_ages:          "Children's ages",
+  nights:                 'Nights',
+  quoted_estimate:        'Estimate shown to guest',
+  estimate_may_be_stale:  'Estimate caveat',
+};
+
 // fetch with an abort timeout (Vercel Hobby caps functions at 10s total).
 async function fetchWithTimeout(url, options, ms) {
   const controller = new AbortController();
@@ -134,34 +149,69 @@ export default async function handler(req, res) {
 
     const contactId = result.contact?.id || null;
 
-    // 2) Add booking-type tags additively so the GHL workflow can trigger on
-    //    "Contact Tag". A tagging failure must NOT fail the booking — the
-    //    contact is already saved, so we log and still return success.
+    // 2) Tag the contact and attach the estimator context, concurrently.
+    //    Both are additive follow-ups to a contact that is already saved, so
+    //    neither may fail the booking — and running them in sequence would
+    //    exceed the 10s function budget (6s upsert + 3s + 3s).
     let tagsAdded = [];
+    let noteAdded = false;
+
     const tags = BOOKING_TAGS[data.booking_type];
-    if (contactId && tags) {
-      try {
-        const tagRes = await fetchWithTimeout(`${GHL_BASE}/contacts/${contactId}/tags`, {
-          method: 'POST',
-          headers: authHeaders,
-          body: JSON.stringify({ tags }),
-        }, 3000);
-        if (tagRes.ok) {
-          const tagJson = await tagRes.json().catch(() => ({}));
-          tagsAdded = tagJson.tags || tags;
-        } else {
-          console.error('GHL tag error:', tagRes.status, await tagRes.text().catch(() => ''));
-        }
-      } catch (tagErr) {
-        console.error('GHL tagging failed:', tagErr.name || tagErr.message);
+
+    const addTags = async () => {
+      if (!contactId || !tags) return;
+      const tagRes = await fetchWithTimeout(`${GHL_BASE}/contacts/${contactId}/tags`, {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({ tags }),
+      }, 3000);
+      if (tagRes.ok) {
+        const tagJson = await tagRes.json().catch(() => ({}));
+        tagsAdded = tagJson.tags || tags;
+      } else {
+        console.error('GHL tag error:', tagRes.status, await tagRes.text().catch(() => ''));
       }
-    }
+    };
+
+    // Everything the form collects that has no custom field yet lands here, so
+    // the team still sees the figure the guest was quoted.
+    const addNote = async () => {
+      const lines = [];
+      for (const [key, label] of Object.entries(UNMAPPED_FIELDS)) {
+        const value = data[key];
+        if (value === undefined || value === null || String(value).trim() === '') continue;
+        const shown = key === 'quoted_estimate'
+          ? `PHP ${Number(value).toLocaleString('en-PH')}`
+          : String(value);
+        lines.push(`${label}: ${shown}`);
+      }
+      if (!contactId || !lines.length) return;
+
+      const noteRes = await fetchWithTimeout(`${GHL_BASE}/contacts/${contactId}/notes`, {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({ body: `Trip estimator details\n${lines.join('\n')}` }),
+      }, 3000);
+      if (noteRes.ok) {
+        noteAdded = true;
+      } else {
+        console.error('GHL note error:', noteRes.status, await noteRes.text().catch(() => ''));
+      }
+    };
+
+    const settled = await Promise.allSettled([addTags(), addNote()]);
+    settled.forEach(r => {
+      if (r.status === 'rejected') {
+        console.error('GHL follow-up failed:', r.reason?.name || r.reason?.message || r.reason);
+      }
+    });
 
     return res.status(200).json({
       success: true,
       message: 'Booking submitted successfully',
       contactId,
       tagsAdded,
+      noteAdded,
     });
 
   } catch (error) {

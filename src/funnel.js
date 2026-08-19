@@ -152,17 +152,25 @@ function selectBookingType(type) {
   const privateFields = document.getElementById('private-fields');
   const joinerFields = document.getElementById('joiner-fields');
 
+  // Disable EVERY control in the inactive group, not just the required ones.
+  // Both groups carry name="pax_count" and name="children_count", and a
+  // display:none field still submits — so FormData held two values per name and
+  // Object.fromEntries kept the last. A Private Stay for 5 was posting the
+  // hidden joiner stepper's default of 2. Disabled controls are omitted, which
+  // makes the collision impossible rather than merely ordered.
+  const controlsIn = id => document.querySelectorAll(`#${id} input, #${id} select, #${id} textarea`);
+
   if (type === 'private') {
     privateFields.classList.remove('hidden');
     joinerFields.classList.add('hidden');
-    document.querySelectorAll('#private-fields [required]').forEach(el => el.disabled = false);
-    document.querySelectorAll('#joiner-fields [required]').forEach(el => el.disabled = true);
+    controlsIn('private-fields').forEach(el => { el.disabled = false; });
+    controlsIn('joiner-fields').forEach(el => { el.disabled = true; });
     document.getElementById('submitBtn').innerHTML = 'Check Availability &rarr;';
   } else {
     joinerFields.classList.remove('hidden');
     privateFields.classList.add('hidden');
-    document.querySelectorAll('#joiner-fields [required]').forEach(el => el.disabled = false);
-    document.querySelectorAll('#private-fields [required]').forEach(el => el.disabled = true);
+    controlsIn('joiner-fields').forEach(el => { el.disabled = false; });
+    controlsIn('private-fields').forEach(el => { el.disabled = true; });
     document.getElementById('submitBtn').innerHTML = 'Submit Joiner Inquiry &rarr;';
   }
 }
@@ -457,6 +465,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // renderTourCards already ran in prefill for the joiner path
   } else {
     renderTourCards();
+    // Normalise the initial enabled/disabled state. The markup ships with
+    // private visible but nothing disabled, so on a cold load both field groups
+    // would submit and the duplicate pax_count names would collide again.
+    if (!arrival) selectBookingType('private');
   }
 
   // Private Stay stepper
