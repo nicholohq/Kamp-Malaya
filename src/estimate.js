@@ -200,6 +200,7 @@ ACCOMMODATIONS.forEach((room, i) => {
     room.perHeadPerNight > 0 ? `+${formatPeso(room.perHeadPerNight)}/head/night` : 'Included';
 
   card.append(name, note, price);
+  card.setAttribute('aria-label', roomAriaLabel(room));
   card.addEventListener('click', () => {
     state.accommodationId = room.id;
     syncRoomSelection();
@@ -207,6 +208,21 @@ ACCOMMODATIONS.forEach((room, i) => {
   });
   el.rooms.appendChild(card);
 });
+
+/**
+ * Explicit accessible name for a room card. The three child spans otherwise
+ * concatenate into a run-on string ("Canopy TentIncluded - tent with complete
+ * beddingsIncluded"), and the price repeats a word the note already used.
+ * Starts with the visible label so Label in Name (WCAG 2.5.3) still holds, and
+ * spells the rate out rather than leaving "+P200/head/night" to a screen reader.
+ */
+function roomAriaLabel(room) {
+  const note = room.note.replace(/\s*[\u00b7\u2014]\s*/g, ', ');
+  if (room.perHeadPerNight > 0) {
+    return `${room.label}. ${note}. Plus ${room.perHeadPerNight} pesos per guest per night.`;
+  }
+  return `${room.label}. ${note}.`;
+}
 
 function syncRoomSelection() {
   el.rooms.querySelectorAll('.wiz-room').forEach(c => {
