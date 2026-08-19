@@ -83,8 +83,19 @@
           <div class="w-16 h-px bg-gold mx-auto mt-5"></div>
         </div>
 
+        <!-- Shown only on a warm arrival from the estimator: the trip is already
+             decided, so re-asking it is the duplicate this page used to create. -->
+        <div id="trip-summary" class="trip-summary" hidden>
+          <div class="trip-summary-head">
+            <p class="trip-summary-eyebrow">Your trip</p>
+            <button type="button" id="trip-summary-edit" class="trip-summary-edit">Change</button>
+          </div>
+          <dl class="trip-summary-rows" id="trip-summary-rows"></dl>
+          <p class="trip-summary-note">Just your details below and we'll confirm availability.</p>
+        </div>
+
         <!-- ===== BOOKING TYPE TOGGLE ===== -->
-        <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="grid grid-cols-2 gap-3 mb-6" id="booking-type-toggle">
           <button id="private-toggle" class="btn-type active p-4 rounded-xl text-left bg-white hover:shadow-md transition">
             <div class="flex items-start gap-3">
               <span class="icon"><i class="fa-solid fa-umbrella-beach text-coral text-xl"></i></span>

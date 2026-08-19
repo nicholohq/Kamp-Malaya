@@ -273,3 +273,40 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
     transition: none;
   }
 }
+/* ---------- Warm arrival summary ----------
+   Replaces the trip questions when the estimator already answered them. */
+.trip-summary {
+  margin-bottom: 1.5rem; padding: 1.15rem 1.25rem;
+  background: var(--sand); border: 1.5px solid var(--line); border-radius: 1rem;
+}
+.trip-summary[hidden] { display: none; }
+.trip-summary-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+}
+.trip-summary-eyebrow {
+  font-size: .68rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--graytext);
+}
+.trip-summary-edit {
+  background: none; border: 0; padding: .25rem;
+  font-size: .78rem; color: var(--coral-deep); cursor: pointer;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.trip-summary-edit:hover { color: var(--coral-darker); }
+.trip-summary-rows {
+  margin: .8rem 0 0; display: grid; gap: .4rem;
+  grid-template-columns: auto 1fr;
+}
+.trip-summary-rows dt {
+  font-size: .8rem; color: var(--graytext); white-space: nowrap;
+}
+.trip-summary-rows dd {
+  margin: 0; font-size: .85rem; color: var(--charcoal); text-align: right;
+}
+.trip-summary-rows .is-total dd {
+  font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--charcoal);
+}
+.trip-summary-note {
+  margin-top: .9rem; font-size: .78rem; color: var(--graytext); line-height: 1.5;
+}
+.trip-summary-edit:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }

@@ -2,7 +2,7 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import './chat-widget.js';
 import { JOINER_SCHEDULE, todayISO, upcomingTours, formatTourLabel, groupByMonth } from './joiner-schedule.mjs';
-import { parseTrip } from './trip-params.mjs';
+import { parseTrip, isCompleteHandoff, serializeTrip } from './trip-params.mjs';
 import { ACCOMMODATIONS } from './pricing.mjs';
 
 // ============================================================
@@ -178,6 +178,91 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 // ============================================================
 // 6. URL PARAMETER PRE-FILLING
 // ============================================================
+const PESO = new Intl.NumberFormat('en-PH', { maximumFractionDigits: 0 });
+
+/** Human date for the summary; the form fields keep their ISO values. */
+function summaryDate(iso) {
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const [y, m, d] = String(iso).split('-').map(Number);
+  return (y && m && d) ? `${d} ${M[m - 1]} ${y}` : iso;
+}
+
+/**
+ * Swap the trip questions for a summary of what the estimator already captured.
+ * Every field stays in the DOM and still submits — only the asking is hidden —
+ * so nothing about the payload changes, and "Change" restores the full form.
+ */
+function collapseTripQuestions(trip) {
+  const summary = document.getElementById('trip-summary');
+  const rows = document.getElementById('trip-summary-rows');
+  const toggle = document.getElementById('booking-type-toggle');
+  const priv = document.getElementById('private-fields');
+  const joiner = document.getElementById('joiner-fields');
+  if (!summary || !rows) return;
+
+  const kids = trip.childAges.length;
+  const entries = [];
+
+  entries.push(['Trip', trip.tripType === 'joiner' ? 'Joiner tour' : 'Private stay']);
+  if (trip.tripType === 'joiner' && trip.departure) {
+    entries.push(['Departure', summaryDate(trip.departure)]);
+  } else if (trip.checkIn && trip.checkOut) {
+    entries.push(['Dates', `${summaryDate(trip.checkIn)} – ${summaryDate(trip.checkOut)}`]);
+  }
+  entries.push(['Nights', String(trip.nights)]);
+  entries.push(['Party', `${trip.adults} adult${trip.adults === 1 ? '' : 's'}`
+    + (kids ? ` · ${kids} child${kids === 1 ? '' : 'ren'}` : '')]);
+  if (kids) entries.push(['Children\u2019s ages', trip.childAges.join(', ')]);
+
+  const room = ACCOMMODATIONS.find(a => a.id === trip.room);
+  if (room) entries.push(['Accommodation', room.label]);
+  if (trip.estimate) entries.push(['Estimate', `\u20b1${PESO.format(trip.estimate)}`, true]);
+
+  rows.replaceChildren();
+  entries.forEach(([label, value, isTotal]) => {
+    const dt = document.createElement('dt');
+    dt.textContent = label;
+    const dd = document.createElement('dd');
+    dd.textContent = value;
+    if (isTotal) { dt.classList.add('is-total'); dd.classList.add('is-total'); }
+    rows.append(dt, dd);
+  });
+
+  summary.hidden = false;
+  if (toggle) toggle.hidden = true;
+  if (priv) priv.hidden = true;
+  if (joiner) joiner.hidden = true;
+
+  document.getElementById('trip-summary-edit')?.addEventListener('click', () => {
+    // Reveal the real questions rather than navigating away: the values are
+    // already correct, so the guest edits in place and nothing is re-entered.
+    // Flag the quote as possibly stale — once the trip is editable, the figure
+    // the guest was shown may no longer describe what they submit, and a wrong
+    // number in the CRM is worse than an annotated one.
+    const form = document.getElementById('inquiryForm');
+    if (form && trip.estimate) {
+      let flag = form.querySelector('input[name="estimate_may_be_stale"]');
+      if (!flag) {
+        flag = document.createElement('input');
+        flag.type = 'hidden';
+        flag.name = 'estimate_may_be_stale';
+        form.appendChild(flag);
+      }
+      flag.value = 'yes — guest reopened the trip details after the estimate';
+    }
+    summary.hidden = true;
+    if (toggle) toggle.hidden = false;
+    if (priv) priv.hidden = false;
+    if (joiner) joiner.hidden = false;
+    (trip.tripType === 'joiner' ? joiner : priv)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Focus the visible toggle, not #booking_type — that is a hidden input and
+    // cannot take focus, which would strand a keyboard user mid-form.
+    const active = document.getElementById(
+      trip.tripType === 'joiner' ? 'joiner-toggle' : 'private-toggle');
+    active?.focus();
+  });
+}
+
 (function prefillFromURL() {
   // Param names live in trip-params.mjs, shared with the estimator. Reading them
   // by hand here is what let the two pages drift: the estimator sent `adults`,
@@ -236,6 +321,11 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
       if (match) select.value = match.value;
     }
   }
+
+  // A complete handoff means every trip question on this page has already been
+  // answered next door. Asking them again is the duplication between the two
+  // pages; collapse them into something the guest confirms instead.
+  if (isCompleteHandoff(trip)) collapseTripQuestions(trip);
 
   // Carry the quoted figure and the ages into the submission so the team sees
   // the same number the guest saw. Hidden fields ride along with the FormData.
