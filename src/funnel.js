@@ -2,6 +2,8 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import './chat-widget.js';
 import { JOINER_SCHEDULE, todayISO, upcomingTours, formatTourLabel, groupByMonth } from './joiner-schedule.mjs';
+import { parseTrip } from './trip-params.mjs';
+import { ACCOMMODATIONS } from './pricing.mjs';
 
 // ============================================================
 // 2. RENDER TOUR DATE CARDS + MONTH PILLS
@@ -177,49 +179,82 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 // 6. URL PARAMETER PRE-FILLING
 // ============================================================
 (function prefillFromURL() {
-  const params = new URLSearchParams(window.location.search);
+  // Param names live in trip-params.mjs, shared with the estimator. Reading them
+  // by hand here is what let the two pages drift: the estimator sent `adults`,
+  // `start`/`end` and `ages` while this file read `pax`, `checkin`/`checkout`
+  // and nothing, so party size, children and the quoted total were dropped.
+  const trip = parseTrip(window.location.search);
+  if (!trip) return;                      // cold arrival — leave the form alone
 
-  if (params.get('type') === 'joiner') {
+  const setPax = (id, value) => {
+    const input = document.getElementById(id);
+    if (!input || !value) return;
+    const max = Number(input.max) || 10;
+    input.value = Math.max(1, Math.min(max, value));
+  };
+  const setChildren = (id, wrapId, value) => {
+    const input = document.getElementById(id);
+    if (!input) return;
+    const max = Number(input.max) || 10;
+    input.value = Math.max(0, Math.min(max, value));
+    // The stepper is collapsed by default. A prefilled count that stays hidden
+    // still submits, so the guest would be booking children they cannot see.
+    const wrap = document.getElementById(wrapId);
+    if (wrap && value > 0) wrap.classList.remove('hidden');
+  };
+
+  if (trip.tripType === 'joiner') {
     selectBookingType('joiner');
     renderTourCards();
-    const date = params.get('date');
-    if (date) {
-      const group = tourGroups.find(g => g.tours.some(t => t.start === date));
+    if (trip.departure) {
+      const group = tourGroups.find(g => g.tours.some(t => t.start === trip.departure));
       if (group) {
         filterByMonth(group.label);
         setTimeout(() => {
-          const card = document.querySelector(`.tour-card[data-date="${date}"]`);
+          const card = document.querySelector(`.tour-card[data-date="${trip.departure}"]`);
           if (card) card.click();
         }, 50);
       }
     }
-    const pax = params.get('pax');
-    if (pax) {
-      const p = document.getElementById('pax_count_joiner');
-      const num = Math.max(1, Math.min(10, parseInt(pax, 10) || 2));
-      p.value = num;
-    }
+    setPax('pax_count_joiner', trip.adults);
+    setChildren('children_count_joiner', 'children-stepper-wrap-joiner', trip.children);
   } else {
     selectBookingType('private');
-    const checkin  = params.get('checkin');
-    const checkout = params.get('checkout');
-    const pax      = params.get('pax');
-    const room     = params.get('room');
+    if (trip.checkIn) document.getElementById('check_in').value = trip.checkIn;
+    if (trip.checkOut) document.getElementById('check_out').value = trip.checkOut;
+    setPax('pax_count', trip.adults);
+    setChildren('children_count', 'children-stepper-wrap', trip.children);
+  }
 
-    if (checkin)  document.getElementById('check_in').value  = checkin;
-    if (checkout) document.getElementById('check_out').value = checkout;
+  // The estimator sends an accommodation id; this form's <option> values are
+  // display labels. Resolve through the shared list rather than string-matching.
+  if (trip.room) {
+    const select = document.getElementById('accommodation');
+    const room = ACCOMMODATIONS.find(a => a.id === trip.room);
+    if (select && room) {
+      const match = [...select.options].find(o => o.value.toLowerCase() === room.label.toLowerCase());
+      if (match) select.value = match.value;
+    }
+  }
 
-    if (pax) {
-      const p = document.getElementById('pax_count');
-      const num = Math.max(1, Math.min(10, parseInt(pax, 10) || 2));
-      p.value = num;
-    }
-    if (room) {
-      const a = document.getElementById('accommodation');
-      const decoded = decodeURIComponent(room).trim();
-      const match = [...a.options].find(o => o.value.toLowerCase() === decoded.toLowerCase());
-      if (match) a.value = match.value;
-    }
+  // Carry the quoted figure and the ages into the submission so the team sees
+  // the same number the guest saw. Hidden fields ride along with the FormData.
+  const form = document.getElementById('inquiryForm');
+  if (form) {
+    const hidden = (name, value) => {
+      if (value === null || value === undefined || value === '') return;
+      let field = form.querySelector(`input[name="${name}"]`);
+      if (!field) {
+        field = document.createElement('input');
+        field.type = 'hidden';
+        field.name = name;
+        form.appendChild(field);
+      }
+      field.value = String(value);
+    };
+    hidden('quoted_estimate', trip.estimate);
+    hidden('children_ages', trip.childAges.join(', '));
+    hidden('nights', trip.nights);
   }
 })();
 
@@ -325,7 +360,10 @@ form.addEventListener('submit', async function (e) {
 // 8. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-  if (window.location.search && window.location.search.includes('type=joiner')) {
+  // Same contract as the prefill above. A substring test on the query string
+  // would also match things like ?utm_type=joiner.
+  const arrival = parseTrip(window.location.search);
+  if (arrival && arrival.tripType === 'joiner') {
     // renderTourCards already ran in prefill for the joiner path
   } else {
     renderTourCards();

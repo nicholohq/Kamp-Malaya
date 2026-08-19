@@ -15,6 +15,7 @@ import {
   formatPeso,
   nightsBetween,
 } from './pricing.mjs';
+import { serializeTrip } from './trip-params.mjs';
 import {
   JOINER_SCHEDULE,
   todayISO,
@@ -835,23 +836,22 @@ function buildRecap(result, tour, nights) {
   return parts.join(' · ');
 }
 
-/** Carry the estimate into the funnel so the enquiry arrives with context. */
+/**
+ * Carry the estimate into the funnel. The param vocabulary lives in
+ * trip-params.mjs so the two pages cannot drift apart again.
+ */
 function buildFunnelUrl(result, tour, nights) {
-  const params = new URLSearchParams({
-    type: state.tripType || 'joiner',
-    adults: String(readInt(el.adults)),
-    guests: String(result.totalGuests),
+  const params = serializeTrip({
+    tripType: state.tripType || 'joiner',
+    departure: tour ? tour.start : null,
+    checkIn: state.tripType === 'private' ? el.privateStart.value : null,
+    checkOut: state.tripType === 'private' ? el.privateEnd.value : null,
+    nights,
+    adults: readInt(el.adults),
+    childAges: readAges(),
     room: state.accommodationId,
-    nights: String(nights),
+    estimate: result.quotable ? result.total : null,
   });
-  const ages = readAges();
-  if (ages.length) params.set('ages', ages.join(','));
-  if (tour) params.set('date', tour.start);
-  if (state.tripType === 'private' && el.privateStart.value && el.privateEnd.value) {
-    params.set('start', el.privateStart.value);
-    params.set('end', el.privateEnd.value);
-  }
-  if (result.quotable) params.set('estimate', String(result.total));
   return `funnel.html?${params}`;
 }
 
