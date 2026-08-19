@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What Will Your Balabac Trip Cost? | Kamp Malaya</title>
+<meta name="description" content="Build your Balabac trip step by step and see the price come together — joiner tour rates, children's rates, and hut upgrades, with no hidden extras." />
+<link rel="canonical" href="https://www.kampmalaya.tours/estimate.html" />
+<meta name="theme-color" content="#1A1A1A" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Kamp Malaya" />
+<meta property="og:title" content="What Will Your Balabac Trip Cost? | Kamp Malaya" />
+<meta property="og:description" content="Build your trip step by step and watch the price come together — no hidden extras." />
+<meta property="og:url" content="https://www.kampmalaya.tours/estimate.html" />
+<meta property="og:image" content="https://www.kampmalaya.tours/gallery/opengraph.png" />
+<meta property="og:image:secure_url" content="https://www.kampmalaya.tours/gallery/opengraph.png" />
+<meta property="og:image:width" content="1672" />
+<meta property="og:image:height" content="941" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:alt" content="Kamp Malaya — a turquoise Balabac lagoon framed by palm trees, with the tagline Balabac's Hidden Sanctuary" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="What Will Your Balabac Trip Cost? | Kamp Malaya" />
+<meta name="twitter:image" content="https://www.kampmalaya.tours/gallery/opengraph.png" />
+<meta name="twitter:image:alt" content="Kamp Malaya — a turquoise Balabac lagoon framed by palm trees, with the tagline Balabac's Hidden Sanctuary" />
+
+<link rel="icon" type="image/png" href="/icons/kampmalaya.png" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="/src/estimate.css">
+</head>
+
+<body class="font-body text-charcoal">
+
+<header class="sticky top-0 z-40 glass">
+  <div class="max-w-3xl mx-auto px-5 py-3 flex items-center justify-between">
+    <a href="index.html" class="font-display text-xl tracking-wide text-charcoal">Kamp <span class="text-gold">Malaya</span></a>
+    <a href="index.html" class="text-graytext text-sm hover:text-coral transition-colors">&larr; Back to Main Site</a>
+  </div>
+</header>
+
+<!-- Progress rail. Fill width and step label are set by JS. -->
+<div class="wiz-progress" role="progressbar" aria-labelledby="wiz-step-label" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1">
+  <div class="wiz-progress-fill" id="wiz-progress-fill"></div>
+</div>
+
+<main class="wiz">
+  <p class="wiz-step-label" id="wiz-step-label">Step 1 of 5</p>
+
+  <!-- ============ STEP 1: TRIP TYPE ============ -->
+  <section class="wiz-step is-active" data-step="1" aria-labelledby="wiz-h1">
+    <h1 class="wiz-question" id="wiz-h1">How do you want to travel?</h1>
+    <p class="wiz-sub">Two ways to reach Balabac. Pick the one that sounds like you.</p>
+
+    <!-- Plain toggle buttons: aria-pressed matches what these actually do. A
+         radiogroup would promise arrow-key navigation we don't implement. -->
+    <div class="wiz-choices" role="group" aria-labelledby="wiz-h1">
+      <button type="button" class="wiz-choice" data-type="joiner" aria-pressed="false">
+        <i class="fa-solid fa-van-shuttle wiz-choice-icon" aria-hidden="true"></i>
+        <span class="wiz-choice-name">Join a group</span>
+        <span class="wiz-choice-desc">Our 4D/3N all-in joiner tour on set departure dates. The easiest way to see Balabac — and the best value.</span>
+        <span class="wiz-choice-tag" id="wiz-joiner-from"></span>
+      </button>
+      <button type="button" class="wiz-choice" data-type="private" aria-pressed="false">
+        <i class="fa-solid fa-umbrella-beach wiz-choice-icon" aria-hidden="true"></i>
+        <span class="wiz-choice-name">Go private</span>
+        <span class="wiz-choice-desc">Your own group, your own dates, your own pace. Best for families and parties of five or more.</span>
+        <span class="wiz-choice-tag">Quoted per group</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2: WHEN ============ -->
+  <section class="wiz-step" data-step="2" hidden aria-labelledby="wiz-h2">
+    <h1 class="wiz-question" id="wiz-h2">When would you like to go?</h1>
+
+    <!-- Joiner: pick a published departure -->
+    <div id="wiz-departures">
+      <p class="wiz-sub" id="wiz-departures-sub">These are our confirmed departures. Slots are live.</p>
+      <!-- role="toolbar" is the one grouping role whose keyboard contract we do
+           honour: roving tabindex + arrow keys, so the pills cost one tab stop. -->
+      <div class="wiz-months" id="wiz-months" role="toolbar" aria-orientation="horizontal" aria-label="Departure month"></div>
+      <div class="wiz-dates" id="wiz-dates" role="group" aria-label="Departure date"></div>
+      <!-- Keeps the chosen departure visible while browsing another month. -->
+      <p class="wiz-chosen" id="wiz-chosen" hidden></p>
+      <!-- Shown when every published departure has passed. -->
+      <div class="wiz-empty" id="wiz-departures-empty" hidden>
+        <i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i>
+        <p>We're finalising the next season's departure dates. Tell us roughly when you'd like to travel and we'll come back to you as soon as they're confirmed.</p>
+        <a href="funnel.html?type=joiner" class="wiz-empty-cta">Get in touch</a>
+      </div>
+    </div>
+
+    <!-- Private: pick a length of stay -->
+    <div id="wiz-nights" hidden>
+      <p class="wiz-sub">How many nights on the island? Most guests stay three.</p>
+      <div class="wiz-counter">
+        <button type="button" class="wiz-counter-btn" data-step="-1" data-target="est-nights" aria-label="One night fewer">&minus;</button>
+        <input type="number" class="wiz-counter-input" id="est-nights" value="3" min="1" max="14" aria-label="Nights on the island">
+        <button type="button" class="wiz-counter-btn" data-step="1" data-target="est-nights" aria-label="One night more">+</button>
+      </div>
+      <p class="wiz-counter-unit" id="wiz-nights-unit">nights</p>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3: WHO ============ -->
+  <section class="wiz-step" data-step="3" hidden aria-labelledby="wiz-h3">
+    <h1 class="wiz-question" id="wiz-h3">Who's coming with you?</h1>
+    <p class="wiz-sub">Children travel at a reduced rate — we'll work it out from their ages.</p>
+
+    <div class="wiz-counters">
+      <div class="wiz-counter-block">
+        <span class="wiz-counter-name" id="wiz-adults-label">Adults</span>
+        <div class="wiz-counter" role="group" aria-labelledby="wiz-adults-label">
+          <button type="button" class="wiz-counter-btn" data-step="-1" data-target="est-adults" aria-label="One adult fewer">&minus;</button>
+          <input type="number" class="wiz-counter-input" id="est-adults" value="2" min="1" max="20" aria-labelledby="wiz-adults-label">
+          <button type="button" class="wiz-counter-btn" data-step="1" data-target="est-adults" aria-label="One adult more">+</button>
+        </div>
+      </div>
+
+      <div class="wiz-counter-block">
+        <span class="wiz-counter-name" id="wiz-children-label">Children</span>
+        <div class="wiz-counter" role="group" aria-labelledby="wiz-children-label">
+          <button type="button" class="wiz-counter-btn" data-step="-1" data-target="est-children" aria-label="One child fewer">&minus;</button>
+          <input type="number" class="wiz-counter-input" id="est-children" value="0" min="0" max="10" aria-labelledby="wiz-children-label">
+          <button type="button" class="wiz-counter-btn" data-step="1" data-target="est-children" aria-label="One child more">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Remaining capacity on the chosen departure. Steppers clamp to it. -->
+    <p class="wiz-slots" id="wiz-slots" hidden></p>
+
+    <!-- One age picker per child; ages set the rate, so we ask. -->
+    <div class="wiz-ages-panel" id="wiz-ages-panel" hidden>
+      <p class="wiz-ages-intro">How old will they be when you travel?</p>
+      <div id="est-ages" class="wiz-ages"></div>
+      <p class="wiz-note">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        Under 4 travel free · ages 4&ndash;5 pay half · 6 and up pay the adult rate.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ STEP 4: WHERE ============ -->
+  <section class="wiz-step" data-step="4" hidden aria-labelledby="wiz-h4">
+    <h1 class="wiz-question" id="wiz-h4">Where would you like to sleep?</h1>
+    <p class="wiz-sub">Every trip includes a basecamp tent. Upgrade if you'd rather have walls.</p>
+    <div id="est-rooms" class="wiz-rooms" role="group" aria-labelledby="wiz-h4"></div>
+
+    <!-- Optional add-ons, hidden while none are configured in pricing.mjs -->
+    <div id="est-addons-field" hidden>
+      <h2 class="wiz-subhead" id="wiz-addons-label">Anything else?</h2>
+      <div id="est-addons" class="wiz-addons" role="group" aria-labelledby="wiz-addons-label"></div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 5: THE ESTIMATE ============ -->
+  <section class="wiz-step" data-step="5" hidden aria-labelledby="wiz-h5">
+    <h1 class="wiz-question" id="wiz-h5">Here's your estimate</h1>
+    <p class="wiz-sub" id="wiz-recap"></p>
+
+    <div class="wiz-receipt">
+      <div id="est-lines" class="wiz-lines"></div>
+      <div class="wiz-total-row">
+        <span>Estimated total</span>
+        <span class="wiz-total" id="est-total">&mdash;</span>
+      </div>
+      <p class="wiz-perhead" id="est-perhead"></p>
+    </div>
+
+    <a href="funnel.html" id="est-cta" class="wiz-cta">Reserve your spot</a>
+
+    <p class="wiz-fineprint">
+      An estimate, not an invoice &mdash; final pricing is confirmed when you book.
+      Excludes airfare, Puerto Princesa hotel, Day&nbsp;1 breakfast, and Day&nbsp;4 lunch &amp; dinner.
+    </p>
+  </section>
+
+  <p id="wiz-status" class="wiz-sr-only" role="status" aria-live="polite"></p>
+</main>
+
+<!-- ============ FIXED ACTION BAR ============
+     Holds Back / Continue plus the running total, which is shown once a rate is
+     known. The total is silent to screen readers; #wiz-status speaks it instead. -->
+<div class="wiz-nav" id="wiz-nav" hidden>
+  <div class="wiz-nav-inner">
+    <button type="button" class="wiz-back" id="wiz-back" hidden>
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+    </button>
+    <div class="wiz-running" id="wiz-running" hidden aria-hidden="true">
+      <span class="wiz-running-label">Running total</span>
+      <span class="wiz-running-value" id="wiz-running-value"></span>
+    </div>
+    <button type="button" class="wiz-next" id="wiz-next" hidden>
+      Continue <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>
+
+<footer class="wiz-footer">
+  <p class="font-display text-lg">Kamp <span class="text-gold">Malaya</span> &mdash; Balabac, Palawan, Philippines</p>
+  <p class="text-white/50 text-sm mt-2">&copy; 2018 Kamp Malaya. All rights reserved. <span class="font-quote text-gold italic">Wildly yours.</span></p>
+</footer>
+
+<script type="module" src="/src/estimate.js"></script>
+<!-- GHL External Tracking Script (keep this) -->
+<script src="https://link.msgsndr.com/js/external-tracking.js" data-tracking-id="tk_46b574507f59433792ebc13b29db7da4"></script>
+</body>
+</html>
