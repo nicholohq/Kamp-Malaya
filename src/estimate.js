@@ -156,6 +156,7 @@ function showMonth(label) {
     slots.textContent = `${tour.slots} slot${tour.slots === 1 ? '' : 's'} left`;
 
     card.append(range, meta, slots);
+    card.setAttribute('aria-label', departureAriaLabel(tour, nights));
     card.addEventListener('click', () => {
       state.tourStart = tour.start;
       el.dates.querySelectorAll('.wiz-date').forEach(c => {
@@ -169,6 +170,19 @@ function showMonth(label) {
   });
 
   markMonthHoldingSelection();
+}
+
+/**
+ * Explicit accessible name for a departure card. The three spans otherwise run
+ * together as "Aug 20 - 234D/3N ...", where the range's "23" and the duration's
+ * "4D" merge into "234D" and the date becomes unrecoverable. Leads with the
+ * visible range so Label in Name (WCAG 2.5.3) holds.
+ */
+function departureAriaLabel(tour, nights) {
+  const price = tour.price.toLocaleString('en-PH');
+  const slots = `${tour.slots} slot${tour.slots === 1 ? '' : 's'} left`;
+  return `${formatTourLabel(tour)}. ${nights + 1} days, ${nights} nights. `
+    + `${price} pesos per head. ${slots}.`;
 }
 
 /** Dots the month pill that contains the chosen departure, so it stays findable. */
@@ -299,7 +313,7 @@ function persist() {
   } catch {
     // Private browsing can refuse writes; progress just won't survive a refresh.
   }
-  if (!restoring) history.replaceState({ wiz: snap }, '');
+  if (!restoring) history.replaceState({ wiz: snap, idx: currentIdx() }, '');
 }
 
 function applySnapshot(snap, { fromHistory = false } = {}) {
@@ -399,7 +413,7 @@ function goTo(step, { push = true } = {}) {
   // Push before rendering: render() calls persist(), which replaceStates the
   // *current* entry. Pushing first means it stamps the new entry, not the old
   // one — otherwise going back lands on a duplicate of the step you left.
-  if (push) history.pushState({ wiz: snapshot() }, '');
+  if (push) history.pushState({ wiz: snapshot(), idx: currentIdx() + 1 }, '');
   render();
 }
 
@@ -411,7 +425,19 @@ el.choices.forEach(choice => {
   });
 });
 
-el.back.addEventListener('click', () => history.back());
+/** How many wizard entries THIS document pushed. 0 on a restored session. */
+function currentIdx() {
+  return history.state && typeof history.state.idx === 'number' ? history.state.idx : 0;
+}
+
+el.back.addEventListener('click', () => {
+  // Only hand off to the browser when this document actually pushed an entry to
+  // return to. A session restored from sessionStorage lands on step N having
+  // pushed nothing, and history.back() would leave the site entirely — which is
+  // how Back ended up going to the home page.
+  if (currentIdx() > 0) history.back();
+  else goTo(state.step - 1, { push: false });
+});
 el.next.addEventListener('click', () => goTo(state.step + 1));
 
 // ============================================================
