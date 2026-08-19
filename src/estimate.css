@@ -422,22 +422,6 @@ body {
   font-size: 1.15rem; color: var(--charcoal); white-space: nowrap;
 }
 
-/* ---------- Footer ---------- */
-.wiz-footer {
-  background: var(--charcoal); color: #fff;
-  text-align: center;
-  /* Extra bottom room so the fixed action bar never sits on the copyright line. */
-  padding: 2.5rem 1.25rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
-}
-
-/* Narrow screens: Back + total + Continue must still fit on one row. */
-@media (max-width: 480px) {
-  .wiz-nav { padding-left: 1rem; padding-right: 1rem; }
-  .wiz-nav-inner { gap: .6rem; }
-  .wiz-next { padding: .8rem 1.3rem; letter-spacing: .1em; }
-  .wiz-running-value { font-size: 1.05rem; }
-}
-
 /* ---------- Focus ---------- */
 .wiz-choice:focus-visible,
 .wiz-month:focus-visible,
