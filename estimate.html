@@ -97,15 +97,25 @@
       </div>
     </div>
 
-    <!-- Private: pick a length of stay -->
+    <!-- Private: ask for real dates. Step 1 promises "your own dates" and the
+         closing copy asks the visitor to send them, so collecting only a night
+         count under a "when" heading was a promise the form broke twice. -->
     <div id="wiz-nights" hidden>
-      <p class="wiz-sub">How many nights on the island? Most guests stay three.</p>
-      <div class="wiz-counter">
-        <button type="button" class="wiz-counter-btn" data-step="-1" data-target="est-nights" aria-label="One night fewer">&minus;</button>
-        <input type="number" class="wiz-counter-input" id="est-nights" value="3" min="1" max="14" aria-label="Nights on the island">
-        <button type="button" class="wiz-counter-btn" data-step="1" data-target="est-nights" aria-label="One night more">+</button>
+      <p class="wiz-sub">Roughly when would you like to travel? We'll confirm exact dates when we quote you.</p>
+      <div class="wiz-daterange">
+        <div class="wiz-datefield">
+          <label class="wiz-datefield-label" for="private_start">Arrive</label>
+          <input class="wiz-date-input" type="date" id="private_start">
+        </div>
+        <div class="wiz-datefield">
+          <label class="wiz-datefield-label" for="private_end">Leave</label>
+          <input class="wiz-date-input" type="date" id="private_end">
+        </div>
       </div>
-      <p class="wiz-counter-unit" id="wiz-nights-unit">nights</p>
+      <p class="wiz-counter-unit" id="wiz-nights-unit"></p>
+      <p class="wiz-date-error" id="wiz-date-error" role="alert" hidden></p>
+      <!-- Derived from the dates above; kept so the estimate reads one field. -->
+      <input type="hidden" id="est-nights" value="3">
     </div>
   </section>
 
@@ -177,10 +187,9 @@
 
     <a href="funnel.html" id="est-cta" class="wiz-cta">Reserve your spot</a>
 
-    <p class="wiz-fineprint">
-      An estimate, not an invoice &mdash; final pricing is confirmed when you book.
-      Excludes airfare, Puerto Princesa hotel, Day&nbsp;1 breakfast, and Day&nbsp;4 lunch &amp; dinner.
-    </p>
+    <!-- Text set from JS: the joiner exclusions describe a 4D/3N itinerary that
+         a private stay does not have. -->
+    <p class="wiz-fineprint" id="wiz-fineprint"></p>
   </section>
 
   <p id="wiz-status" class="wiz-sr-only" role="status" aria-live="polite"></p>

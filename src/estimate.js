@@ -42,6 +42,11 @@ const el = {
   nightsBlock: document.getElementById('wiz-nights'),
   nights: document.getElementById('est-nights'),
   nightsUnit: document.getElementById('wiz-nights-unit'),
+  privateStart: document.getElementById('private_start'),
+  privateEnd: document.getElementById('private_end'),
+  dateError: document.getElementById('wiz-date-error'),
+  heading5: document.getElementById('wiz-h5'),
+  fineprint: document.getElementById('wiz-fineprint'),
   adults: document.getElementById('est-adults'),
   children: document.getElementById('est-children'),
   slots: document.getElementById('wiz-slots'),
@@ -62,6 +67,11 @@ const el = {
   runningValue: document.getElementById('wiz-running-value'),
   status: document.getElementById('wiz-status'),
 };
+
+// Drives every private-path label. Setting PRIVATE_BASE_PER_HEAD in pricing.mjs
+// flips the whole flow from "send us your details" to a real itemised estimate
+// with no further changes here.
+const CAN_QUOTE_PRIVATE = PRIVATE_BASE_PER_HEAD != null;
 
 const tours = upcomingTours(JOINER_SCHEDULE, todayISO());
 const monthGroups = groupByMonth(tours);
@@ -89,6 +99,12 @@ if (hasDepartures) {
   el.joinerFrom.textContent = `From ${formatPeso(cheapest)} per head`;
 } else {
   el.joinerFrom.textContent = 'Dates coming soon';
+}
+
+// Say up front that private is priced by hand, rather than after four steps.
+if (!CAN_QUOTE_PRIVATE) {
+  const tag = document.querySelector('.wiz-choice[data-type="private"] .wiz-choice-tag');
+  if (tag) tag.textContent = 'Priced by hand · we reply the same day';
 }
 
 monthGroups.forEach((group, i) => {
@@ -230,12 +246,26 @@ ACCOMMODATIONS.forEach((room, i) => {
  * Starts with the visible label so Label in Name (WCAG 2.5.3) still holds, and
  * spells the rate out rather than leaving "+P200/head/night" to a screen reader.
  */
-function roomAriaLabel(room) {
+function roomAriaLabel(room, withPrice = true) {
   const note = room.note.replace(/\s*[\u00b7\u2014]\s*/g, ', ');
-  if (room.perHeadPerNight > 0) {
+  if (withPrice && room.perHeadPerNight > 0) {
     return `${room.label}. ${note}. Plus ${room.perHeadPerNight} pesos per guest per night.`;
   }
   return `${room.label}. ${note}.`;
+}
+
+/** Hides the per-night price on the private path while it cannot be priced. */
+function syncRoomPrices() {
+  const showPrice = quotableNow();
+  el.rooms.querySelectorAll('.wiz-room').forEach(card => {
+    const room = ACCOMMODATIONS.find(a => a.id === card.dataset.room);
+    const priceEl = card.querySelector('.wiz-room-price');
+    if (!room || !priceEl) return;
+    priceEl.textContent = showPrice
+      ? (room.perHeadPerNight > 0 ? `+${formatPeso(room.perHeadPerNight)}/head/night` : 'Included')
+      : 'Preference';
+    card.setAttribute('aria-label', roomAriaLabel(room, showPrice));
+  });
 }
 
 function syncRoomSelection() {
@@ -301,6 +331,8 @@ function snapshot() {
     adults: readInt(el.adults),
     children: readInt(el.children),
     nights: readInt(el.nights),
+    privateStart: el.privateStart.value,
+    privateEnd: el.privateEnd.value,
     ages: readAges(),
     addons: Array.from(el.addons.querySelectorAll('input:checked'), i => i.value),
   };
@@ -326,6 +358,9 @@ function applySnapshot(snap, { fromHistory = false } = {}) {
 
   el.adults.value = snap.adults;
   el.nights.value = snap.nights;
+  if (snap.privateStart) el.privateStart.value = snap.privateStart;
+  if (snap.privateEnd) el.privateEnd.value = snap.privateEnd;
+  syncPrivateNights();
   el.children.value = snap.children;
   syncAgePickers();
   Array.from(el.ages.querySelectorAll('.wiz-age-select')).forEach((select, i) => {
@@ -354,6 +389,7 @@ function syncTripType() {
 
   el.departures.hidden = !isJoiner;
   el.nightsBlock.hidden = isJoiner;
+  syncRoomPrices();
 
   if (isJoiner) {
     el.departuresSub.hidden = !hasDepartures;
@@ -396,9 +432,12 @@ function goTo(step, { push = true } = {}) {
   el.back.hidden = state.step === 1;
   el.next.hidden = state.step === 1 || state.step === TOTAL_STEPS || strandedOnDates;
   el.nav.hidden = state.step === 1;
+  const finalLabel = quotableNow()
+    ? 'See my estimate'
+    : 'Review my request';
   el.next.innerHTML =
     state.step === TOTAL_STEPS - 1
-      ? 'See my estimate <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>'
+      ? `${finalLabel} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>`
       : 'Continue <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
 
   // Move focus to the new question so keyboard and screen-reader users follow along.
@@ -451,7 +490,7 @@ document.querySelectorAll('.wiz-counter-btn').forEach(btn => {
   });
 });
 
-[el.adults, el.children, el.nights].forEach(input => {
+[el.adults, el.children].forEach(input => {
   input.addEventListener('change', () => setCounter(input, readInt(input)));
   input.addEventListener('focus', () => input.select());
 });
@@ -467,11 +506,49 @@ function setCounter(input, value) {
   input.value = Math.max(min, Math.min(max, value));
 
   if (input === el.children) syncAgePickers();
-  if (input === el.nights) {
-    el.nightsUnit.textContent = Number(input.value) === 1 ? 'night' : 'nights';
-  }
   render();
 }
+
+/** Default the private range to a month out, three nights, so nothing is blank. */
+function seedPrivateDates() {
+  const today = new Date(`${todayISO()}T00:00:00Z`);
+  const iso = d => d.toISOString().slice(0, 10);
+  const start = new Date(today.getTime() + 30 * 86400000);
+  const end = new Date(start.getTime() + 3 * 86400000);
+  el.privateStart.min = todayISO();
+  el.privateEnd.min = todayISO();
+  if (!el.privateStart.value) el.privateStart.value = iso(start);
+  if (!el.privateEnd.value) el.privateEnd.value = iso(end);
+}
+
+/**
+ * Derives nights from the private date range and validates it. Nights feed the
+ * estimate, so they are computed rather than asked for separately.
+ */
+function syncPrivateNights() {
+  const start = el.privateStart.value;
+  const end = el.privateEnd.value;
+  el.privateEnd.min = start || todayISO();
+
+  const nights = start && end ? nightsBetween(start, end) : 0;
+  const valid = nights > 0;
+
+  el.dateError.hidden = valid || !start || !end;
+  if (!el.dateError.hidden) {
+    el.dateError.textContent = 'Your leaving date needs to be after your arrival date.';
+  }
+  el.nightsUnit.textContent = valid
+    ? `${nights} night${nights === 1 ? '' : 's'} on the island`
+    : '';
+
+  // Fall back to 3 so a half-filled range never produces a nonsense estimate.
+  el.nights.value = valid ? nights : 3;
+  return valid;
+}
+
+[el.privateStart, el.privateEnd].forEach(input => {
+  input.addEventListener('change', () => { syncPrivateNights(); render(); });
+});
 
 /** Remaining seats on the chosen departure; private trips are uncapped here. */
 function slotLimit() {
@@ -509,8 +586,6 @@ function enforceSlots() {
   plus(el.children).disabled = atCap || children >= Number(el.children.max);
   minus(el.adults).disabled = adults <= Number(el.adults.min);
   minus(el.children).disabled = children <= Number(el.children.min);
-  plus(el.nights).disabled = readInt(el.nights) >= Number(el.nights.max);
-  minus(el.nights).disabled = readInt(el.nights) <= Number(el.nights.min);
 
   const tour = currentTour();
   if (Number.isFinite(limit) && tour) {
@@ -565,6 +640,11 @@ function syncAgePickers() {
 
 function currentTour() {
   return tours.find(t => t.start === state.tourStart) || null;
+}
+
+/** Whether the current trip type can produce a real total. */
+function quotableNow() {
+  return state.tripType === 'private' ? CAN_QUOTE_PRIVATE : hasDepartures;
 }
 
 function readAges() {
@@ -624,24 +704,50 @@ function render() {
 
   if (!result.quotable) {
     // Two different reasons land here: a private stay we price by hand, or a
-    // joiner with no published departures left. They need different copy.
+    // joiner with no published departures left. Neither can show a number, so
+    // the screen stops calling itself an estimate and shows back exactly what
+    // was collected — otherwise four steps of questions return two words.
     const strandedJoiner = state.tripType === 'joiner';
+
+    el.heading5.textContent = "Here's your request";
+
     const note = document.createElement('p');
     note.className = 'wiz-quote-note';
     note.textContent = strandedJoiner
-      ? 'We haven\'t published the next season\'s departure dates yet, so there\'s no rate to quote. Tell us roughly when you\'d like to travel and we\'ll come back to you as soon as they\'re confirmed.'
-      : 'Private stays are quoted per group, so we price them by hand. Send us your dates and party and we\'ll come back with a full breakdown — usually the same day.';
+      ? 'We haven\'t published the next season\'s departure dates yet, so there\'s no rate to quote. Send this over and we\'ll come back to you the moment they\'re confirmed.'
+      : 'Private trips are priced by hand, so the total below stays open until we\'ve seen your dates. Send this over and we\'ll come back with a full breakdown — usually the same day.';
     el.lines.appendChild(note);
+
+    summaryRows(nights).forEach(([label, value]) => {
+      const row = document.createElement('div');
+      row.className = 'wiz-line';
+      const l = document.createElement('span');
+      l.className = 'wiz-line-label';
+      l.textContent = label;
+      const v = document.createElement('span');
+      v.className = 'wiz-line-amount';
+      v.textContent = value;
+      row.append(l, v);
+      el.lines.appendChild(row);
+    });
 
     el.total.textContent = strandedJoiner ? 'Not yet set' : 'On request';
     el.perHead.textContent = '';
-    el.cta.textContent = strandedJoiner ? 'Register your interest' : 'Request my quote';
+    el.cta.textContent = strandedJoiner ? 'Register my interest' : 'Send my details';
     el.cta.href = buildFunnelUrl(result, null, nights);
+    el.fineprint.textContent = strandedJoiner
+      ? 'Nothing is booked yet. We\'ll email you as soon as the next season\'s departures are confirmed.'
+      : 'Nothing is booked yet. We\'ll confirm pricing, inclusions and availability by email before anything is committed.';
     el.status.textContent = strandedJoiner
-      ? `No departures published yet for ${result.totalGuests} guests.`
-      : `Private stay for ${result.totalGuests} guests — priced on request.`;
+      ? `Request ready to send for ${result.totalGuests} guests. No departures published yet.`
+      : `Request ready to send. Private stay for ${result.totalGuests} guests, priced on request.`;
     return;
   }
+
+  el.heading5.textContent = "Here's your estimate";
+  el.fineprint.textContent =
+    'An estimate, not an invoice — final pricing is confirmed when you book. '
+    + 'Excludes airfare, Puerto Princesa hotel, Day 1 breakfast, and Day 4 lunch & dinner.';
 
   result.lines.forEach(line => {
     const row = document.createElement('div');
@@ -677,6 +783,39 @@ function render() {
     `Estimated total ${formatPeso(result.total)} for ${result.totalGuests} guest${result.totalGuests === 1 ? '' : 's'}.`;
 }
 
+const MONTHS_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** ISO date to something a guest reads, not a database key. */
+function formatDateLong(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return iso;
+  return `${d} ${MONTHS_ABBR[m - 1]} ${y}`;
+}
+
+/** What the visitor told us, echoed back when we cannot price it yet. */
+function summaryRows(nights) {
+  const rows = [];
+  if (state.tripType === 'private') {
+    const start = el.privateStart.value;
+    const end = el.privateEnd.value;
+    if (start && end) rows.push(['Dates', `${formatDateLong(start)} \u2013 ${formatDateLong(end)}`]);
+    rows.push(['Length of stay', `${nights} night${nights === 1 ? '' : 's'}`]);
+  } else {
+    rows.push(['Trip', '4D/3N joiner tour']);
+  }
+
+  const adults = readInt(el.adults);
+  const ages = readAges();
+  rows.push(['Party', `${adults} adult${adults === 1 ? '' : 's'}`
+    + (ages.length ? ` · ${ages.length} child${ages.length === 1 ? '' : 'ren'}` : '')]);
+  if (ages.length) rows.push(['Children\u2019s ages', ages.join(', ')]);
+
+  const room = ACCOMMODATIONS.find(a => a.id === state.accommodationId);
+  if (room) rows.push(['Accommodation', room.label]);
+  return rows;
+}
+
 function buildRecap(result, tour, nights) {
   const parts = [];
   parts.push(state.tripType === 'joiner' ? `${nights + 1}D/${nights}N joiner tour` : 'Private stay');
@@ -708,6 +847,10 @@ function buildFunnelUrl(result, tour, nights) {
   const ages = readAges();
   if (ages.length) params.set('ages', ages.join(','));
   if (tour) params.set('date', tour.start);
+  if (state.tripType === 'private' && el.privateStart.value && el.privateEnd.value) {
+    params.set('start', el.privateStart.value);
+    params.set('end', el.privateEnd.value);
+  }
   if (result.quotable) params.set('estimate', String(result.total));
   return `funnel.html?${params}`;
 }
@@ -715,6 +858,10 @@ function buildFunnelUrl(result, tour, nights) {
 // ============================================================
 // FIRST PAINT
 // ============================================================
+
+// Seed and validate the private range before any render reads it.
+seedPrivateDates();
+syncPrivateNights();
 
 let saved = null;
 try {

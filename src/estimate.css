@@ -442,3 +442,31 @@ body {
 .wiz-cta:focus-visible {
   outline: 2px solid var(--gold); outline-offset: 2px;
 }
+
+/* ---------- Private date range ---------- */
+.wiz-daterange {
+  display: grid; gap: .8rem; margin-top: 1.6rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 480px) { .wiz-daterange { grid-template-columns: 1fr 1fr; max-width: 26rem; } }
+.wiz-datefield { display: flex; flex-direction: column; gap: .35rem; }
+.wiz-datefield-label {
+  font-size: .68rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--graytext);
+}
+.wiz-date-input {
+  padding: .8rem .9rem; border-radius: .7rem;
+  border: 1.5px solid var(--line); background: #fff;
+  font-family: 'Inter', sans-serif; font-size: .95rem; color: var(--charcoal);
+  min-height: 48px;
+}
+.wiz-date-input:focus {
+  outline: none; border-color: var(--coral-deep);
+  box-shadow: 0 0 0 3px rgba(231,111,81,.18);
+}
+.wiz-date-error {
+  margin-top: .75rem; padding: .6rem .9rem; border-radius: .5rem;
+  background: rgba(191,70,40,.08); border-left: 3px solid #BF4628;
+  font-size: .84rem; color: #8A3220;
+}
+.wiz-date-error[hidden] { display: none; }
