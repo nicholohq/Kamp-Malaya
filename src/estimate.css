@@ -429,6 +429,34 @@ body {
   font-size: 1.15rem; color: var(--charcoal); white-space: nowrap;
 }
 
+/* ---------- Action bar: narrow screens ----------
+   Deliberately adjacent to the bar's own rules rather than at the end of the
+   file. An earlier version lived in the footer section and was deleted with it,
+   which silently pushed Back off-screen at 320px. */
+
+/* Back + total + Continue must stay on one row. */
+@media (max-width: 480px) {
+  .wiz-nav { padding-left: 1rem; padding-right: 1rem; }
+  .wiz-nav-inner { gap: .6rem; }
+  .wiz-next { padding: .8rem 1.3rem; letter-spacing: .1em; }
+  .wiz-running-value { font-size: 1.05rem; }
+}
+
+/* Below ~360px the three items cannot all keep their full width. The caption
+   goes first: the gold figure beside Continue still reads as a total, whereas a
+   clipped Back is unreachable. */
+@media (max-width: 360px) {
+  .wiz-running-label { display: none; }
+  .wiz-next { padding: .8rem 1.05rem; }
+  .wiz-back { font-size: .8rem; }
+}
+
+/* Last line of defence. If a future change makes the row too wide again, the
+   total truncates instead of the overflow shunting Back past the left edge. */
+.wiz-nav-inner > .wiz-running { min-width: 0; overflow: hidden; }
+.wiz-back { flex: 0 0 auto; }
+.wiz-next { flex: 0 0 auto; }
+
 /* ---------- Focus ---------- */
 .wiz-choice:focus-visible,
 .wiz-month:focus-visible,
