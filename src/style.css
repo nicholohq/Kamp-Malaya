@@ -478,3 +478,64 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
   font-size: .78rem; line-height: 1.45; color: var(--graytext);
 }
 .inc-item-muted .inc-sub { font-size: .76rem; }
+
+
+/* ---------- Adventures: tour disclosures ----------
+   The rows used to be divs with cursor:pointer, a hover lift and no click
+   handler; the only real control was a 16px "Learn More" link covering 24% of
+   the card. The row is the control now. */
+.tour-entry {
+  border: 1px solid var(--line);
+  border-radius: .85rem;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow .25s ease, border-color .25s ease;
+}
+.tour-entry:hover, .tour-entry.is-open { border-color: rgba(231,111,81,.45); }
+.tour-entry:hover { box-shadow: 0 6px 20px -14px rgba(44,44,44,.5); }
+.tour-entry.is-open { box-shadow: 0 8px 26px -18px rgba(44,44,44,.55); }
+
+.tour-item {
+  position: relative;              /* the stretched hit area anchors here */
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: .9rem;
+  align-items: start;
+  padding: 1.05rem 1.15rem;
+}
+.tour-icon { color: var(--coral); font-size: 1.15rem; line-height: 1.4; }
+
+.tour-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; }
+.tour-toggle {
+  background: none; border: 0; padding: 0;
+  font: inherit; color: var(--charcoal);
+  text-align: left; cursor: pointer;
+}
+/* Stretches the button over the whole row, so the visitor can click anywhere
+   the pointer cursor implies. The detail panel sits outside .tour-item and so
+   stays selectable. */
+.tour-toggle::after { content: ''; position: absolute; inset: 0; }
+.tour-toggle:focus-visible { outline: none; }
+.tour-entry:has(.tour-toggle:focus-visible) {
+  outline: 2px solid var(--gold); outline-offset: 2px;
+}
+
+.tour-summary { margin-top: .2rem; font-size: .85rem; line-height: 1.5; color: var(--graytext); }
+
+.tour-chevron {
+  color: var(--graytext); font-size: .75rem; margin-top: .35rem;
+  transition: transform .25s ease;
+}
+.tour-entry.is-open .tour-chevron { transform: rotate(180deg); }
+
+.tour-detail {
+  padding: 0 1.15rem 1.15rem;
+  margin-left: 2.05rem;            /* aligns with the summary, past the icon */
+  font-size: .85rem; line-height: 1.65; color: var(--charcoal);
+}
+.tour-detail[hidden] { display: none; }
+.tour-detail p { border-left: 2px solid rgba(231,111,81,.35); padding-left: .9rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-entry, .tour-chevron { transition: none; }
+}

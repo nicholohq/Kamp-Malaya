@@ -464,42 +464,80 @@
   </div>
 
   <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 mt-6">
-    <!-- Tour list -->
-    <div class="reveal space-y-4 self-start">
-      <!-- Tour item template -->
-      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all cursor-pointer">
-        <div class="text-coral mt-1 shrink-0 text-xl"><i class="fa-solid fa-compass"></i></div>
-        <div class="flex-1">
-          <h3 class="font-display text-charcoal text-xl">Island Hopping</h3>
-          <p class="text-graytext text-sm mt-1">Chase sandbars and secret coves across the Balabac archipelago.</p>
-          <button class="learn-more text-coral-deep text-xs uppercase tracking-widest mt-2 hover:underline" data-tour="Island Hopping" data-detail="A full-day boat expedition to Onuk Island, Punta Sebaring, and hidden sandbars. Includes lunch and snorkel gear.">Learn More →</button>
+    <!-- Tour list. Each row is a disclosure: the detail used to arrive in a
+         native alert(), and the card carried a pointer cursor with no handler
+         behind it. -->
+    <div class="tour-list space-y-3 self-start">
+      <div class="tour-entry">
+        <div class="tour-item">
+          <span class="tour-icon" aria-hidden="true"><i class="fa-solid fa-compass"></i></span>
+          <div class="tour-body">
+            <h3 class="tour-name">
+              <!-- The button's ::after stretches over .tour-item, so the whole
+                   summary row is the hit area while the heading stays a heading
+                   and the detail below stays selectable. -->
+              <button type="button" class="tour-toggle" aria-expanded="false" aria-controls="tour-detail-1">Island Hopping</button>
+            </h3>
+            <p class="tour-summary">Chase sandbars and secret coves across the Balabac archipelago.</p>
+          </div>
+          <span class="tour-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+        </div>
+        <div class="tour-detail" id="tour-detail-1" hidden>
+          <p>A full-day boat expedition to Onuk Island, Punta Sebaring, and hidden sandbars. Includes lunch and snorkel gear.</p>
         </div>
       </div>
-
-      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all cursor-pointer">
-        <div class="text-coral mt-1 shrink-0 text-xl"><i class="fa-solid fa-water"></i></div>
-        <div class="flex-1">
-          <h3 class="font-display text-charcoal text-xl">Reef Sanctuary Snorkeling</h3>
-          <p class="text-graytext text-sm mt-1">Glide above living coral gardens teeming with marine life.</p>
-          <button class="learn-more text-coral-deep text-xs uppercase tracking-widest mt-2 hover:underline" data-tour="Reef Sanctuary Snorkeling" data-detail="Guided snorkeling over a protected reef sanctuary. Spot turtles, clownfish, and vibrant coral. Suitable for all levels.">Learn More →</button>
+      <div class="tour-entry">
+        <div class="tour-item">
+          <span class="tour-icon" aria-hidden="true"><i class="fa-solid fa-water"></i></span>
+          <div class="tour-body">
+            <h3 class="tour-name">
+              <!-- The button's ::after stretches over .tour-item, so the whole
+                   summary row is the hit area while the heading stays a heading
+                   and the detail below stays selectable. -->
+              <button type="button" class="tour-toggle" aria-expanded="false" aria-controls="tour-detail-2">Reef Sanctuary Snorkeling</button>
+            </h3>
+            <p class="tour-summary">Glide above living coral gardens teeming with marine life.</p>
+          </div>
+          <span class="tour-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+        </div>
+        <div class="tour-detail" id="tour-detail-2" hidden>
+          <p>Guided snorkeling over a protected reef sanctuary. Spot turtles, clownfish, and vibrant coral. Suitable for all levels.</p>
         </div>
       </div>
-
-      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all cursor-pointer">
-        <div class="text-coral mt-1 shrink-0 text-xl"><i class="fa-solid fa-campground"></i></div>
-        <div class="flex-1">
-          <h3 class="font-display text-charcoal text-xl">Sicsican Island Camp</h3>
-          <p class="text-graytext text-sm mt-1">Off-grid island living with 24/7 clean water, power, and Wi-Fi.</p>
-          <button class="learn-more text-coral-deep text-xs uppercase tracking-widest mt-2 hover:underline" data-tour="Sicsican Island Camp" data-detail="Home base for your Balabac adventure. Sicsican Island Camp runs on round-the-clock clean running water, 24/7 electricity, and reliable internet — the wild beauty of a remote island without giving up the comforts of home.">Learn More →</button>
+      <div class="tour-entry">
+        <div class="tour-item">
+          <span class="tour-icon" aria-hidden="true"><i class="fa-solid fa-campground"></i></span>
+          <div class="tour-body">
+            <h3 class="tour-name">
+              <!-- The button's ::after stretches over .tour-item, so the whole
+                   summary row is the hit area while the heading stays a heading
+                   and the detail below stays selectable. -->
+              <button type="button" class="tour-toggle" aria-expanded="false" aria-controls="tour-detail-3">Sicsican Island Camp</button>
+            </h3>
+            <p class="tour-summary">Off-grid island living with 24/7 clean water, power, and Wi-Fi.</p>
+          </div>
+          <span class="tour-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+        </div>
+        <div class="tour-detail" id="tour-detail-3" hidden>
+          <p>Home base for your Balabac adventure. Sicsican Island Camp runs on round-the-clock clean running water, 24/7 electricity, and reliable internet — the wild beauty of a remote island without giving up the comforts of home.</p>
         </div>
       </div>
-
-      <div class="tour-item group flex items-start gap-4 p-5 rounded-xl bg-white border border-line hover:shadow-md transition-all cursor-pointer">
-        <div class="text-coral mt-1 shrink-0 text-xl"><i class="fa-solid fa-people-roof"></i></div>
-        <div class="flex-1">
-          <h3 class="font-display text-charcoal text-xl">Local Village Visit</h3>
-          <p class="text-graytext text-sm mt-1">The island's local community, living side by side with the camp and its guests.</p>
-          <button class="learn-more text-coral-deep text-xs uppercase tracking-widest mt-2 hover:underline" data-tour="Local Village Visit" data-detail="Meet the families who share Sicsican Island with the camp — a local community living alongside our guests and facilities, part of the everyday rhythm of island life.">Learn More →</button>
+      <div class="tour-entry">
+        <div class="tour-item">
+          <span class="tour-icon" aria-hidden="true"><i class="fa-solid fa-people-roof"></i></span>
+          <div class="tour-body">
+            <h3 class="tour-name">
+              <!-- The button's ::after stretches over .tour-item, so the whole
+                   summary row is the hit area while the heading stays a heading
+                   and the detail below stays selectable. -->
+              <button type="button" class="tour-toggle" aria-expanded="false" aria-controls="tour-detail-4">Local Village Visit</button>
+            </h3>
+            <p class="tour-summary">The island's local community, living side by side with the camp and its guests.</p>
+          </div>
+          <span class="tour-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+        </div>
+        <div class="tour-detail" id="tour-detail-4" hidden>
+          <p>Meet the families who share Sicsican Island with the camp — a local community living alongside our guests and facilities, part of the everyday rhythm of island life.</p>
         </div>
       </div>
     </div>

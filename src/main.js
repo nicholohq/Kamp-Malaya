@@ -60,12 +60,30 @@ bookBtns.forEach(function(btn) {
   });
 });
 
-// ---------- TOUR LEARN MORE - ALERT (KEEP THIS) ----------
-const learnMoreBtns = document.querySelectorAll('.learn-more');
-learnMoreBtns.forEach(function(btn) {
-  btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    alert(this.dataset.tour + '\n\n' + this.dataset.detail);
+// ---------- TOUR DETAIL DISCLOSURES ----------
+// The detail used to arrive in a native alert(): unstyleable, page-blocking,
+// and on some mobile browsers it offers to suppress further dialogs. It is the
+// copy that sells the tour, so it belongs on the page.
+document.querySelectorAll('.tour-toggle').forEach(toggle => {
+  const detail = document.getElementById(toggle.getAttribute('aria-controls'));
+  if (!detail) return;
+
+  toggle.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+
+    // One at a time: four open panels turn the list back into a wall of text.
+    if (!open) {
+      document.querySelectorAll('.tour-toggle[aria-expanded="true"]').forEach(other => {
+        other.setAttribute('aria-expanded', 'false');
+        other.closest('.tour-entry')?.classList.remove('is-open');
+        const otherDetail = document.getElementById(other.getAttribute('aria-controls'));
+        if (otherDetail) otherDetail.hidden = true;
+      });
+    }
+
+    toggle.setAttribute('aria-expanded', String(!open));
+    toggle.closest('.tour-entry')?.classList.toggle('is-open', !open);
+    detail.hidden = open;
   });
 });
 
@@ -108,10 +126,14 @@ function nextSlide() { goTo((current + 1) % slides.length); resetTimer(); }
 document.getElementById('carouselPrev')?.addEventListener('click', prevSlide);
 document.getElementById('carouselNext')?.addEventListener('click', nextSlide);
 
-// Keyboard navigation
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowLeft') prevSlide();
-  if (e.key === 'ArrowRight') nextSlide();
+// Keyboard navigation, scoped to the carousel. This was bound to `document`,
+// so pressing an arrow key anywhere on the page — reading the hero, three
+// screens away — silently advanced a carousel the visitor could not see.
+const carouselRegion = document.getElementById('carouselImg')?.closest('.relative');
+carouselRegion?.addEventListener('keydown', (e) => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  e.preventDefault();
+  (e.key === 'ArrowLeft' ? prevSlide : nextSlide)();
 });
 
 // Pause on hover
