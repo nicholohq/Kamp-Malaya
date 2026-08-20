@@ -142,42 +142,42 @@
 </section>
 
 <!-- ===================== SECTION 3: EXPERIENCE ===================== -->
-<section id="experience" class="bg-offwhite py-12 sm:py-16 px-4 sm:px-6">
-  <div class="max-w-7xl mx-auto text-center reveal">
+<section id="experience" class="bg-offwhite py-12 sm:py-16">
+  <!-- Padding lives on the header, not the section, so the bands below can run
+       edge to edge. -->
+  <div class="max-w-7xl mx-auto text-center reveal px-4 sm:px-6">
     <p class="font-quote text-seagrass text-xl sm:text-2xl tracking-widest uppercase">Savor Malaya</p>
     <h2 class="font-display text-charcoal text-3xl sm:text-4xl md:text-5xl mt-2">Experiences that stay with you</h2>
     <div class="w-20 h-px bg-gold mx-auto my-5 sm:my-6"></div>
   </div>
 
-  <div class="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8 mt-4 sm:mt-6">
-    <!-- 1 -->
-    <article class="exp-card reveal lift bg-white rounded-2xl overflow-hidden border border-line">
-      <div class="zoom-wrap h-56 sm:h-64 md:h-72">
-        <img src="/gallery/night_stay.jpg" width="960" height="640" loading="lazy" decoding="async" alt="Guests gathered around a beachfront bonfire at Kamp Malaya, Balabac" class="zoom-img w-full h-full object-cover" />
-      </div>
-      <div class="p-5 sm:p-6 md:p-8">
-        <h3 class="exp-sub font-display text-xl sm:text-2xl">Island Camping</h3>
-        <p class="text-graytext mt-2 sm:mt-3 leading-relaxed text-sm sm:text-base">Fall asleep to the hush of the tide and wake to a private sandbar. Our bonfire nights end with stargazing and stories shared beneath a sky thick with constellations.</p>
-      </div>
-    </article>
-    <!-- 2 -->
-    <article class="exp-card reveal reveal-delay-1 lift bg-white rounded-2xl overflow-hidden border border-line">
-      <div class="zoom-wrap h-56 sm:h-64 md:h-72">
-        <img src="/gallery/night_food.jpg" width="1376" height="768" loading="lazy" decoding="async" alt="A spread of freshly grilled Balabac seafood served on banana leaves" class="zoom-img w-full h-full object-cover" />
-      </div>
-      <div class="p-5 sm:p-6 md:p-8">
-        <h3 class="exp-sub font-display text-xl sm:text-2xl">Local Feasts</h3>
-        <p class="text-graytext mt-2 sm:mt-3 leading-relaxed text-sm sm:text-base">Seafood caught hours before it reaches your plate, grilled over open flame and seasoned the Balabac way. Every meal is a celebration of the sea and the hands that tend it.</p>
+  <!-- Full-bleed bands: the photograph carries the section and the copy sits on
+       it, rather than three cards where the image is a thumbnail above text. -->
+  <div class="exp-bands mt-6 sm:mt-8">
+    <article class="exp-band reveal">
+      <img class="exp-band-img" src="/gallery/night_stay.jpg" width="960" height="640" loading="lazy" decoding="async"
+           alt="Guests gathered around a beachfront bonfire at Kamp Malaya, Balabac" />
+      <div class="exp-band-copy">
+        <h3 class="exp-band-title">Island Camping</h3>
+        <p class="exp-band-text">Fall asleep to the hush of the tide and wake to a private sandbar. Our bonfire nights end with stargazing and stories shared beneath a sky thick with constellations.</p>
       </div>
     </article>
-    <!-- 3 -->
-    <article class="exp-card reveal reveal-delay-2 lift bg-white rounded-2xl overflow-hidden border border-line">
-      <div class="zoom-wrap h-56 sm:h-64 md:h-72">
-        <img src="/gallery/sunset_boat.jpg" width="1024" height="1440" loading="lazy" decoding="async" alt="A wooden boat drifting across calm Balabac water at sunset" class="zoom-img w-full h-full object-cover" />
+
+    <article class="exp-band reveal reveal-delay-1">
+      <img class="exp-band-img" src="/gallery/night_food.jpg" width="1376" height="768" loading="lazy" decoding="async"
+           alt="A spread of freshly grilled Balabac seafood served on banana leaves" />
+      <div class="exp-band-copy">
+        <h3 class="exp-band-title">Local Feasts</h3>
+        <p class="exp-band-text">Seafood caught hours before it reaches your plate, grilled over open flame and seasoned the Balabac way. Every meal is a celebration of the sea and the hands that tend it.</p>
       </div>
-      <div class="p-5 sm:p-6 md:p-8">
-        <h3 class="exp-sub font-display text-xl sm:text-2xl">Sunset Drift</h3>
-        <p class="text-graytext mt-2 sm:mt-3 leading-relaxed text-sm sm:text-base">Glide across glassy waters as the sky melts into gold. Our slow boat journeys trace hidden coves and end exactly where the day's last light touches the horizon.</p>
+    </article>
+
+    <article class="exp-band reveal reveal-delay-2">
+      <img class="exp-band-img" src="/gallery/sunset_boat.jpg" width="1024" height="1440" loading="lazy" decoding="async"
+           alt="A wooden boat drifting across calm Balabac water at sunset" />
+      <div class="exp-band-copy">
+        <h3 class="exp-band-title">Sunset Drift</h3>
+        <p class="exp-band-text">Glide across glassy waters as the sky melts into gold. Our slow boat journeys trace hidden coves and end exactly where the day's last light touches the horizon.</p>
       </div>
     </article>
   </div>
