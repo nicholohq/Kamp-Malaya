@@ -300,6 +300,12 @@
         </div>
         <h2 id="successHeading" class="font-display text-charcoal text-2xl md:text-3xl">Thank you!</h2>
         <p id="successMsg" class="text-graytext text-lg mt-3 leading-relaxed"></p>
+        <!-- Only shown off the live domain, so a demo run is never mistaken for
+             a real booking. Revealed by funnel.js when the guard is active. -->
+        <p id="previewNotice" class="preview-notice" hidden>
+          <i class="fa-solid fa-flask" aria-hidden="true"></i>
+          Preview build &mdash; this inquiry was <strong>not</strong> sent and no contact was created.
+        </p>
         <p id="successEmail" class="font-quote text-seagrass text-lg italic mt-2"></p>
         <a href="index.html" class="inline-block mt-7 text-coral-deep text-sm uppercase tracking-widest hover:underline">&larr; Back to Main Site</a>
       </div>

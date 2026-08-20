@@ -367,6 +367,33 @@ const submitBtn = document.getElementById('submitBtn');
 
 const WEBHOOK_URL = 'https://www.kampmalaya.tours/api/ghl-webhook';
 
+// The webhook writes a real contact into the live GoHighLevel CRM, and the URL
+// above is absolute — so a preview deployment, a staging host or localhost would
+// all post real bookings into production. Only the live domain submits for real;
+// anywhere else the flow completes normally but stops at the network boundary.
+const PRODUCTION_HOSTS = ['kampmalaya.tours', 'www.kampmalaya.tours'];
+const IS_PRODUCTION = PRODUCTION_HOSTS.includes(window.location.hostname);
+
+/** Posts the inquiry, or simulates it off production. */
+async function submitInquiry(data) {
+  if (!IS_PRODUCTION) {
+    console.warn(
+      `[preview] Not on ${PRODUCTION_HOSTS[0]} — inquiry NOT sent to the CRM.`,
+      data,
+    );
+    // Match the real round trip closely enough that the button state reads true.
+    await new Promise(resolve => setTimeout(resolve, 600));
+    return { success: true, preview: true };
+  }
+
+  const response = await fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
+
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
 
@@ -403,15 +430,7 @@ form.addEventListener('submit', async function (e) {
   submitBtn.textContent = 'Submitting...';
 
   try {
-    const response = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data)
-    });
-
-    const result = await response.json();
+    const result = await submitInquiry(data);
     console.log('📤 Webhook response:', result);
 
     if (!result.success) {
@@ -434,6 +453,10 @@ form.addEventListener('submit', async function (e) {
     document.getElementById('successEmail').textContent = 'A confirmation email has been sent to ' + data.email;
 
     formWrap.classList.add('hidden');
+    // Say plainly that nothing was sent, so a demo is never mistaken for a booking.
+    const previewNotice = document.getElementById('previewNotice');
+    if (previewNotice) previewNotice.hidden = !result.preview;
+
     successWrap.classList.remove('hidden');
     successWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
