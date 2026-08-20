@@ -217,20 +217,48 @@ ACCOMMODATIONS.forEach((room, i) => {
   card.dataset.room = room.id;
   card.setAttribute('aria-pressed', String(i === 0));
 
+  // Where you sleep is the most sensory choice in the flow and the repo already
+  // has the photographs; three lines of text was the wrong medium for it.
+  const figure = document.createElement('span');
+  figure.className = 'wiz-room-figure';
+  const img = document.createElement('img');
+  img.className = 'wiz-room-img';
+  img.src = room.image;
+  img.width = 640;
+  img.height = 427;
+  img.loading = i === 0 ? 'eager' : 'lazy';
+  img.decoding = 'async';
+  // Decorative here: the button's aria-label already names and describes the
+  // room, so alt text would just repeat it to a screen reader.
+  img.alt = '';
+  figure.appendChild(img);
+
+  const body = document.createElement('span');
+  body.className = 'wiz-room-body';
+
+  const head = document.createElement('span');
+  head.className = 'wiz-room-head';
+
   const name = document.createElement('span');
   name.className = 'wiz-room-name';
   name.textContent = room.label;
+
+  const price = document.createElement('span');
+  price.className = 'wiz-room-price';
+  price.textContent = roomPriceText(room);
+
+  head.append(name, price);
 
   const note = document.createElement('span');
   note.className = 'wiz-room-note';
   note.textContent = room.note;
 
-  const price = document.createElement('span');
-  price.className = 'wiz-room-price';
-  price.textContent =
-    room.perHeadPerNight > 0 ? `+${formatPeso(room.perHeadPerNight)}/head/night` : 'Included';
+  const sleeps = document.createElement('span');
+  sleeps.className = 'wiz-room-sleeps';
+  sleeps.textContent = room.sleeps;
 
-  card.append(name, note, price);
+  body.append(head, note, sleeps);
+  card.append(figure, body);
   card.setAttribute('aria-label', roomAriaLabel(room));
   card.addEventListener('click', () => {
     state.accommodationId = room.id;
@@ -241,31 +269,51 @@ ACCOMMODATIONS.forEach((room, i) => {
 });
 
 /**
+ * What this room costs on the product currently being priced. A joiner tour
+ * includes the tent and charges a per-head upgrade for a hut; a private stay
+ * books the room outright per night. Until private is quotable it shows neither.
+ */
+function roomPriceText(room) {
+  if (state.tripType === 'private') {
+    return CAN_QUOTE_PRIVATE ? `${formatPeso(room.privateNightlyRate)}/night` : 'Preference';
+  }
+  return room.joinerUpgradePerHeadPerNight > 0
+    ? `+${formatPeso(room.joinerUpgradePerHeadPerNight)}/head/night`
+    : 'Included';
+}
+
+/**
  * Explicit accessible name for a room card. The three child spans otherwise
  * concatenate into a run-on string ("Canopy TentIncluded - tent with complete
  * beddingsIncluded"), and the price repeats a word the note already used.
  * Starts with the visible label so Label in Name (WCAG 2.5.3) still holds, and
  * spells the rate out rather than leaving "+P200/head/night" to a screen reader.
  */
-function roomAriaLabel(room, withPrice = true) {
+function roomAriaLabel(room) {
   const note = room.note.replace(/\s*[\u00b7\u2014]\s*/g, ', ');
-  if (withPrice && room.perHeadPerNight > 0) {
-    return `${room.label}. ${note}. Plus ${room.perHeadPerNight} pesos per guest per night.`;
+  const sleeps = `Sleeps ${room.sleeps.replace(/\u2013/g, ' to ')}.`;
+  const head = `${room.label}. ${note}. ${sleeps}`;
+
+  if (state.tripType === 'private') {
+    // Nothing is bundled on a private stay — the room is the purchase. Saying
+    // "included" here would be the same conflation that made the pages disagree.
+    return CAN_QUOTE_PRIVATE
+      ? `${head} ${room.privateNightlyRate} pesos per night.`
+      : `${head} Priced with your quote.`;
   }
-  return `${room.label}. ${note}.`;
+  return room.joinerUpgradePerHeadPerNight > 0
+    ? `${head} Plus ${room.joinerUpgradePerHeadPerNight} pesos per guest per night.`
+    : `${head} Included in the joiner package.`;
 }
 
-/** Hides the per-night price on the private path while it cannot be priced. */
+/** Repaints the price on each card when the trip type changes. */
 function syncRoomPrices() {
-  const showPrice = quotableNow();
   el.rooms.querySelectorAll('.wiz-room').forEach(card => {
     const room = ACCOMMODATIONS.find(a => a.id === card.dataset.room);
     const priceEl = card.querySelector('.wiz-room-price');
     if (!room || !priceEl) return;
-    priceEl.textContent = showPrice
-      ? (room.perHeadPerNight > 0 ? `+${formatPeso(room.perHeadPerNight)}/head/night` : 'Included')
-      : 'Preference';
-    card.setAttribute('aria-label', roomAriaLabel(room, showPrice));
+    priceEl.textContent = roomPriceText(room);
+    card.setAttribute('aria-label', roomAriaLabel(room));
   });
 }
 
@@ -668,6 +716,7 @@ function currentEstimate() {
     nights,
     accommodationId: state.accommodationId,
     addonIds: Array.from(el.addons.querySelectorAll('input:checked'), i => i.value),
+    tripType: isJoiner ? 'joiner' : 'private',
   });
 
   return { result, tour, nights };

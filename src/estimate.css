@@ -279,32 +279,77 @@ body {
 .wiz-note i { color: var(--seagrass); margin-right: .35rem; }
 
 /* ---------- Rooms ---------- */
-.wiz-rooms { display: grid; gap: .7rem; margin-top: 1.85rem; }
-.wiz-room {
-  display: grid; grid-template-columns: 1fr auto;
-  align-items: center; gap: .2rem .9rem;
-  padding: 1.15rem 1.3rem; border-radius: 1rem;
-  border: 1.5px solid var(--line); background: #fff;
-  text-align: left; cursor: pointer; transition: all .25s ease;
+.wiz-rooms {
+  display: grid; gap: .9rem; margin-top: 1.85rem;
+  grid-template-columns: 1fr;
 }
-.wiz-room:hover { border-color: var(--coral-deep); }
+@media (min-width: 700px) {
+  .wiz-rooms { grid-template-columns: repeat(3, 1fr); }
+}
+.wiz-room {
+  display: flex; flex-direction: column;
+  padding: 0; overflow: hidden;
+  border-radius: 1rem; border: 1.5px solid var(--line); background: #fff;
+  text-align: left; cursor: pointer;
+  transition: transform .3s cubic-bezier(.22,1,.36,1), border-color .25s ease, box-shadow .25s ease;
+}
+.wiz-room:hover {
+  transform: translateY(-3px);
+  border-color: var(--coral-deep);
+  box-shadow: 0 12px 28px rgba(44,44,44,.1);
+}
 .wiz-room.selected {
-  border-color: var(--coral-deep); background: rgba(231,111,81,.06);
-  box-shadow: 0 4px 14px rgba(231,111,81,.12);
+  border-color: var(--coral-deep);
+  box-shadow: 0 4px 16px rgba(231,111,81,.16);
+}
+
+.wiz-room-figure {
+  display: block; position: relative;
+  aspect-ratio: 3 / 2; background: var(--warmgray);
+}
+.wiz-room-img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+  transition: transform .5s cubic-bezier(.22,1,.36,1);
+}
+.wiz-room:hover .wiz-room-img { transform: scale(1.04); }
+@media (prefers-reduced-motion: reduce) {
+  .wiz-room, .wiz-room-img { transition: none; }
+  .wiz-room:hover { transform: none; }
+  .wiz-room:hover .wiz-room-img { transform: none; }
+}
+
+/* Selected gets a tick over the image — the border alone is easy to miss on a
+   card whose top half is a photograph. */
+.wiz-room-figure::after {
+  content: '\2713';
+  position: absolute; top: .6rem; right: .6rem;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--coral-deep); color: #fff; font-size: .8rem;
+  opacity: 0; transform: scale(.8); transition: all .25s ease;
+}
+.wiz-room.selected .wiz-room-figure::after { opacity: 1; transform: scale(1); }
+
+.wiz-room-body {
+  display: flex; flex-direction: column; gap: .3rem;
+  padding: .95rem 1.05rem 1.1rem;
+}
+.wiz-room-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: .6rem; flex-wrap: wrap;
 }
 .wiz-room-name {
-  /* All three need an explicit column. The price carries a definite grid-row,
-     so without one, auto-placement hands it column 1 and pushes the name to
-     column 2 — rendering every card price-first, name-last. */
-  grid-column: 1;
   font-family: 'Playfair Display', serif;
-  font-size: 1.1rem; color: var(--charcoal);
+  font-size: 1.08rem; color: var(--charcoal);
 }
-.wiz-room-note { grid-column: 1; font-size: .78rem; color: var(--graytext); }
 .wiz-room-price {
-  grid-column: 2; grid-row: 1 / span 2;
-  font-size: .8rem; font-weight: 600;
+  font-size: .78rem; font-weight: 600;
   color: var(--seagrass-deep); white-space: nowrap;
+}
+.wiz-room-note { font-size: .78rem; line-height: 1.5; color: var(--graytext); }
+.wiz-room-sleeps {
+  margin-top: .15rem; font-size: .68rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--graytext);
 }
 
 /* ---------- Add-ons ---------- */

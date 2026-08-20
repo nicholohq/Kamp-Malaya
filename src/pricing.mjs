@@ -38,22 +38,58 @@ export const ACCOMMODATIONS = [
   {
     id: 'tent',
     label: 'Canopy Tent',
-    note: 'Included — tent with complete beddings',
-    perHeadPerNight: 0,
+    note: 'Tent with complete beddings at the Sicsican basecamp',
+    // Included in the joiner package; on a private stay it is booked outright.
+    joinerUpgradePerHeadPerNight: 0,
+    privateNightlyRate: 3800,
+    sleeps: '1\u20132 guests',
+    image: '/gallery/rooms/cards/canopy.webp',
+    alt: 'An elevated jungle canopy tent wrapped in green foliage',
   },
   {
     id: 'kubo',
     label: 'Kubo by the Shore',
-    note: 'Beachfront native hut · subject to availability',
-    perHeadPerNight: 200,
+    note: 'Beachfront native hut of bamboo and nipa, steps from the water',
+    joinerUpgradePerHeadPerNight: 200,
+    privateNightlyRate: 4500,
+    sleeps: '2\u20133 guests',
+    image: '/gallery/rooms/cards/kubo.webp',
+    alt: 'Beachfront native kubo hut with a thatched roof at the shoreline',
   },
   {
     id: 'villa',
     label: 'Malaya Villa',
-    note: 'Private beach villa · subject to availability',
-    perHeadPerNight: 200,
+    note: 'Private beach villa with an open deck facing the ocean',
+    joinerUpgradePerHeadPerNight: 200,
+    privateNightlyRate: 8500,
+    sleeps: '8\u201310 guests',
+    image: '/gallery/rooms/cards/villa.webp',
+    alt: 'Private Malaya beach villa with an open deck facing the ocean',
   },
 ];
+
+/**
+ * What this room adds to a total, which depends on the product being bought.
+ *
+ * A joiner tour already includes the basecamp tent, so a hut is a per-head,
+ * per-night upgrade. A private stay books the room outright at its nightly
+ * rate. These are two different products, not two prices for one thing — and
+ * conflating them is what made the home page and the funnel disagree.
+ *
+ * @returns {{amount: number, per: 'head-night'|'night', total: number}}
+ */
+export function accommodationCharge(room, { tripType, payingHeads, nights }) {
+  if (tripType === 'private') {
+    const amount = room.privateNightlyRate || 0;
+    return { amount, per: 'night', total: amount * Math.max(0, nights) };
+  }
+  const amount = room.joinerUpgradePerHeadPerNight || 0;
+  return {
+    amount,
+    per: 'head-night',
+    total: amount * Math.max(0, payingHeads) * Math.max(0, nights),
+  };
+}
 
 export function findAccommodation(id) {
   return ACCOMMODATIONS.find(a => a.id === id) || ACCOMMODATIONS[0];
@@ -126,6 +162,7 @@ export function estimate({
   nights = 3,
   accommodationId = 'tent',
   addonIds = [],
+  tripType = 'joiner',
 } = {}) {
   const adultCount = Math.max(0, Math.floor(adults));
   const ages = childAges.filter(a => Number.isFinite(a));
@@ -163,12 +200,15 @@ export function estimate({
   });
 
   const room = findAccommodation(accommodationId);
-  if (room.perHeadPerNight > 0 && payingHeads > 0 && nights > 0) {
+  const charge = accommodationCharge(room, { tripType, payingHeads, nights });
+  if (charge.total > 0) {
     lines.push({
       key: 'accommodation',
-      label: `${room.label} upgrade`,
-      detail: `${formatPeso(room.perHeadPerNight)}/head/night × ${payingHeads} × ${nights} night${nights === 1 ? '' : 's'}`,
-      amount: room.perHeadPerNight * payingHeads * nights,
+      label: charge.per === 'night' ? room.label : `${room.label} upgrade`,
+      detail: charge.per === 'night'
+        ? `${formatPeso(charge.amount)}/night × ${nights} night${nights === 1 ? '' : 's'}`
+        : `${formatPeso(charge.amount)}/head/night × ${payingHeads} guest${payingHeads === 1 ? '' : 's'} × ${nights} night${nights === 1 ? '' : 's'}`,
+      amount: charge.total,
     });
   }
 

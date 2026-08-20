@@ -171,8 +171,11 @@
                 <label class="field-label" for="accommodation">Accommodation</label>
                 <select class="field" id="accommodation" name="accommodation" required>
                   <option value="" disabled selected>Select a sanctuary</option>
-                  <option value="Kubo by the Shore">Kubo by the Shore — Standard, included (2–3 guests)</option>
+                  <!-- Private stays book the room outright, so every option carries a
+                       nightly rate. Kubo previously read "Standard, included", which is
+                       the joiner-tour rule and made this page contradict the home page. -->
                   <option value="Canopy Tent">Canopy Tent (1–2 guests) — from ₱3,800/night</option>
+                  <option value="Kubo by the Shore">Kubo by the Shore (2–3 guests) — from ₱4,500/night</option>
                   <option value="Malaya Villa">Malaya Villa (8–10 guests) — from ₱8,500/night</option>
                   <option value="Multiple Rooms">Multiple Rooms (large groups) — Contact us for rates</option>
                 </select>
