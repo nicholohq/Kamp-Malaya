@@ -399,8 +399,17 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 @media (min-width: 640px) { .inc-primary { padding: 2rem 2rem 1.9rem; } }
 
 /* No card: it sits on the section background so it reads as a footnote to the
-   list above rather than a rival to it. */
-.inc-secondary { padding: .25rem .35rem; }
+   list above rather than a rival to it. The horizontal padding still matches
+   the card's, so both lists start on the same left edge and their two columns
+   line up rather than sitting a few pixels apart. */
+.inc-secondary {
+  padding: .25rem 1.5rem;
+  /* Matches the card's 1px border so the box models are identical. Without it
+     the two lists sit 1px apart, which is invisible alone and obvious once
+     their columns are meant to line up. */
+  border: 1px solid transparent;
+}
+@media (min-width: 640px) { .inc-secondary { padding: .25rem 2rem; } }
 
 .inc-heading {
   display: flex; align-items: center; gap: .6rem;
