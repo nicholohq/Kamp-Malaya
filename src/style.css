@@ -528,14 +528,54 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 }
 .tour-entry.is-open .tour-chevron { transform: rotate(180deg); }
 
+/* Animated open/close. grid-template-rows 0fr -> 1fr transitions to the
+   panel's natural height without a magic max-height, and the child clips.
+   The `hidden` attribute cannot be used here: display:none is not animatable,
+   so visibility carries the same "gone from the a11y tree" meaning instead. */
 .tour-detail {
-  padding: 0 1.15rem 1.15rem;
-  margin-left: 2.05rem;            /* aligns with the summary, past the icon */
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows .32s cubic-bezier(.22,1,.36,1), visibility .32s;
+}
+.tour-entry.is-open .tour-detail {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+.tour-detail-inner {
+  overflow: hidden;              /* the clip that makes 0fr look collapsed */
+  min-height: 0;
+  padding: 0 1.15rem 0 3.2rem;   /* aligns with the summary, past the icon */
   font-size: .85rem; line-height: 1.65; color: var(--charcoal);
 }
-.tour-detail[hidden] { display: none; }
-.tour-detail p { border-left: 2px solid rgba(231,111,81,.35); padding-left: .9rem; }
+.tour-entry.is-open .tour-detail-inner { padding-bottom: 1.15rem; }
+.tour-detail-inner p {
+  border-left: 2px solid rgba(231,111,81,.35);
+  padding-left: .9rem;
+}
+
+/* On mobile the carousel is hidden, so each tour carries its own photograph
+   here — the image arrives with the copy it belongs to instead of sitting in a
+   panel the visitor has already scrolled past. */
+.tour-detail-img {
+  display: none;
+  width: 100%; height: 10.5rem; object-fit: cover;
+  border-radius: .6rem; margin-bottom: .85rem;
+}
+@media (max-width: 767px) {
+  .tour-detail-img { display: block; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .tour-entry, .tour-chevron { transition: none; }
 }
+
+/* Below the two-column breakpoint the carousel stacked beneath the entire list,
+   so it was off-screen exactly when the list needed illustrating. */
+@media (max-width: 767px) {
+  .tour-carousel { display: none; }
+}
+
+/* The row whose slide is showing. Makes the two halves visibly one thing. */
+.tour-entry.is-current { border-color: rgba(231,111,81,.55); }
+.tour-entry.is-current .tour-icon { color: var(--coral-deep); }

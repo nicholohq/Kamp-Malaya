@@ -76,14 +76,22 @@ document.querySelectorAll('.tour-toggle').forEach(toggle => {
       document.querySelectorAll('.tour-toggle[aria-expanded="true"]').forEach(other => {
         other.setAttribute('aria-expanded', 'false');
         other.closest('.tour-entry')?.classList.remove('is-open');
-        const otherDetail = document.getElementById(other.getAttribute('aria-controls'));
-        if (otherDetail) otherDetail.hidden = true;
       });
     }
 
     toggle.setAttribute('aria-expanded', String(!open));
     toggle.closest('.tour-entry')?.classList.toggle('is-open', !open);
-    detail.hidden = open;
+
+    // Opening a tour drives the carousel to its slide. The two halves sat side
+    // by side implying a relationship they did not have, while the slide
+    // changed on its own and contradicted whatever was being read.
+    if (!open) {
+      const slide = Number(toggle.dataset.slide);
+      if (Number.isInteger(slide)) {
+        goTo(slide);
+        stopAutoplay();   // the visitor has taken over; stop moving under them
+      }
+    }
   });
 });
 
@@ -102,6 +110,11 @@ let current = 0;
 function goTo(i) {
   current = i;
   dots.forEach((d, di) => d.classList.toggle('active', di === i));
+  // Mark the matching tour so the two halves read as one component rather than
+  // a list and an unrelated slideshow that happen to sit side by side.
+  document.querySelectorAll('.tour-entry').forEach((entry, ei) => {
+    entry.classList.toggle('is-current', ei === i);
+  });
   carouselImg.style.opacity = 0;
   setTimeout(() => {
     const next = new Image();
@@ -164,7 +177,13 @@ function resetTimer() {
   if (carouselTimer) clearInterval(carouselTimer);
   carouselTimer = setInterval(nextSlide, 4500);
 }
+/** Ends autoplay for good — used when the visitor picks a tour themselves. */
+function stopAutoplay() {
+  if (carouselTimer) clearInterval(carouselTimer);
+  carouselTimer = null;
+}
 resetTimer();
+goTo(0);   // paints the initial current-row highlight
 
 // ---------- ACCOMMODATION CARD SLIDESHOWS ----------
 // Extra slides per room, filenames in /gallery/rooms/ (built by `npm run photos`).
