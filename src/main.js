@@ -104,12 +104,10 @@ const slides = [
 ];
 const carouselImg = document.getElementById('carouselImg');
 const carouselCaption = document.getElementById('carouselCaption');
-const dots = document.querySelectorAll('.dot');
 let current = 0;
 
 function goTo(i) {
   current = i;
-  dots.forEach((d, di) => d.classList.toggle('active', di === i));
   // Mark the matching tour so the two halves read as one component rather than
   // a list and an unrelated slideshow that happen to sit side by side.
   document.querySelectorAll('.tour-entry').forEach((entry, ei) => {
@@ -129,25 +127,11 @@ function goTo(i) {
   }, 300);
 }
 
-if (dots.length > 0) {
-  dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); resetTimer(); }));
-}
-
-function prevSlide() { goTo((current - 1 + slides.length) % slides.length); resetTimer(); }
 function nextSlide() { goTo((current + 1) % slides.length); resetTimer(); }
 
-document.getElementById('carouselPrev')?.addEventListener('click', prevSlide);
-document.getElementById('carouselNext')?.addEventListener('click', nextSlide);
-
-// Keyboard navigation, scoped to the carousel. This was bound to `document`,
-// so pressing an arrow key anywhere on the page — reading the hero, three
-// screens away — silently advanced a carousel the visitor could not see.
-const carouselRegion = document.getElementById('carouselImg')?.closest('.relative');
-carouselRegion?.addEventListener('keydown', (e) => {
-  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-  e.preventDefault();
-  (e.key === 'ArrowLeft' ? prevSlide : nextSlide)();
-});
+// No keyboard handler here any more. The overlay arrows and dots are gone, so
+// the carousel holds nothing focusable and a keydown scoped to it could never
+// fire. The tour list beside it is the keyboard path to every slide.
 
 // Pause on hover
 const carouselEl = document.querySelector('#adventures .carousel-track')?.closest('.relative');

@@ -564,20 +564,9 @@
         <div class="absolute bottom-6 left-6">
           <h4 id="carouselCaption" class="font-display text-white text-2xl">Island Hopping</h4>
         </div>
-        <!-- arrows -->
-        <button type="button" class="carousel-arrow carousel-prev hidden md:flex" id="carouselPrev" aria-label="Previous slide">
-          <i class="fa-solid fa-chevron-left"></i>
-        </button>
-        <button type="button" class="carousel-arrow carousel-next hidden md:flex" id="carouselNext" aria-label="Next slide">
-          <i class="fa-solid fa-chevron-right"></i>
-        </button>
-        <!-- dots -->
-        <div class="absolute bottom-6 right-6 flex gap-2">
-          <button type="button" class="dot active w-2.5 h-2.5 rounded-full bg-white/60" data-i="0" aria-label="Show Island Hopping"></button>
-          <button type="button" class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="1" aria-label="Show Reef Sanctuary Snorkeling"></button>
-          <button type="button" class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="2" aria-label="Show Sicsican Island Camp"></button>
-          <button type="button" class="dot w-2.5 h-2.5 rounded-full bg-white/60" data-i="3" aria-label="Show Local Village Visit"></button>
-        </div>
+        <!-- No arrows or dots: the tour list beside this image is the control,
+             and duplicating it as overlay buttons put two navigations on one
+             component. Selecting a tour drives the slide. -->
       </div>
     </div>
   </div>

@@ -227,34 +227,8 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 #navbar.scrolled .nav-link:hover { color: var(--coral-deep); }
 #navbar.scrolled #menuBtn { color: var(--charcoal); }
 
-/* Carousel */
 .carousel-track { transition: opacity .6s ease; }
-.dot { transition: all .3s ease; cursor: pointer; }
-.dot.active { background: var(--gold); width: 28px; border-radius: 9999px; }
 
-.carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  width: 40px;
-  height: 40px;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.45);
-  color: #fff;
-  font-size: 1rem;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.2);
-  cursor: pointer;
-  transition: all .3s ease;
-}
-.carousel-arrow:hover { background: var(--coral-deep); border-color: var(--coral-deep); }
-.carousel-arrow.carousel-prev { left: 12px; }
-.carousel-arrow.carousel-next { right: 12px; }
 
 /* Mobile menu */
 #mobileMenu { transition: transform .4s cubic-bezier(.22,1,.36,1), opacity .4s ease; }
