@@ -14,6 +14,7 @@ export default defineConfig({
       input: {
         main: 'index.html',
         funnel: 'funnel.html',
+        estimate: 'estimate.html',
       },
     },
   },

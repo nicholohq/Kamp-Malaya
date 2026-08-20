@@ -38,38 +38,10 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 // ---------- ITINERARY: day carousel (hero + island thumbnails) ----------
-const itinPanels = Array.from(document.querySelectorAll('#itinPanels .itin-panel'));
-if (itinPanels.length) {
-  const itinDots = Array.from(document.querySelectorAll('#itinDots .itin-dot'));
-  const itinCounter = document.getElementById('itinCounter');
-  let day = 0;
+// The day-by-day itinerary is a timeline now, not a carousel — every day is on
+// the page at once, so there is no panel switching, thumbnail swapping or
+// counter left to drive.
 
-  function showDay(n) {
-    day = (n + itinPanels.length) % itinPanels.length;
-    itinPanels.forEach((p, i) => p.classList.toggle('hidden', i !== day));
-    itinDots.forEach((d, i) => d.classList.toggle('active', i === day));
-    if (itinCounter) itinCounter.textContent = `Day ${day + 1} of ${itinPanels.length}`;
-  }
-
-  document.getElementById('itinPrev')?.addEventListener('click', () => showDay(day - 1));
-  document.getElementById('itinNext')?.addEventListener('click', () => showDay(day + 1));
-  itinDots.forEach(d => d.addEventListener('click', () => showDay(+d.dataset.i)));
-
-  // Thumbnail → hero swap, scoped to each day's panel
-  itinPanels.forEach(panel => {
-    const hero = panel.querySelector('.itin-hero');
-    const cap = panel.querySelector('.itin-heroCap');
-    panel.querySelectorAll('.itin-thumb').forEach(t => t.addEventListener('click', () => {
-      if (hero) { hero.src = t.dataset.img; hero.alt = t.dataset.name || hero.alt; }
-      if (cap && t.dataset.name) cap.textContent = t.dataset.name;
-      panel.querySelectorAll('.itin-thumb').forEach(x => x.classList.toggle('active', x === t));
-    }));
-  });
-
-  showDay(0);
-}
-
-// ---------- ITINERARY: render next upcoming departures as chips ----------
 const itinDates = document.getElementById('itinDates');
 if (itinDates) {
   const upcoming = upcomingTours(JOINER_SCHEDULE, todayISO()).slice(0, 6);
@@ -88,12 +60,35 @@ bookBtns.forEach(function(btn) {
   });
 });
 
-// ---------- TOUR LEARN MORE - ALERT (KEEP THIS) ----------
-const learnMoreBtns = document.querySelectorAll('.learn-more');
-learnMoreBtns.forEach(function(btn) {
-  btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    alert(this.dataset.tour + '\n\n' + this.dataset.detail);
+// ---------- TOUR DETAIL DISCLOSURES ----------
+// The detail used to arrive in a native alert(): unstyleable, page-blocking,
+// and on some mobile browsers it offers to suppress further dialogs. It is the
+// copy that sells the tour, so it belongs on the page.
+document.querySelectorAll('.tour-toggle').forEach(toggle => {
+  const detail = document.getElementById(toggle.getAttribute('aria-controls'));
+  if (!detail) return;
+
+  toggle.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+
+    // One at a time: four open panels turn the list back into a wall of text.
+    if (!open) {
+      document.querySelectorAll('.tour-toggle[aria-expanded="true"]').forEach(other => {
+        other.setAttribute('aria-expanded', 'false');
+        other.closest('.tour-entry')?.classList.remove('is-open');
+      });
+    }
+
+    toggle.setAttribute('aria-expanded', String(!open));
+    toggle.closest('.tour-entry')?.classList.toggle('is-open', !open);
+
+    // Opening a tour drives the carousel to its slide. The two halves sat side
+    // by side implying a relationship they did not have, while the slide
+    // changed on its own and contradicted whatever was being read.
+    if (!open) {
+      const slide = Number(toggle.dataset.slide);
+      if (Number.isInteger(slide)) goTo(slide);
+    }
   });
 });
 
@@ -106,12 +101,15 @@ const slides = [
 ];
 const carouselImg = document.getElementById('carouselImg');
 const carouselCaption = document.getElementById('carouselCaption');
-const dots = document.querySelectorAll('.dot');
 let current = 0;
 
 function goTo(i) {
   current = i;
-  dots.forEach((d, di) => d.classList.toggle('active', di === i));
+  // Mark the matching tour so the two halves read as one component rather than
+  // a list and an unrelated slideshow that happen to sit side by side.
+  document.querySelectorAll('.tour-entry').forEach((entry, ei) => {
+    entry.classList.toggle('is-current', ei === i);
+  });
   carouselImg.style.opacity = 0;
   setTimeout(() => {
     const next = new Image();
@@ -126,28 +124,11 @@ function goTo(i) {
   }, 300);
 }
 
-if (dots.length > 0) {
-  dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.i); resetTimer(); }));
-}
+// No keyboard handler here any more. The overlay arrows and dots are gone, so
+// the carousel holds nothing focusable and a keydown scoped to it could never
+// fire. The tour list beside it is the keyboard path to every slide.
 
-function prevSlide() { goTo((current - 1 + slides.length) % slides.length); resetTimer(); }
-function nextSlide() { goTo((current + 1) % slides.length); resetTimer(); }
-
-document.getElementById('carouselPrev')?.addEventListener('click', prevSlide);
-document.getElementById('carouselNext')?.addEventListener('click', nextSlide);
-
-// Keyboard navigation
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowLeft') prevSlide();
-  if (e.key === 'ArrowRight') nextSlide();
-});
-
-// Pause on hover
 const carouselEl = document.querySelector('#adventures .carousel-track')?.closest('.relative');
-if (carouselEl) {
-  carouselEl.addEventListener('mouseenter', () => { if (carouselTimer) clearInterval(carouselTimer); });
-  carouselEl.addEventListener('mouseleave', resetTimer);
-}
 
 // Warm the cache for the non-initial slides so switching is instant instead of
 // lingering on the first (Island Hopping) image while the others download.
@@ -165,12 +146,11 @@ if (carouselEl) {
 }
 window.addEventListener('load', preloadSlides);
 
-let carouselTimer;
-function resetTimer() {
-  if (carouselTimer) clearInterval(carouselTimer);
-  carouselTimer = setInterval(nextSlide, 4500);
-}
-resetTimer();
+// No autoplay. The tour list is the control, so a slide advancing on its own
+// moved the row highlight while the visitor was reading and contradicted
+// whatever tour they had open. It also left moving content with no pause
+// mechanism once the overlay arrows and dots were removed (WCAG 2.2.2).
+goTo(0);   // first slide, and paints the initial current-row highlight
 
 // ---------- ACCOMMODATION CARD SLIDESHOWS ----------
 // Extra slides per room, filenames in /gallery/rooms/ (built by `npm run photos`).

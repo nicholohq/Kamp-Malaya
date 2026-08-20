@@ -10,6 +10,8 @@
   --color-warmgray:  #F1F0EB;
   --color-sand:      #F9F6F0;
   --color-coral:     #E76F51;
+  --color-coral-deep:   #C14C33;
+  --color-coral-darker: #A33E28;
   --color-seagrass:  #2A9D8F;
   --color-gold:      #D4AF37;
   --color-line:      #E5E5E5;
@@ -22,7 +24,15 @@
   --offwhite: #F8F9FA;
   --warmgray: #F1F0EB;
   --sand: #F9F6F0;
+  /* --coral is 3.09:1 on white — decorative only (icons, tints, overlays).
+     Anything carrying text or marking a UI boundary uses --coral-deep (4.83:1). */
   --coral: #E76F51;
+  --coral-deep: #C14C33;
+  --coral-darker: #A33E28;
+  /* Seagrass at 4.5:1+ on white; plain --seagrass is 3.32:1. Was referenced
+     here three times without ever being defined, so every rule using it was
+     invalid at computed-value time and silently fell back. */
+  --seagrass-deep: #14776A;
   --seagrass: #2A9D8F;
   --gold: #D4AF37;
   --line: #E5E5E5;
@@ -63,9 +73,6 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 .reveal-delay-3 { transition-delay: .36s; }
 
 /* Itinerary day carousel */
-.itin-thumb.active { outline: 2px solid var(--gold); outline-offset: 2px; }
-.itin-dot.active { background: var(--gold); transform: scale(1.2); }
-.itin-panel:not(.hidden) { animation: fadeUp .5s cubic-bezier(.22, 1, .36, 1); }
 
 /* Hero text fade-in */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -90,17 +97,17 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 
 /* Coral button (primary accent) */
 .btn-coral {
-  border: 1.5px solid var(--coral);
-  color: var(--coral);
+  border: 1.5px solid var(--coral-deep);
+  color: var(--coral-deep);
   transition: all .35s ease;
   letter-spacing: .12em;
 }
-.btn-coral:hover { background: var(--coral); color: #fff; }
+.btn-coral:hover { background: var(--coral-deep); color: #fff; }
 .btn-coral-solid {
-  background: var(--coral); color: #fff;
+  background: var(--coral-deep); color: #fff;
   transition: all .35s ease; letter-spacing: .12em;
 }
-.btn-coral-solid:hover { background: transparent; color: var(--coral); border: 1.5px solid var(--coral); }
+.btn-coral-solid:hover { background: var(--coral-darker); color: #fff; border: 1.5px solid var(--coral-darker); }
 
 /* Card hover lift — subtle flat elevation */
 .lift { transition: transform .4s ease, box-shadow .4s ease; }
@@ -128,45 +135,100 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 }
 .room-slide.show { opacity: 1; }
 
-/* Experience card reveal text */
-.exp-sub { color: var(--charcoal); transition: color .4s ease; }
-.exp-card:hover .exp-sub { color: var(--coral); }
+/* ---------- Experience bands ----------
+   Full-bleed photographs with the copy laid over them. Replaces a 3-up card
+   grid where the image was a thumbnail sitting above the text. */
+.exp-bands { display: grid; }        /* no gap: the bands butt together */
+
+.exp-band {
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* width must be definite, or aspect-ratio resolves the other way and derives
+     the WIDTH from min-height: 15rem x 16/9 = 427px, which is exactly how much
+     this section was overflowing a 375px viewport by. */
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 15rem;
+}
+@media (min-width: 768px) { .exp-band { aspect-ratio: 3 / 1; min-height: 17rem; } }
+
+.exp-band-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 1.2s cubic-bezier(.22,1,.36,1);
+}
+.exp-band:hover .exp-band-img { transform: scale(1.04); }
+
+/* Darkens the left, where the copy sits, and releases the right so the
+   photograph still reads as the subject. */
+.exp-band::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(26,26,26,.93) 0%,
+    rgba(26,26,26,.82) 28%,
+    rgba(26,26,26,.42) 58%,
+    rgba(26,26,26,.08) 85%,
+    rgba(26,26,26,0) 100%
+  );
+}
+/* Mobile has less width to hide behind, so the wash is vertical instead. */
+@media (max-width: 767px) {
+  .exp-band::after {
+    background: linear-gradient(
+      170deg,
+      rgba(26,26,26,.88) 0%,
+      rgba(26,26,26,.72) 45%,
+      rgba(26,26,26,.35) 100%
+    );
+  }
+}
+
+/* A plain centred content column. An earlier version used percentage padding
+   inside an auto-sized grid track to do the centring, which made the track's
+   intrinsic width unresolvable and pushed the band — and the whole page — 52px
+   wider than the viewport at 375. */
+.exp-band-copy {
+  position: relative; z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 80rem;          /* same content column as max-w-7xl elsewhere */
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+@media (min-width: 768px) { .exp-band-copy { padding: 2.5rem 2rem; } }
+
+/* The readable measure is capped on the text itself, not on the column. */
+.exp-band-title,
+.exp-band-text { max-width: 34rem; }
+
+.exp-band-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+  line-height: 1.15; color: #fff;
+}
+.exp-band-text {
+  margin-top: .7rem;
+  font-size: clamp(.88rem, 1.5vw, 1rem);
+  line-height: 1.65; color: rgba(255,255,255,.86);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exp-band-img { transition: none; }
+  .exp-band:hover .exp-band-img { transform: none; }
+}
 
 /* Nav scrolled state — off-white with charcoal text */
 #navbar.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--line); }
 #navbar.scrolled .brand { color: var(--charcoal); }
 #navbar.scrolled .nav-link { color: var(--charcoal); }
-#navbar.scrolled .nav-link:hover { color: var(--coral); }
+#navbar.scrolled .nav-link:hover { color: var(--coral-deep); }
 #navbar.scrolled #menuBtn { color: var(--charcoal); }
 
-/* Carousel */
 .carousel-track { transition: opacity .6s ease; }
-.dot { transition: all .3s ease; cursor: pointer; }
-.dot.active { background: var(--gold); width: 28px; border-radius: 9999px; }
 
-.carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  width: 40px;
-  height: 40px;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.45);
-  color: #fff;
-  font-size: 1rem;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.2);
-  cursor: pointer;
-  transition: all .3s ease;
-}
-.carousel-arrow:hover { background: var(--coral); border-color: var(--coral); }
-.carousel-arrow.carousel-prev { left: 12px; }
-.carousel-arrow.carousel-next { right: 12px; }
 
 /* Mobile menu */
 #mobileMenu { transition: transform .4s cubic-bezier(.22,1,.36,1), opacity .4s ease; }
@@ -175,3 +237,361 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 
 ::selection { background: var(--gold); color: var(--ink); }
+/* ---------- Itinerary timeline ----------
+   Replaces a carousel that showed one day at a time behind arrows. The whole
+   four-day itinerary is the thing being sold, so all of it is on the page. */
+.itin-timeline {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 1.75rem;
+}
+
+.itin-day {
+  position: relative;
+  display: grid;
+  gap: .75rem;
+}
+@media (min-width: 900px) {
+  .itin-day {
+    grid-template-columns: 6.5rem 1fr;
+    gap: 1.75rem;
+    align-items: start;
+  }
+  /* The rail: drawn per-day rather than once down the list, so it never
+     overshoots past the final marker. */
+  .itin-day::before {
+    content: '';
+    position: absolute;
+    left: 6.5rem; top: 1.6rem; bottom: -1.75rem;
+    width: 1px;
+    background: linear-gradient(180deg, var(--line), rgba(229,229,229,.25));
+  }
+  .itin-day:last-child::before { display: none; }
+}
+
+.itin-marker {
+  display: flex; align-items: baseline; gap: .4rem;
+  padding-top: .35rem;
+}
+@media (min-width: 900px) {
+  .itin-marker {
+    flex-direction: column; align-items: flex-end; gap: 0;
+    padding-right: 1.25rem; padding-top: 1.1rem;
+  }
+  /* The node sitting on the rail. */
+  .itin-marker::after {
+    content: '';
+    position: absolute; left: 6.5rem; top: 1.6rem;
+    width: 9px; height: 9px; margin-left: -4px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 4px var(--offwhite);
+  }
+}
+.itin-marker-word {
+  font-size: .72rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--graytext);
+}
+.itin-marker-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; line-height: 1; color: var(--charcoal);
+}
+
+.itin-card {
+  display: grid;
+  overflow: hidden;
+  border-radius: 1.1rem;
+  border: 1px solid var(--line);
+  background: #fff;
+  box-shadow: 0 6px 24px -18px rgba(44,44,44,.5);
+}
+@media (min-width: 700px) {
+  .itin-card { grid-template-columns: 1.25fr 1fr; }
+}
+
+.itin-card-media { position: relative; aspect-ratio: 3 / 2; }
+@media (min-width: 700px) { .itin-card-media { aspect-ratio: auto; min-height: 15rem; } }
+.itin-card-media img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+.itin-card-body { padding: 1.4rem 1.5rem 1.6rem; }
+.itin-card-day {
+  font-size: .68rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--seagrass-deep);
+}
+/* Duplicated by the rail marker on wide screens, so show it only when the
+   marker sits inline above the card. */
+@media (min-width: 900px) { .itin-card-day { display: none; } }
+
+.itin-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem; line-height: 1.2;
+  color: var(--charcoal); margin-top: .2rem;
+}
+.itin-card-meals {
+  margin-top: .5rem; font-size: .78rem; color: var(--graytext);
+}
+.itin-card-meals i { color: var(--seagrass); margin-right: .3rem; }
+
+.itin-card-stops {
+  margin-top: .95rem; padding: 0; list-style: none;
+  display: grid; gap: .4rem;
+}
+.itin-card-stops li {
+  position: relative; padding-left: 1.1rem;
+  font-size: .86rem; color: var(--charcoal);
+}
+.itin-card-stops li::before {
+  content: ''; position: absolute; left: 0; top: .5rem;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--gold);
+}
+.itin-stop-note { color: var(--graytext); font-size: .78rem; }
+
+/* Alternating dark panel, echoing the reference layout. */
+.itin-day:nth-child(even) .itin-card-body { background: var(--charcoal); }
+.itin-day:nth-child(even) .itin-card-title,
+.itin-day:nth-child(even) .itin-card-stops li { color: #fff; }
+.itin-day:nth-child(even) .itin-card-meals,
+.itin-day:nth-child(even) .itin-stop-note { color: rgba(255,255,255,.72); }
+.itin-day:nth-child(even) .itin-card-day { color: var(--gold); }
+
+/* ---------- Inclusions ----------
+   Two equal cards gave "not included" the same weight as the sell, and the
+   shorter list left half a card empty. Included leads; excluded is demoted to a
+   quieter block underneath. */
+.inclusions { display: grid; gap: 1.25rem; }
+
+.inc-primary {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 1.1rem;
+  padding: 1.6rem 1.5rem;
+}
+@media (min-width: 640px) { .inc-primary { padding: 2rem 2rem 1.9rem; } }
+
+/* No card: it sits on the section background so it reads as a footnote to the
+   list above rather than a rival to it. The horizontal padding still matches
+   the card's, so both lists start on the same left edge and their two columns
+   line up rather than sitting a few pixels apart. */
+.inc-secondary {
+  padding: .25rem 1.5rem;
+  /* Matches the card's 1px border so the box models are identical. Without it
+     the two lists sit 1px apart, which is invisible alone and obvious once
+     their columns are meant to line up. */
+  border: 1px solid transparent;
+}
+@media (min-width: 640px) { .inc-secondary { padding: .25rem 2rem; } }
+
+.inc-heading {
+  display: flex; align-items: center; gap: .6rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem; color: var(--charcoal);
+}
+.inc-heading i { font-size: 1.05rem; color: var(--seagrass-deep); }
+.inc-heading-muted {
+  font-size: 1.05rem; color: var(--graytext);
+}
+.inc-heading-muted i { color: #BF4628; font-size: .95rem; }
+
+.inc-grid {
+  list-style: none; padding: 0;
+  margin-top: 1.1rem;
+  display: grid; gap: .8rem 2rem;
+}
+@media (min-width: 640px) { .inc-grid { grid-template-columns: 1fr 1fr; } }
+.inc-grid-muted { margin-top: .8rem; gap: .55rem 2rem; }
+
+/* auto/1fr is the whole point: a wrapped second line stays aligned with the
+   text instead of sliding back under the icon. */
+.inc-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .6rem;
+  align-items: start;
+  font-size: .9rem;
+  line-height: 1.5;
+  color: var(--charcoal);
+}
+.inc-item-muted { font-size: .84rem; color: var(--graytext); }
+
+/* Drawn rather than an icon font, so the tick can't shift the baseline while
+   Font Awesome loads. */
+.inc-mark {
+  width: 1.05rem; height: 1.05rem; margin-top: .15rem;
+  border-radius: 50%;
+  background: rgba(42,157,143,.12);
+  position: relative; flex: 0 0 auto;
+}
+.inc-mark::after {
+  content: '';
+  position: absolute; left: 50%; top: 48%;
+  width: .3rem; height: .55rem;
+  border: solid var(--seagrass-deep);
+  border-width: 0 1.5px 1.5px 0;
+  transform: translate(-50%, -55%) rotate(45deg);
+}
+.inc-item-muted .inc-mark { background: rgba(191,70,40,.1); }
+.inc-item-muted .inc-mark::after {
+  width: .5rem; height: .5rem;
+  border: 0;
+  background:
+    linear-gradient(currentColor, currentColor) center/100% 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center/1.5px 100% no-repeat;
+  color: #BF4628;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.inc-label { display: block; }
+/* The old markup wrapped these in text-graytext inside a text-graytext list,
+   so they were styled identically to the item and read as part of it. */
+.inc-sub {
+  display: block; margin-top: .15rem;
+  font-size: .78rem; line-height: 1.45; color: var(--graytext);
+}
+.inc-item-muted .inc-sub { font-size: .76rem; }
+
+
+/* ---------- Adventures: tour disclosures ----------
+   The rows used to be divs with cursor:pointer, a hover lift and no click
+   handler; the only real control was a 16px "Learn More" link covering 24% of
+   the card. The row is the control now. */
+.tour-entry {
+  border: 1px solid var(--line);
+  border-radius: .85rem;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow .25s ease, border-color .25s ease;
+}
+.tour-entry:hover, .tour-entry.is-open { border-color: rgba(231,111,81,.45); }
+.tour-entry:hover { box-shadow: 0 6px 20px -14px rgba(44,44,44,.5); }
+.tour-entry.is-open { box-shadow: 0 8px 26px -18px rgba(44,44,44,.55); }
+
+.tour-item {
+  position: relative;              /* the stretched hit area anchors here */
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: .9rem;
+  align-items: start;
+  padding: 1.05rem 1.15rem;
+}
+.tour-icon { color: var(--coral); font-size: 1.15rem; line-height: 1.4; }
+
+.tour-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; }
+.tour-toggle {
+  background: none; border: 0; padding: 0;
+  font: inherit; color: var(--charcoal);
+  text-align: left; cursor: pointer;
+}
+/* Stretches the button over the whole row, so the visitor can click anywhere
+   the pointer cursor implies. The detail panel sits outside .tour-item and so
+   stays selectable. */
+.tour-toggle::after { content: ''; position: absolute; inset: 0; }
+.tour-toggle:focus-visible { outline: none; }
+.tour-entry:has(.tour-toggle:focus-visible) {
+  outline: 2px solid var(--gold); outline-offset: 2px;
+}
+
+.tour-summary { margin-top: .2rem; font-size: .85rem; line-height: 1.5; color: var(--graytext); }
+
+.tour-chevron {
+  color: var(--graytext); font-size: .75rem; margin-top: .35rem;
+  transition: transform .25s ease;
+}
+.tour-entry.is-open .tour-chevron { transform: rotate(180deg); }
+
+/* Animated open/close. grid-template-rows 0fr -> 1fr transitions to the
+   panel's natural height without a magic max-height, and the child clips.
+   The `hidden` attribute cannot be used here: display:none is not animatable,
+   so visibility carries the same "gone from the a11y tree" meaning instead. */
+.tour-detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows .32s cubic-bezier(.22,1,.36,1), visibility .32s;
+}
+.tour-entry.is-open .tour-detail {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+.tour-detail-inner {
+  overflow: hidden;              /* the clip that makes 0fr look collapsed */
+  min-height: 0;
+  padding: 0 1.15rem 0 3.2rem;   /* aligns with the summary, past the icon */
+  font-size: .85rem; line-height: 1.65; color: var(--charcoal);
+}
+.tour-entry.is-open .tour-detail-inner { padding-bottom: 1.15rem; }
+.tour-detail-inner p {
+  border-left: 2px solid rgba(231,111,81,.35);
+  padding-left: .9rem;
+}
+
+/* On mobile the carousel is hidden, so each tour carries its own photograph
+   here — the image arrives with the copy it belongs to instead of sitting in a
+   panel the visitor has already scrolled past. */
+.tour-detail-img {
+  display: none;
+  width: 100%; height: 10.5rem; object-fit: cover;
+  border-radius: .6rem; margin-bottom: .85rem;
+}
+@media (max-width: 767px) {
+  .tour-detail-img { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-entry, .tour-chevron { transition: none; }
+}
+
+/* Below the two-column breakpoint the carousel stacked beneath the entire list,
+   so it was off-screen exactly when the list needed illustrating. */
+@media (max-width: 767px) {
+  .tour-carousel { display: none; }
+}
+
+/* The row whose slide is showing. Makes the two halves visibly one thing. */
+.tour-entry.is-current { border-color: rgba(231,111,81,.55); }
+.tour-entry.is-current .tour-icon { color: var(--coral-deep); }
+
+/* ---------- Sanctuary room cards ----------
+   The footer used to be one flex row with the whole rate as a single string.
+   "+P200/head/night on a joiner tour" was too long for the space beside the
+   button, so it wrapped, orphaned "tour" on its own line, squeezed the button
+   into wrapping too, and left the three cards' buttons at three heights. */
+.room-card { display: flex; flex-direction: column; }
+.room-body { display: flex; flex-direction: column; flex: 1; }
+
+/* The rate and the button used to share one flex row, so a rate long enough to
+   need the space pushed the button into wrapping. The button spans the card
+   instead, and pins to the bottom edge so all three align no matter how many
+   lines the note above it takes. */
+.room-price { margin-top: 1.1rem; }
+
+.room-cap {
+  font-size: .7rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--graytext);
+}
+.room-rate {
+  margin-top: .15rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; line-height: 1.15; color: var(--charcoal);
+  white-space: nowrap;       /* the rate is one line, always */
+}
+/* The qualifier is its own line rather than a tail on the rate — that tail is
+   what pushed the whole footer out of shape. */
+.room-note {
+  margin-top: .2rem;
+  font-size: .78rem; line-height: 1.4; color: var(--graytext);
+}
+/* Playfair's peso sign sits tight against the following digit; Inter's is
+   properly spaced. */
+.peso { font-family: 'Inter', sans-serif; font-size: .9em; }
+
+.room-book {
+  display: block; width: 100%;
+  margin-top: auto;          /* pins to the card's bottom, so all three align */
+  padding: .7rem 1.25rem;
+  white-space: nowrap;
+  font-size: .72rem; letter-spacing: .12em;
+}
