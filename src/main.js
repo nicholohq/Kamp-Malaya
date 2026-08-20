@@ -38,38 +38,10 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 // ---------- ITINERARY: day carousel (hero + island thumbnails) ----------
-const itinPanels = Array.from(document.querySelectorAll('#itinPanels .itin-panel'));
-if (itinPanels.length) {
-  const itinDots = Array.from(document.querySelectorAll('#itinDots .itin-dot'));
-  const itinCounter = document.getElementById('itinCounter');
-  let day = 0;
+// The day-by-day itinerary is a timeline now, not a carousel — every day is on
+// the page at once, so there is no panel switching, thumbnail swapping or
+// counter left to drive.
 
-  function showDay(n) {
-    day = (n + itinPanels.length) % itinPanels.length;
-    itinPanels.forEach((p, i) => p.classList.toggle('hidden', i !== day));
-    itinDots.forEach((d, i) => d.classList.toggle('active', i === day));
-    if (itinCounter) itinCounter.textContent = `Day ${day + 1} of ${itinPanels.length}`;
-  }
-
-  document.getElementById('itinPrev')?.addEventListener('click', () => showDay(day - 1));
-  document.getElementById('itinNext')?.addEventListener('click', () => showDay(day + 1));
-  itinDots.forEach(d => d.addEventListener('click', () => showDay(+d.dataset.i)));
-
-  // Thumbnail → hero swap, scoped to each day's panel
-  itinPanels.forEach(panel => {
-    const hero = panel.querySelector('.itin-hero');
-    const cap = panel.querySelector('.itin-heroCap');
-    panel.querySelectorAll('.itin-thumb').forEach(t => t.addEventListener('click', () => {
-      if (hero) { hero.src = t.dataset.img; hero.alt = t.dataset.name || hero.alt; }
-      if (cap && t.dataset.name) cap.textContent = t.dataset.name;
-      panel.querySelectorAll('.itin-thumb').forEach(x => x.classList.toggle('active', x === t));
-    }));
-  });
-
-  showDay(0);
-}
-
-// ---------- ITINERARY: render next upcoming departures as chips ----------
 const itinDates = document.getElementById('itinDates');
 if (itinDates) {
   const upcoming = upcomingTours(JOINER_SCHEDULE, todayISO()).slice(0, 6);
