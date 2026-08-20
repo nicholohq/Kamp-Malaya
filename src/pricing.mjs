@@ -44,6 +44,8 @@ export const ACCOMMODATIONS = [
     privateNightlyRate: 3800,
     sleeps: '1\u20132 guests',
     image: '/gallery/rooms/cards/canopy.webp',
+    // Uncropped original, loaded only when the spotlight is opened.
+    photo: '/gallery/rooms/canopy-1.webp',
     alt: 'An elevated jungle canopy tent wrapped in green foliage',
   },
   {
@@ -54,6 +56,8 @@ export const ACCOMMODATIONS = [
     privateNightlyRate: 4500,
     sleeps: '2\u20133 guests',
     image: '/gallery/rooms/cards/kubo.webp',
+    // Uncropped original, loaded only when the spotlight is opened.
+    photo: '/gallery/rooms/kubo-1.webp',
     alt: 'Beachfront native kubo hut with a thatched roof at the shoreline',
   },
   {
@@ -64,6 +68,8 @@ export const ACCOMMODATIONS = [
     privateNightlyRate: 8500,
     sleeps: '8\u201310 guests',
     image: '/gallery/rooms/cards/villa.webp',
+    // Uncropped original, loaded only when the spotlight is opened.
+    photo: '/gallery/rooms/villa-1.webp',
     alt: 'Private Malaya beach villa with an open deck facing the ocean',
   },
 ];

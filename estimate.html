@@ -195,6 +195,17 @@
   <p id="wiz-status" class="wiz-sr-only" role="status" aria-live="polite"></p>
 </main>
 
+<!-- Spotlight for the room photos. A native <dialog> brings its own focus trap,
+     Escape handling and focus restoration, which a div-based lightbox would
+     have to reimplement badly. -->
+<dialog id="wiz-lightbox" class="wiz-lightbox" aria-labelledby="wiz-lightbox-caption">
+  <button type="button" class="wiz-lightbox-close" id="wiz-lightbox-close" aria-label="Close photo">
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+  </button>
+  <img class="wiz-lightbox-img" id="wiz-lightbox-img" src="" alt="" />
+  <p class="wiz-lightbox-caption" id="wiz-lightbox-caption"></p>
+</dialog>
+
 <!-- ============ FIXED ACTION BAR ============
      Holds Back / Continue plus the running total, which is shown once a rate is
      known. The total is silent to screen readers; #wiz-status speaks it instead. -->

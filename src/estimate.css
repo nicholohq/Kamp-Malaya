@@ -286,7 +286,10 @@ body {
 @media (min-width: 700px) {
   .wiz-rooms { grid-template-columns: repeat(3, 1fr); }
 }
+/* The grid item is the wrapper; the card fills it and the spotlight overlays. */
+.wiz-room-wrap { position: relative; display: flex; }
 .wiz-room {
+  flex: 1; min-width: 0;
   display: flex; flex-direction: column;
   padding: 0; overflow: hidden;
   border-radius: 1rem; border: 1.5px solid var(--line); background: #fff;
@@ -350,6 +353,64 @@ body {
 .wiz-room-sleeps {
   margin-top: .15rem; font-size: .68rem; letter-spacing: .08em;
   text-transform: uppercase; color: var(--graytext);
+}
+
+/* Spotlight control — a sibling of the card, not a child, because the card is
+   itself a <button> and nested buttons are invalid. */
+.wiz-room-zoom {
+  position: absolute; top: .6rem; left: .6rem; z-index: 2;
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 0; cursor: pointer;
+  background: rgba(26,26,26,.55); color: #fff; font-size: .78rem;
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  /* Always visible. It was revealed on hover, which hid it from touch users
+     entirely and made it undiscoverable on desktop — a control nobody can see
+     is a control that does not exist. */
+  transition: background .25s ease, transform .25s ease;
+}
+.wiz-room-zoom:hover { background: rgba(26,26,26,.85); transform: scale(1.08); }
+.wiz-room-zoom:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .wiz-room-zoom { transition: none; }
+  .wiz-room-zoom:hover { transform: none; }
+}
+
+/* ---------- Spotlight dialog ---------- */
+.wiz-lightbox {
+  border: 0; padding: 0; background: transparent;
+  max-width: min(92vw, 720px); max-height: 92vh;
+  overflow: visible;
+  /* A modal <dialog> centres itself with `margin: auto`, which Tailwind's
+     preflight reset zeroes out — without this it pins to the left edge. */
+  margin: auto;
+}
+.wiz-lightbox::backdrop {
+  background: rgba(26,26,26,.82);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+}
+.wiz-lightbox-img {
+  display: block; width: 100%; height: auto;
+  max-height: 82vh; object-fit: contain;
+  border-radius: .9rem; background: var(--warmgray);
+}
+.wiz-lightbox-caption {
+  margin-top: .7rem; text-align: center;
+  font-size: .82rem; color: #fff;
+}
+.wiz-lightbox-close {
+  position: absolute; top: -.6rem; right: -.6rem; z-index: 2;
+  width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 0; cursor: pointer;
+  background: #fff; color: var(--charcoal); font-size: .95rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,.3);
+}
+.wiz-lightbox-close:hover { background: var(--sand); }
+.wiz-lightbox-close:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (max-width: 480px) {
+  .wiz-lightbox { max-width: 94vw; }
+  .wiz-lightbox-close { top: .5rem; right: .5rem; }
 }
 
 /* ---------- Add-ons ---------- */

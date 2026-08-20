@@ -54,6 +54,10 @@ const el = {
   agesPanel: document.getElementById('wiz-ages-panel'),
   ages: document.getElementById('est-ages'),
   rooms: document.getElementById('est-rooms'),
+  lightbox: document.getElementById('wiz-lightbox'),
+  lightboxImg: document.getElementById('wiz-lightbox-img'),
+  lightboxCaption: document.getElementById('wiz-lightbox-caption'),
+  lightboxClose: document.getElementById('wiz-lightbox-close'),
   addonsField: document.getElementById('est-addons-field'),
   addons: document.getElementById('est-addons'),
   recap: document.getElementById('wiz-recap'),
@@ -265,8 +269,56 @@ ACCOMMODATIONS.forEach((room, i) => {
     syncRoomSelection();
     render();
   });
-  el.rooms.appendChild(card);
+
+  // The card is a <button>, so the spotlight cannot live inside it — nested
+  // buttons are invalid and browsers drop the inner one. It sits alongside in a
+  // wrapper and is positioned over the image instead.
+  const wrap = document.createElement('div');
+  wrap.className = 'wiz-room-wrap';
+
+  const zoom = document.createElement('button');
+  zoom.type = 'button';
+  zoom.className = 'wiz-room-zoom';
+  zoom.innerHTML = '<i class="fa-solid fa-expand" aria-hidden="true"></i>';
+  zoom.setAttribute('aria-label', `See a larger photo of ${room.label}`);
+  zoom.addEventListener('click', event => {
+    event.stopPropagation();   // spotlight only; do not also pick the room
+    openLightbox(room);
+  });
+
+  wrap.append(card, zoom);
+  el.rooms.appendChild(wrap);
 });
+
+/** Opens the full, uncropped photo. The card image is a 3:2 crop of it. */
+function openLightbox(room) {
+  if (!el.lightbox) return;
+  el.lightboxImg.src = room.photo;
+  el.lightboxImg.alt = room.alt;
+  el.lightboxCaption.textContent = `${room.label} — ${room.sleeps}`;
+  el.lightbox.showModal();
+}
+
+if (el.lightbox) {
+  el.lightboxClose.addEventListener('click', () => el.lightbox.close());
+  // Clicking the backdrop closes it. The dialog element itself is the backdrop
+  // target, so a click landing on it rather than on its contents means outside.
+  el.lightbox.addEventListener('click', event => {
+    if (event.target === el.lightbox) el.lightbox.close();
+  });
+  // Escape should close a modal <dialog> without any help, but it did not fire
+  // `cancel` here even with a trusted keydown reaching the page, so closing is
+  // handled explicitly rather than left to the UA. Where the native behaviour
+  // does work this is a harmless no-op — close() on a closing dialog does
+  // nothing.
+  el.lightbox.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    el.lightbox.close();
+  });
+  // Drop the src on close so a reopen of another room never flashes the last one.
+  el.lightbox.addEventListener('close', () => { el.lightboxImg.src = ''; });
+}
 
 /**
  * What this room costs on the product currently being priced. A joiner tour
