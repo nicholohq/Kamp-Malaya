@@ -29,6 +29,10 @@
   --coral: #E76F51;
   --coral-deep: #C14C33;
   --coral-darker: #A33E28;
+  /* Seagrass at 4.5:1+ on white; plain --seagrass is 3.32:1. Was referenced
+     here three times without ever being defined, so every rule using it was
+     invalid at computed-value time and silently fell back. */
+  --seagrass-deep: #14776A;
   --seagrass: #2A9D8F;
   --gold: #D4AF37;
   --line: #E5E5E5;
@@ -379,3 +383,89 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 .itin-day:nth-child(even) .itin-card-meals,
 .itin-day:nth-child(even) .itin-stop-note { color: rgba(255,255,255,.72); }
 .itin-day:nth-child(even) .itin-card-day { color: var(--gold); }
+
+/* ---------- Inclusions ----------
+   Two equal cards gave "not included" the same weight as the sell, and the
+   shorter list left half a card empty. Included leads; excluded is demoted to a
+   quieter block underneath. */
+.inclusions { display: grid; gap: 1.25rem; }
+
+.inc-primary {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 1.1rem;
+  padding: 1.6rem 1.5rem;
+}
+@media (min-width: 640px) { .inc-primary { padding: 2rem 2rem 1.9rem; } }
+
+/* No card: it sits on the section background so it reads as a footnote to the
+   list above rather than a rival to it. */
+.inc-secondary { padding: .25rem .35rem; }
+
+.inc-heading {
+  display: flex; align-items: center; gap: .6rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem; color: var(--charcoal);
+}
+.inc-heading i { font-size: 1.05rem; color: var(--seagrass-deep); }
+.inc-heading-muted {
+  font-size: 1.05rem; color: var(--graytext);
+}
+.inc-heading-muted i { color: #BF4628; font-size: .95rem; }
+
+.inc-grid {
+  list-style: none; padding: 0;
+  margin-top: 1.1rem;
+  display: grid; gap: .8rem 2rem;
+}
+@media (min-width: 640px) { .inc-grid { grid-template-columns: 1fr 1fr; } }
+.inc-grid-muted { margin-top: .8rem; gap: .55rem 2rem; }
+
+/* auto/1fr is the whole point: a wrapped second line stays aligned with the
+   text instead of sliding back under the icon. */
+.inc-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .6rem;
+  align-items: start;
+  font-size: .9rem;
+  line-height: 1.5;
+  color: var(--charcoal);
+}
+.inc-item-muted { font-size: .84rem; color: var(--graytext); }
+
+/* Drawn rather than an icon font, so the tick can't shift the baseline while
+   Font Awesome loads. */
+.inc-mark {
+  width: 1.05rem; height: 1.05rem; margin-top: .15rem;
+  border-radius: 50%;
+  background: rgba(42,157,143,.12);
+  position: relative; flex: 0 0 auto;
+}
+.inc-mark::after {
+  content: '';
+  position: absolute; left: 50%; top: 48%;
+  width: .3rem; height: .55rem;
+  border: solid var(--seagrass-deep);
+  border-width: 0 1.5px 1.5px 0;
+  transform: translate(-50%, -55%) rotate(45deg);
+}
+.inc-item-muted .inc-mark { background: rgba(191,70,40,.1); }
+.inc-item-muted .inc-mark::after {
+  width: .5rem; height: .5rem;
+  border: 0;
+  background:
+    linear-gradient(currentColor, currentColor) center/100% 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center/1.5px 100% no-repeat;
+  color: #BF4628;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.inc-label { display: block; }
+/* The old markup wrapped these in text-graytext inside a text-graytext list,
+   so they were styled identically to the item and read as part of it. */
+.inc-sub {
+  display: block; margin-top: .15rem;
+  font-size: .78rem; line-height: 1.45; color: var(--graytext);
+}
+.inc-item-muted .inc-sub { font-size: .76rem; }
