@@ -87,10 +87,7 @@ document.querySelectorAll('.tour-toggle').forEach(toggle => {
     // changed on its own and contradicted whatever was being read.
     if (!open) {
       const slide = Number(toggle.dataset.slide);
-      if (Number.isInteger(slide)) {
-        goTo(slide);
-        stopAutoplay();   // the visitor has taken over; stop moving under them
-      }
+      if (Number.isInteger(slide)) goTo(slide);
     }
   });
 });
@@ -127,18 +124,11 @@ function goTo(i) {
   }, 300);
 }
 
-function nextSlide() { goTo((current + 1) % slides.length); resetTimer(); }
-
 // No keyboard handler here any more. The overlay arrows and dots are gone, so
 // the carousel holds nothing focusable and a keydown scoped to it could never
 // fire. The tour list beside it is the keyboard path to every slide.
 
-// Pause on hover
 const carouselEl = document.querySelector('#adventures .carousel-track')?.closest('.relative');
-if (carouselEl) {
-  carouselEl.addEventListener('mouseenter', () => { if (carouselTimer) clearInterval(carouselTimer); });
-  carouselEl.addEventListener('mouseleave', resetTimer);
-}
 
 // Warm the cache for the non-initial slides so switching is instant instead of
 // lingering on the first (Island Hopping) image while the others download.
@@ -156,18 +146,11 @@ if (carouselEl) {
 }
 window.addEventListener('load', preloadSlides);
 
-let carouselTimer;
-function resetTimer() {
-  if (carouselTimer) clearInterval(carouselTimer);
-  carouselTimer = setInterval(nextSlide, 4500);
-}
-/** Ends autoplay for good — used when the visitor picks a tour themselves. */
-function stopAutoplay() {
-  if (carouselTimer) clearInterval(carouselTimer);
-  carouselTimer = null;
-}
-resetTimer();
-goTo(0);   // paints the initial current-row highlight
+// No autoplay. The tour list is the control, so a slide advancing on its own
+// moved the row highlight while the visitor was reading and contradicted
+// whatever tour they had open. It also left moving content with no pause
+// mechanism once the overlay arrows and dots were removed (WCAG 2.2.2).
+goTo(0);   // first slide, and paints the initial current-row highlight
 
 // ---------- ACCOMMODATION CARD SLIDESHOWS ----------
 // Extra slides per room, filenames in /gallery/rooms/ (built by `npm run photos`).
