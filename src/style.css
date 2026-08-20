@@ -10,6 +10,8 @@
   --color-warmgray:  #F1F0EB;
   --color-sand:      #F9F6F0;
   --color-coral:     #E76F51;
+  --color-coral-deep:   #C14C33;
+  --color-coral-darker: #A33E28;
   --color-seagrass:  #2A9D8F;
   --color-gold:      #D4AF37;
   --color-line:      #E5E5E5;
@@ -22,7 +24,11 @@
   --offwhite: #F8F9FA;
   --warmgray: #F1F0EB;
   --sand: #F9F6F0;
+  /* --coral is 3.09:1 on white — decorative only (icons, tints, overlays).
+     Anything carrying text or marking a UI boundary uses --coral-deep (4.83:1). */
   --coral: #E76F51;
+  --coral-deep: #C14C33;
+  --coral-darker: #A33E28;
   --seagrass: #2A9D8F;
   --gold: #D4AF37;
   --line: #E5E5E5;
@@ -90,17 +96,17 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 
 /* Coral button (primary accent) */
 .btn-coral {
-  border: 1.5px solid var(--coral);
-  color: var(--coral);
+  border: 1.5px solid var(--coral-deep);
+  color: var(--coral-deep);
   transition: all .35s ease;
   letter-spacing: .12em;
 }
-.btn-coral:hover { background: var(--coral); color: #fff; }
+.btn-coral:hover { background: var(--coral-deep); color: #fff; }
 .btn-coral-solid {
-  background: var(--coral); color: #fff;
+  background: var(--coral-deep); color: #fff;
   transition: all .35s ease; letter-spacing: .12em;
 }
-.btn-coral-solid:hover { background: transparent; color: var(--coral); border: 1.5px solid var(--coral); }
+.btn-coral-solid:hover { background: var(--coral-darker); color: #fff; border: 1.5px solid var(--coral-darker); }
 
 /* Card hover lift — subtle flat elevation */
 .lift { transition: transform .4s ease, box-shadow .4s ease; }
@@ -130,13 +136,13 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 
 /* Experience card reveal text */
 .exp-sub { color: var(--charcoal); transition: color .4s ease; }
-.exp-card:hover .exp-sub { color: var(--coral); }
+.exp-card:hover .exp-sub { color: var(--coral-darker); } /* on warmgray */
 
 /* Nav scrolled state — off-white with charcoal text */
 #navbar.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--line); }
 #navbar.scrolled .brand { color: var(--charcoal); }
 #navbar.scrolled .nav-link { color: var(--charcoal); }
-#navbar.scrolled .nav-link:hover { color: var(--coral); }
+#navbar.scrolled .nav-link:hover { color: var(--coral-deep); }
 #navbar.scrolled #menuBtn { color: var(--charcoal); }
 
 /* Carousel */
@@ -164,7 +170,7 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
   cursor: pointer;
   transition: all .3s ease;
 }
-.carousel-arrow:hover { background: var(--coral); border-color: var(--coral); }
+.carousel-arrow:hover { background: var(--coral-deep); border-color: var(--coral-deep); }
 .carousel-arrow.carousel-prev { left: 12px; }
 .carousel-arrow.carousel-next { right: 12px; }
 

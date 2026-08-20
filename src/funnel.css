@@ -9,6 +9,8 @@
   --color-warmgray:  #F1F0EB;
   --color-sand:      #F9F6F0;
   --color-coral:     #E76F51;
+  --color-coral-deep:   #C14C33;
+  --color-coral-darker: #A33E28;
   --color-seagrass:  #2A9D8F;
   --color-gold:      #D4AF37;
   --color-line:      #E5E5E5;
@@ -17,7 +19,10 @@
 :root {
   --ink:#1A1A1A; --charcoal:#2C2C2C; --graytext:#6B6B6B;
   --offwhite:#F8F9FA; --warmgray:#F1F0EB; --sand:#F9F6F0;
-  --coral:#E76F51; --seagrass:#2A9D8F; --gold:#D4AF37; --line:#E5E5E5;
+  /* --coral is 3.09:1 on white — decorative only (icons, tints, overlays).
+     Anything carrying text or marking a UI boundary uses --coral-deep (4.83:1). */
+  --coral:#E76F51; --coral-deep:#C14C33; --coral-darker:#A33E28;
+  --seagrass:#2A9D8F; --gold:#D4AF37; --line:#E5E5E5;
 }
 * { -webkit-font-smoothing: antialiased; }
 html { scroll-behavior: smooth; }
@@ -31,10 +36,10 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   border: 1px solid var(--line);
 }
 .btn-coral-solid {
-  background: var(--coral); color: #fff;
-  transition: all .35s ease; letter-spacing: .06em; border: 1.5px solid var(--coral);
+  background: var(--coral-deep); color: #fff;
+  transition: all .35s ease; letter-spacing: .06em; border: 1.5px solid var(--coral-deep);
 }
-.btn-coral-solid:hover { background: transparent; color: var(--coral); }
+.btn-coral-solid:hover { background: var(--coral-darker); color: #fff; }
 .btn-coral-solid:disabled { opacity:.6; cursor:not-allowed; }
 
 .btn-type {
@@ -43,7 +48,7 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   cursor: pointer;
 }
 .btn-type.active {
-  border-color: var(--coral);
+  border-color: var(--coral-deep);
   background: var(--sand);
   box-shadow: 0 4px 12px rgba(231, 111, 81, 0.12);
 }
@@ -69,7 +74,7 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   padding:.75rem 1rem; font-size:.95rem; transition:all .25s ease;
 }
 .field::placeholder { color:#9AA0A6; }
-.field:focus { outline:none; border-color:var(--coral); box-shadow:0 0 0 3px rgba(231,111,81,.18); }
+.field:focus { outline:none; border-color:var(--coral-deep); box-shadow:0 0 0 3px rgba(231,111,81,.18); }
 .field-label { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--graytext); margin-bottom:.35rem; display:block; }
 
 .price-placeholder {
@@ -144,7 +149,7 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   transition: background .2s, color .2s;
   user-select: none;
 }
-.stepper-btn:hover { background: var(--sand); color: var(--coral); }
+.stepper-btn:hover { background: var(--sand); color: var(--coral-darker); } /* on sand */
 .stepper-btn:disabled { opacity: .3; cursor: not-allowed; }
 .stepper-btn:disabled:hover { background: transparent; color: var(--charcoal); }
 .stepper-input {
@@ -211,7 +216,7 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   transition: all .25s;
   white-space: nowrap;
 }
-.month-pill:hover { border-color: var(--coral); color: var(--coral); }
+.month-pill:hover { border-color: var(--coral-deep); color: var(--coral-deep); }
 .month-pill.active { background: #C14C33; color: #fff; border-color: #C14C33; }
 
 /* === Tour Date Cards === */
@@ -232,9 +237,9 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   transition: all .25s;
   position: relative;
 }
-.tour-card:hover { border-color: var(--coral); box-shadow: 0 4px 12px rgba(231, 111, 81, .1); }
+.tour-card:hover { border-color: var(--coral-deep); box-shadow: 0 4px 12px rgba(231, 111, 81, .1); }
 .tour-card.selected {
-  border-color: var(--coral);
+  border-color: var(--coral-deep);
   background: rgba(231, 111, 81, 0.04);
   box-shadow: 0 0 0 3px rgba(231, 111, 81, .15);
 }
@@ -245,7 +250,7 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   position: absolute;
   top: 10px;
   right: 12px;
-  color: var(--coral);
+  color: var(--coral-deep);
   font-size: 0.8rem;
 }
 .tour-card-date { font-weight: 600; font-size: 0.92rem; color: var(--charcoal); }
@@ -268,3 +273,40 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
     transition: none;
   }
 }
+/* ---------- Warm arrival summary ----------
+   Replaces the trip questions when the estimator already answered them. */
+.trip-summary {
+  margin-bottom: 1.5rem; padding: 1.15rem 1.25rem;
+  background: var(--sand); border: 1.5px solid var(--line); border-radius: 1rem;
+}
+.trip-summary[hidden] { display: none; }
+.trip-summary-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+}
+.trip-summary-eyebrow {
+  font-size: .68rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--graytext);
+}
+.trip-summary-edit {
+  background: none; border: 0; padding: .25rem;
+  font-size: .78rem; color: var(--coral-deep); cursor: pointer;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.trip-summary-edit:hover { color: var(--coral-darker); }
+.trip-summary-rows {
+  margin: .8rem 0 0; display: grid; gap: .4rem;
+  grid-template-columns: auto 1fr;
+}
+.trip-summary-rows dt {
+  font-size: .8rem; color: var(--graytext); white-space: nowrap;
+}
+.trip-summary-rows dd {
+  margin: 0; font-size: .85rem; color: var(--charcoal); text-align: right;
+}
+.trip-summary-rows .is-total dd {
+  font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--charcoal);
+}
+.trip-summary-note {
+  margin-top: .9rem; font-size: .78rem; color: var(--graytext); line-height: 1.5;
+}
+.trip-summary-edit:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }

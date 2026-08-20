@@ -44,7 +44,7 @@
 <header class="sticky top-0 z-40 glass">
   <div class="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
     <a href="index.html" class="font-display text-xl tracking-wide text-charcoal">Kamp <span class="text-gold">Malaya</span></a>
-    <a href="index.html" class="text-graytext text-sm hover:text-coral transition-colors">&larr; Back to Main Site</a>
+    <a href="index.html" class="text-graytext text-sm hover:text-coral-deep transition-colors">&larr; Back to Main Site</a>
   </div>
 </header>
 
@@ -83,8 +83,19 @@
           <div class="w-16 h-px bg-gold mx-auto mt-5"></div>
         </div>
 
+        <!-- Shown only on a warm arrival from the estimator: the trip is already
+             decided, so re-asking it is the duplicate this page used to create. -->
+        <div id="trip-summary" class="trip-summary" hidden>
+          <div class="trip-summary-head">
+            <p class="trip-summary-eyebrow">Your trip</p>
+            <button type="button" id="trip-summary-edit" class="trip-summary-edit">Change</button>
+          </div>
+          <dl class="trip-summary-rows" id="trip-summary-rows"></dl>
+          <p class="trip-summary-note">Just your details below and we'll confirm availability.</p>
+        </div>
+
         <!-- ===== BOOKING TYPE TOGGLE ===== -->
-        <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="grid grid-cols-2 gap-3 mb-6" id="booking-type-toggle">
           <button id="private-toggle" class="btn-type active p-4 rounded-xl text-left bg-white hover:shadow-md transition">
             <div class="flex items-start gap-3">
               <span class="icon"><i class="fa-solid fa-umbrella-beach text-coral text-xl"></i></span>
@@ -160,8 +171,11 @@
                 <label class="field-label" for="accommodation">Accommodation</label>
                 <select class="field" id="accommodation" name="accommodation" required>
                   <option value="" disabled selected>Select a sanctuary</option>
-                  <option value="Kubo by the Shore">Kubo by the Shore — Standard, included (2–3 guests)</option>
+                  <!-- Private stays book the room outright, so every option carries a
+                       nightly rate. Kubo previously read "Standard, included", which is
+                       the joiner-tour rule and made this page contradict the home page. -->
                   <option value="Canopy Tent">Canopy Tent (1–2 guests) — from ₱3,800/night</option>
+                  <option value="Kubo by the Shore">Kubo by the Shore (2–3 guests) — from ₱4,500/night</option>
                   <option value="Malaya Villa">Malaya Villa (8–10 guests) — from ₱8,500/night</option>
                   <option value="Multiple Rooms">Multiple Rooms (large groups) — Contact us for rates</option>
                 </select>
@@ -193,7 +207,7 @@
                 <div>
                   <span class="font-bold text-lg">4D/3N Balabac Island Tour</span>
                   <p class="text-sm text-graytext">All-in Joiner Package</p>
-                  <span class="inline-block text-xs bg-coral/10 text-coral px-2 py-0.5 rounded-full mt-1">Limited Slots Available</span>
+                  <span class="inline-block text-xs bg-coral/10 text-coral-darker px-2 py-0.5 rounded-full mt-1">Limited Slots Available</span>
                 </div>
                 <span class="font-display text-2xl text-gold">₱14,799<small class="text-sm text-graytext font-body">/head</small></span>
               </div>
@@ -267,7 +281,7 @@
             </div>
           </div>
 
-          <p id="formError" class="hidden text-coral text-sm mt-4" role="alert" aria-live="polite"></p>
+          <p id="formError" class="hidden text-coral-deep text-sm mt-4" role="alert" aria-live="polite"></p>
 
           <button type="submit" id="submitBtn" class="btn-coral-solid w-full mt-6 rounded-full px-6 py-3.5 text-base font-semibold uppercase">
             Submit Inquiry &rarr;
@@ -287,7 +301,7 @@
         <h2 id="successHeading" class="font-display text-charcoal text-2xl md:text-3xl">Thank you!</h2>
         <p id="successMsg" class="text-graytext text-lg mt-3 leading-relaxed"></p>
         <p id="successEmail" class="font-quote text-seagrass text-lg italic mt-2"></p>
-        <a href="index.html" class="inline-block mt-7 text-coral text-sm uppercase tracking-widest hover:underline">&larr; Back to Main Site</a>
+        <a href="index.html" class="inline-block mt-7 text-coral-deep text-sm uppercase tracking-widest hover:underline">&larr; Back to Main Site</a>
       </div>
 
     </div>

@@ -32,3 +32,12 @@ Thumbs.db
 
 .vercel
 .env*
+
+# Impeccable design skill — vendored by `npx impeccable install` (148 files per
+# harness) and reinstallable at any time, so it doesn't belong in the repo.
+# Scoped paths: .opencode/plans/ is tracked, so don't ignore .opencode wholesale.
+.claude/skills/impeccable/
+.opencode/skills/impeccable/
+
+# Impeccable critique snapshots — regenerated on each run
+.impeccable/
