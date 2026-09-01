@@ -1,0 +1,354 @@
+@import "tailwindcss";
+
+/* Admin dashboard styles.
+
+   Each page in this project loads exactly ONE of style.css / funnel.css /
+   estimate.css / admin.css, and there is no shared base file — so the whole
+   token set is re-declared here. A token that resolves to nothing is invalid at
+   computed-value time and the property silently falls back to inherited, which
+   is how a colour once ended up rendering as charcoal site-wide. */
+
+@theme {
+  --color-ink:       #1A1A1A;
+  --color-charcoal:  #2C2C2C;
+  --color-graytext:  #6B6B6B;
+  --color-offwhite:  #F8F9FA;
+  --color-warmgray:  #F1F0EB;
+  --color-sand:      #F9F6F0;
+  --color-coral:     #E76F51;
+  --color-coral-deep:   #C14C33;
+  --color-coral-darker: #A33E28;
+  --color-seagrass:  #2A9D8F;
+  --color-gold:      #D4AF37;
+  --color-line:      #E5E5E5;
+}
+
+:root {
+  --ink: #1A1A1A;
+  --charcoal: #2C2C2C;
+  --graytext: #6B6B6B;
+  --offwhite: #F8F9FA;
+  --warmgray: #F1F0EB;
+  --sand: #F9F6F0;
+  /* --coral is 3.09:1 on white — decorative only (icons, tints, dots).
+     Anything carrying text or marking a UI boundary uses --coral-deep (4.83:1). */
+  --coral: #E76F51;
+  --coral-deep: #C14C33;
+  --coral-darker: #A33E28;
+  --seagrass: #2A9D8F;
+  --seagrass-deep: #14776A;
+  --gold: #D4AF37;
+  --line: #E5E5E5;
+
+  --fs-2xs: 0.75rem;    /* 12px — the floor; below this is unreadable on mobile */
+  --fs-xs:  0.875rem;   /* 14px */
+  --fs-sm:  1rem;       /* 16px */
+  --fs-md:  1.125rem;   /* 18px */
+  --fs-lg:  1.25rem;    /* 20px */
+  --fs-xl:  1.5rem;     /* 24px */
+  --fs-2xl: 1.875rem;   /* 30px */
+  --fs-3xl: 2.25rem;    /* 36px */
+
+  --lh-display: 1;
+  --lh-hero:  1.1;
+  --lh-title: 1.2;
+  --lh-sub:   1.3;
+  --lh-label: 1.4;
+
+  --adm-header-h: 57px;
+}
+
+body.adm-body {
+  font-family: 'Inter', sans-serif;
+  background: var(--offwhite);
+  color: var(--charcoal);
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.font-display { font-family: 'Manrope', sans-serif; font-weight: 600; letter-spacing: -0.015em; }
+
+.glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.adm-sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* Focus rings use --seagrass-deep, not the --gold the marketing pages use.
+   Gold on white is ~1.9:1, below the 3:1 floor WCAG 2.2 sets for a focus
+   indicator. On a brochure page that is cosmetic; on a keyboard-driven console
+   it is a usability bug. The divergence is deliberate. */
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--seagrass-deep);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------------------------------------------------------------- header -- */
+
+.adm-header {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: .75rem;
+  height: var(--adm-header-h);
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.adm-brand { font-size: var(--fs-md); color: var(--charcoal); }
+.adm-brand-accent { color: var(--gold); }
+.adm-header-title {
+  font-size: var(--fs-2xs); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--graytext); border-left: 1px solid var(--line); padding-left: .75rem;
+}
+.adm-header-actions { margin-left: auto; display: flex; align-items: center; gap: .35rem; }
+
+.adm-ghost {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: none; border: 1px solid transparent; border-radius: 999px;
+  padding: .45rem .7rem; font: inherit; font-size: var(--fs-2xs);
+  color: var(--graytext); cursor: pointer;
+  white-space: nowrap;
+  min-height: 36px; min-width: 36px; justify-content: center;
+}
+.adm-ghost:hover { background: var(--warmgray); color: var(--charcoal); }
+
+.adm-back {
+  display: none; align-items: center; gap: .4rem;
+  background: none; border: 0; padding: .4rem .2rem;
+  font: inherit; font-size: var(--fs-xs); color: var(--coral-deep); cursor: pointer;
+  min-height: 36px;
+}
+
+/* ------------------------------------------------------------ boot / lock -- */
+
+.adm-centre {
+  min-height: calc(100dvh - var(--adm-header-h));
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+}
+.adm-muted { color: var(--graytext); font-size: var(--fs-xs); }
+
+.adm-lock-card {
+  width: 100%; max-width: 22rem;
+  background: #fff; border: 1px solid var(--line); border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 10px 40px -24px rgba(0, 0, 0, .25);
+}
+.adm-lock-title { font-size: var(--fs-xl); line-height: var(--lh-title); margin: 0; }
+.adm-lock-blurb { margin: .35rem 0 1.25rem; }
+
+.adm-label {
+  display: block; font-size: var(--fs-2xs); letter-spacing: .12em;
+  text-transform: uppercase; color: var(--graytext); margin-bottom: .35rem;
+}
+.adm-field {
+  width: 100%; background: #fff; color: var(--charcoal);
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: .7rem .9rem; font: inherit; font-size: var(--fs-sm);
+  margin-bottom: .9rem;
+}
+.adm-field:focus { outline: none; border-color: var(--seagrass-deep); box-shadow: 0 0 0 3px rgba(20, 119, 106, .18); }
+
+.adm-btn-solid {
+  width: 100%; background: var(--coral-deep); color: #fff;
+  border: 0; border-radius: 999px; padding: .7rem 1.25rem;
+  font: inherit; font-size: var(--fs-xs); letter-spacing: .1em; text-transform: uppercase;
+  cursor: pointer; min-height: 44px;
+  transition: background .25s ease;
+}
+.adm-btn-solid:hover:not(:disabled) { background: var(--coral-darker); }
+.adm-btn-solid:disabled { opacity: .6; cursor: not-allowed; }
+
+.adm-error {
+  margin: 0 0 .9rem; min-height: 1.2em;
+  font-size: var(--fs-2xs); line-height: var(--lh-label); color: #8A3220;
+}
+.adm-error:empty { margin: 0; }
+
+/* ----------------------------------------------------------------- shell -- */
+
+.adm-shell {
+  display: grid;
+  grid-template-columns: 21rem minmax(0, 1fr);
+  gap: 1px;
+  background: var(--line);            /* the 1px gap IS the divider */
+  height: calc(100dvh - var(--adm-header-h));
+}
+.adm-list, .adm-detail {
+  background: #fff;
+  overflow-y: auto;
+  /* Without min-height:0 a grid child refuses to shrink below its content, and
+     the page scrolls instead of the panes. */
+  min-height: 0;
+}
+.adm-detail { padding: 1.25rem; }
+
+/* ------------------------------------------------------------------ list -- */
+
+.adm-search-wrap { position: relative; padding: .85rem .85rem .5rem; }
+.adm-search-icon {
+  position: absolute; left: 1.6rem; top: 50%; transform: translateY(-25%);
+  color: var(--graytext); font-size: var(--fs-2xs); pointer-events: none;
+}
+.adm-search {
+  width: 100%; border: 1px solid var(--line); border-radius: 999px;
+  padding: .55rem .9rem .55rem 2.1rem;
+  font: inherit; font-size: var(--fs-xs); color: var(--charcoal);
+  min-height: 40px;
+}
+.adm-search:focus { outline: none; border-color: var(--seagrass-deep); box-shadow: 0 0 0 3px rgba(20, 119, 106, .18); }
+
+.adm-list-count {
+  margin: 0; padding: 0 1rem .5rem;
+  font-size: var(--fs-2xs); color: var(--graytext);
+}
+
+.adm-rows { list-style: none; margin: 0; padding: 0 0 1rem; }
+
+.adm-row {
+  display: block; width: 100%; text-align: left;
+  background: none; border: 0; border-bottom: 1px solid var(--line);
+  padding: .8rem 1rem; font: inherit; cursor: pointer;
+}
+.adm-row:hover { background: var(--offwhite); }
+.adm-row[aria-current="true"] { background: var(--warmgray); box-shadow: inset 3px 0 0 var(--coral-deep); }
+
+.adm-row-top { display: flex; align-items: baseline; gap: .5rem; }
+.adm-row-name {
+  font-family: 'Manrope', sans-serif; font-weight: 600;
+  font-size: var(--fs-xs); line-height: var(--lh-sub); color: var(--charcoal);
+  overflow-wrap: anywhere;
+}
+.adm-row-when { margin-left: auto; flex: none; font-size: var(--fs-2xs); color: var(--graytext); }
+.adm-row-sub {
+  margin: .15rem 0 0; font-size: var(--fs-2xs); color: var(--graytext);
+  overflow-wrap: anywhere;
+}
+.adm-row-tags { margin-top: .35rem; display: flex; flex-wrap: wrap; gap: .25rem; }
+
+.adm-tag {
+  font-size: var(--fs-2xs); line-height: 1.5;
+  padding: .05rem .5rem; border-radius: 999px;
+  background: var(--warmgray); color: var(--charcoal);
+}
+
+/* Skeletons, for the moment before the first list lands. */
+.adm-skeleton { padding: .8rem 1rem; border-bottom: 1px solid var(--line); }
+.adm-skeleton-bar {
+  height: 10px; border-radius: 4px; background: var(--warmgray);
+  animation: admPulse 1.4s ease-in-out infinite;
+}
+.adm-skeleton-bar + .adm-skeleton-bar { margin-top: .5rem; width: 60%; }
+@keyframes admPulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+
+/* ---------------------------------------------------------------- detail -- */
+
+.adm-detail-name {
+  font-family: 'Manrope', sans-serif; font-weight: 600;
+  font-size: var(--fs-xl); line-height: var(--lh-title);
+  margin: 0; color: var(--charcoal); overflow-wrap: anywhere;
+}
+.adm-detail-when { margin: .2rem 0 1rem; font-size: var(--fs-2xs); color: var(--graytext); }
+
+.adm-contact-links { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; }
+.adm-contact-link {
+  display: inline-flex; align-items: center; gap: .45rem;
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: .45rem .85rem; font-size: var(--fs-2xs);
+  color: var(--charcoal); text-decoration: none;
+  min-height: 36px;
+}
+.adm-contact-link:hover { border-color: var(--seagrass-deep); color: var(--seagrass-deep); }
+.adm-contact-link i { color: var(--coral-deep); }
+
+.adm-section-title {
+  font-size: var(--fs-2xs); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--graytext); margin: 1.5rem 0 .6rem;
+}
+
+.adm-fields { margin: 0; display: grid; gap: .1rem; }
+.adm-field-row {
+  display: grid; grid-template-columns: 11rem minmax(0, 1fr);
+  gap: .75rem; padding: .5rem 0; border-bottom: 1px solid var(--line);
+}
+.adm-field-label { font-size: var(--fs-2xs); color: var(--graytext); }
+.adm-field-value {
+  font-size: var(--fs-xs); color: var(--charcoal);
+  white-space: pre-wrap;          /* textContent keeps newlines; CSS must too */
+  overflow-wrap: anywhere;
+}
+
+.adm-note {
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: .85rem 1rem; margin-bottom: .6rem; background: var(--sand);
+}
+.adm-note-when { font-size: var(--fs-2xs); color: var(--graytext); margin: 0 0 .4rem; }
+.adm-note-line { font-size: var(--fs-xs); line-height: var(--lh-label); margin: 0; }
+.adm-note-line + .adm-note-line { margin-top: .2rem; }
+.adm-note-label { color: var(--graytext); }
+
+.adm-empty { padding: 2.5rem 1rem; text-align: center; color: var(--graytext); }
+.adm-empty i { font-size: var(--fs-xl); color: var(--line); display: block; margin-bottom: .6rem; }
+.adm-empty p { margin: 0 0 .8rem; font-size: var(--fs-xs); }
+.adm-retry {
+  background: none; border: 1px solid var(--coral-deep); color: var(--coral-deep);
+  border-radius: 999px; padding: .45rem 1rem; font: inherit; font-size: var(--fs-2xs);
+  cursor: pointer; min-height: 36px;
+}
+
+/* ---------------------------------------------------------------- dialog -- */
+
+.adm-dialog {
+  border: 0; border-radius: 16px; padding: 1.5rem;
+  width: min(24rem, calc(100vw - 2rem));
+  /* Tailwind preflight zeroes the margin a <dialog> needs to centre itself. */
+  margin: auto;
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, .45);
+}
+.adm-dialog::backdrop { background: rgba(26, 26, 26, .45); }
+.adm-dialog-title { margin: 0; font-size: var(--fs-lg); line-height: var(--lh-sub); }
+.adm-dialog-blurb { margin: .35rem 0 1.1rem; }
+.adm-dialog-actions { display: flex; gap: .5rem; justify-content: flex-end; }
+.adm-dialog-actions .adm-btn-solid { width: auto; }
+
+/* --------------------------------------------------------------- offline -- */
+
+.adm-offline {
+  position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%);
+  background: var(--ink); color: #fff; border-radius: 999px;
+  padding: .5rem 1rem; font-size: var(--fs-2xs); z-index: 50;
+}
+
+/* ---------------------------------------------------------------- mobile -- */
+
+@media (max-width: 767px) {
+  /* The back button is the ONLY visible way out of the detail pane on mobile,
+     where the list is display:none. */
+  .adm-back { display: inline-flex; }
+  .adm-back[hidden] { display: none; }
+  /* The brand is decorative here and was wrapping to two lines at 375px; the
+     back button and the actions are what the header is for on a phone. */
+  .adm-brand { display: none; }
+  .adm-shell { grid-template-columns: 1fr; gap: 0; }
+  .adm-list, .adm-detail { display: none; }
+  .adm-shell[data-pane="list"]   .adm-list   { display: block; }
+  .adm-shell[data-pane="detail"] .adm-detail { display: block; }
+  .adm-header-title { display: none; }
+  .adm-ghost-label { display: none; }
+  .adm-field-row { grid-template-columns: 1fr; gap: .1rem; }
+}
+@media (min-width: 768px) {
+  /* The back button belongs to the mobile pane swap only; hiding it in CSS
+     means JS never has to know the breakpoint for layout. */
+  .adm-back { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-skeleton-bar { animation: none; }
+  .adm-btn-solid, .adm-ghost { transition: none; }
+}

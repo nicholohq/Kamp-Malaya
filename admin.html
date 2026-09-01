@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Enquiries | Kamp Malaya</title>
+
+<!-- noindex,nofollow rather than the funnel's noindex,follow: this page links
+     nowhere worth crawling. There is deliberately no canonical, description or
+     Open Graph block either — a gated page has no share card, and OG tags would
+     publish the admin URL to every link-preview crawler that ever sees it. -->
+<meta name="robots" content="noindex,nofollow" />
+<meta name="theme-color" content="#1A1A1A" />
+
+<link rel="icon" type="image/png" href="/icons/kampmalaya.png" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="/src/admin.css">
+</head>
+<body class="adm-body">
+
+<header class="adm-header glass">
+  <button id="adm-back" class="adm-back" type="button" hidden>
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+    <span>Back</span>
+  </button>
+  <span class="adm-brand font-display">Kamp <span class="adm-brand-accent">Malaya</span></span>
+  <span class="adm-header-title">Enquiries</span>
+  <div class="adm-header-actions">
+    <button id="adm-refresh" class="adm-ghost" type="button" hidden>
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      <span class="adm-ghost-label">Refresh</span>
+    </button>
+    <button id="adm-change-pw" class="adm-ghost" type="button" hidden aria-label="Change password">
+      <i class="fa-solid fa-key" aria-hidden="true"></i>
+      <span class="adm-ghost-label">Change password</span>
+    </button>
+    <button id="adm-logout" class="adm-ghost" type="button" hidden aria-label="Log out">
+      <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+      <span class="adm-ghost-label">Log out</span>
+    </button>
+  </div>
+</header>
+
+<!-- Boot: shown until we know whether the cookie is still good, so the login
+     form never flashes for an already-signed-in owner. -->
+<div id="adm-boot" class="adm-centre">
+  <p class="adm-muted">Checking your session…</p>
+</div>
+
+<main id="adm-lock" class="adm-centre" hidden>
+  <form id="adm-login-form" class="adm-lock-card" novalidate>
+    <h1 class="font-display adm-lock-title">Enquiries</h1>
+    <p class="adm-muted adm-lock-blurb">Sign in to see who has been in touch.</p>
+
+    <label class="adm-label" for="adm-password">Password</label>
+    <input id="adm-password" class="adm-field" type="password" name="password"
+           autocomplete="current-password" required />
+
+    <p id="adm-login-error" class="adm-error" role="alert"></p>
+
+    <button id="adm-login-btn" class="adm-btn-solid" type="submit">Sign in</button>
+  </form>
+</main>
+
+<main id="adm-app" class="adm-shell" data-pane="list" hidden>
+  <section class="adm-list" aria-label="Contacts">
+    <div class="adm-search-wrap">
+      <i class="fa-solid fa-magnifying-glass adm-search-icon" aria-hidden="true"></i>
+      <label class="adm-sr-only" for="adm-search">Search contacts</label>
+      <input id="adm-search" class="adm-search" type="search" placeholder="Search name, email or phone"
+             autocomplete="off" />
+    </div>
+    <p id="adm-list-count" class="adm-list-count"></p>
+    <ul id="adm-rows" class="adm-rows"></ul>
+  </section>
+
+  <section id="adm-detail" class="adm-detail" tabindex="-1" aria-label="Contact details"></section>
+</main>
+
+<!-- Native <dialog>: focus trap, Escape and focus restore for free, the same
+     reason the estimator's lightbox uses one. -->
+<dialog id="adm-pw-dialog" class="adm-dialog">
+  <form id="adm-pw-form" method="dialog" novalidate>
+    <h2 class="font-display adm-dialog-title">Change password</h2>
+    <p class="adm-muted adm-dialog-blurb">
+      Everyone else signed in will be signed out. You will stay signed in here.
+    </p>
+
+    <label class="adm-label" for="adm-pw-current">Current password</label>
+    <input id="adm-pw-current" class="adm-field" type="password" autocomplete="current-password" required />
+
+    <label class="adm-label" for="adm-pw-new">New password</label>
+    <input id="adm-pw-new" class="adm-field" type="password" autocomplete="new-password" required />
+
+    <label class="adm-label" for="adm-pw-confirm">Confirm new password</label>
+    <input id="adm-pw-confirm" class="adm-field" type="password" autocomplete="new-password" required />
+
+    <p id="adm-pw-error" class="adm-error" role="alert"></p>
+
+    <div class="adm-dialog-actions">
+      <button id="adm-pw-cancel" class="adm-ghost" type="button">Cancel</button>
+      <button id="adm-pw-save" class="adm-btn-solid" type="submit">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<p id="adm-status" class="adm-sr-only" role="status" aria-live="polite"></p>
+<div id="adm-offline" class="adm-offline" hidden>You are offline. Showing the last loaded data.</div>
+
+<script type="module" src="/src/admin.js"></script>
+<!-- The GHL external-tracking script that ends every other page is deliberately
+     absent. It is a third-party script with full DOM access, and this DOM holds
+     customer names, emails and phone numbers. It also has no job on a staff
+     console. Its absence here is a decision, not an oversight. -->
+</body>
+</html>

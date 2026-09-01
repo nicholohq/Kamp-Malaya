@@ -45,3 +45,7 @@ Thumbs.db
 # Claude Code per-machine settings (permissions, local overrides). launch.json
 # sits alongside it and IS shared — it defines the dev server for the preview.
 .claude/settings.local.json
+
+# ...but the template, which holds names and no values, is meant to be tracked.
+# It has to come after the .env* rules above or it is silently swallowed.
+!.env.example

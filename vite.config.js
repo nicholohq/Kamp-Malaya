@@ -21,6 +21,7 @@ export default defineConfig({
         main: 'index.html',
         funnel: 'funnel.html',
         estimate: 'estimate.html',
+        admin: 'admin.html',
       },
     },
   },

@@ -11,7 +11,8 @@
     "photos": "node scripts/convert-photos.mjs",
     "test": "node --test \"tests/**/*.test.mjs\"",
     "build": "chmod +x node_modules/.bin/vite && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify:admin": "! grep -nE '^[^/*]*(innerHTML|insertAdjacentHTML|outerHTML|document\\.write)' src/admin.js"
   },
   "devDependencies": {
     "heic-convert": "^2.1.0",

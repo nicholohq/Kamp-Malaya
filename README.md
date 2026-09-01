@@ -160,6 +160,59 @@ npm run preview
 
 ---
 
+## 🔐 Admin Dashboard
+
+`/admin.html` — a password-gated page listing CRM contacts, so the owner can see
+who enquired without logging into GoHighLevel. **Read-only**: nothing on it can
+change CRM data. It is `noindex,nofollow` and `Disallow`ed in `robots.txt`.
+
+### Environment variables
+
+See `.env.example` for the full list. The admin area needs:
+
+| Variable | Purpose |
+| --- | --- |
+| `ADMIN_PASSWORD_HASH` | scrypt hash — the seed and the recovery path |
+| `ADMIN_SESSION_SECRET` | HMAC key for session cookies, 32+ random bytes |
+| `ADMIN_SESSION_TTL_HOURS` | login lifetime, default `12` |
+| `ADMIN_ORIGIN` | the only origin allowed to call `/api/admin/*` |
+| `UPSTASH_REDIS_REST_URL` / `_TOKEN` | injected by the Vercel Marketplace integration |
+
+`GHL_API_KEY` needs the `contacts.readonly` scope added.
+
+### First-time setup
+
+1. Install the **Upstash Redis** integration from the Vercel Marketplace
+   (Vercel KV was retired in December 2024). Credentials are injected for you.
+2. `node scripts/hash-admin-password.mjs` — prints a generated password, its
+   hash, and a session secret. Save the password in a password manager; it is
+   not stored anywhere.
+3. Set `ADMIN_PASSWORD_HASH` and `ADMIN_SESSION_SECRET` in Vercel, then
+   **redeploy** — env var changes only apply to new deployments.
+
+### Changing the password
+
+Sign in and use **Change password**. It takes effect immediately, with no
+redeploy, and signs out every other session while keeping you signed in.
+
+### If the password is forgotten
+
+Delete the **`admin:password`** key in the Upstash console. The dashboard falls
+back to `ADMIN_PASSWORD_HASH`, so a forgotten password can never lock you out.
+No redeploy needed.
+
+### Signing every session out
+
+Set **`admin:sessions_valid_after`** in Upstash to the current unix time. Every
+outstanding cookie dies on the next request.
+
+### Local development
+
+`/api/*` does not run under `vite dev` — use `vercel dev`. Under plain
+`vite dev` the page correctly shows the login screen with an error, because
+Vite serves the handler source instead of JSON and the client rejects any
+non-JSON response.
+
 ## 📊 Booking System
 
 ### Private Stay
