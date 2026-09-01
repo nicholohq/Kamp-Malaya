@@ -63,9 +63,12 @@ kamp-malaya/
 │   │   ├── tallportrait2.jpg
 │   │   ├── tour_boat.jpg
 │   │   ├── villagevisit.png
-│   │   └── whitesand.jpg
+│   │   └── starfish-sandbar.webp
 │   ├── hero-video/
-│   │   └── kampmalaya.mp4           # 4.8 MB (compressed from 48 MB)
+│   │   ├── hero-vid.mp4            # 3.5 MB (2160x3840, plays first)
+│   │   ├── hero-trim1.mp4          # then these three, in order
+│   │   ├── hero-trim2.mp4
+│   │   └── hero-trim3.mp4
 │   └── icons/
 │       └── kampmalaya.png
 │

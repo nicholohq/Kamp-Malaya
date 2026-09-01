@@ -10,6 +10,143 @@ import { JOINER_SCHEDULE, todayISO, upcomingTours, formatTourLabel } from './joi
 // ---------- FUNNEL URL ----------
 const FUNNEL_URL = 'funnel.html';
 
+// ---------- HERO: a playlist of clips played as one seamless loop ----------
+// hero-vid runs, then hero-trim1/2/3, then round again. Only two <video>
+// elements exist and they ping-pong: while one is visible and playing, the
+// other is off-screen loading the next clip. Swapping .src resets the decoder
+// and paints a black frame, so that only ever happens on the hidden element.
+(() => {
+  const PLAYLIST = [
+    '/hero-video/hero-vid.mp4',
+    '/hero-video/hero-trim1.mp4',
+    '/hero-video/hero-trim2.mp4',
+    '/hero-video/hero-trim3.mp4',
+  ];
+
+  const a = document.getElementById('heroVidA');
+  const b = document.getElementById('heroVidB');
+  if (!a || !b) return;
+
+  // Reduced motion: leave the poster frame up. The loop runs well past five
+  // seconds and the hero offers no pause control (WCAG 2.2.2).
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    a.removeAttribute('autoplay');
+    a.pause();
+    return;
+  }
+
+  const FADE_S = 0.9;          // matches the CSS transition
+  let active = a, idle = b;
+  let idx = 0;                 // index in PLAYLIST of the clip now playing
+  let swapping = false;
+
+  // Point the hidden element at whatever comes next and start fetching it.
+  // A is already loading PLAYLIST[0] from its <source>, so it is never armed
+  // with that same URL — re-assigning .src would refetch a clip we have.
+  function arm() {
+    const next = PLAYLIST[(idx + 1) % PLAYLIST.length];
+    if (idle.getAttribute('src') === next) return;
+    idle.setAttribute('src', next);
+    idle.preload = 'auto';
+    idle.load();
+    // A carries the autoplay attribute for the no-JS/first-paint case. Once we
+    // start reassigning its src, load() would let autoplay start it playing
+    // invisibly and out of sync, so two clips run at once and the playlist
+    // jumps. Keep the armed element parked until its handoff.
+    idle.pause();
+  }
+
+  // Hold each fetch until its predecessor is genuinely playing, so the visible
+  // clip never shares bandwidth with a download nobody can see yet.
+  a.addEventListener('playing', () => {
+    a.removeAttribute('autoplay');   // playback is ours to drive from here on
+    a.removeAttribute('poster');     // else re-loading A for a later clip
+                                     // re-displays the poster mid-loop
+    arm();
+  }, { once: true });
+
+  function handoff() {
+    const from = active, to = idle;   // already playing with a painted frame
+
+    // Fade the incoming clip in ON TOP of the outgoing one, which stays fully
+    // opaque underneath. Fading both simultaneously leaves the stack ~75%
+    // opaque at the midpoint and the white page background flashes through.
+    to.classList.remove('is-active');   // start from 0 so there is a value to animate from
+    to.classList.add('is-incoming');    // lift above and enable the transition
+    void to.offsetWidth;                // reflow: without it the browser coalesces
+                                        // both class changes and skips the fade
+    to.classList.add('is-active');      // now animates 0 -> 1 over the old clip
+
+    active = to; idle = from;
+    idx = (idx + 1) % PLAYLIST.length;
+
+    setTimeout(() => {
+      to.classList.remove('is-incoming');  // settle back down a layer, still opaque
+      from.classList.remove('is-active');  // instant, and invisible: it is behind
+      from.pause();
+      from.currentTime = 0;
+      swapping = false;
+      arm();                   // the freed element now loads the clip after this
+    }, FADE_S * 1000 + 200);   // +200ms: the class flip and the transition do not
+                               // start on the same frame, so cutting at exactly
+                               // FADE_S clips the tail of the fade.
+  }
+
+  // Get the clip to the point where it has actually PAINTED a frame, then call
+  // back. readyState alone is not enough: a seek drops it back to HAVE_METADATA,
+  // and fading in an element that has no presented frame shows a stale or blank
+  // one for a beat — which reads as a flicker at every switch.
+  // Waiting on a bare 'canplay' is also a trap: if the clip became ready before
+  // the listener was attached the event has already fired and never fires again,
+  // so the handoff would hang and the current clip loop instead of advancing.
+  function prepare(v, cb) {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      cb();
+    };
+    const afterSeek = () => {
+      // Start it rolling first: a frame is only presented once playback begins.
+      v.play().catch(() => {});
+      if (typeof v.requestVideoFrameCallback === 'function') {
+        v.requestVideoFrameCallback(() => finish());   // fires on a real painted frame
+      } else if (v.readyState >= 3) {
+        finish();
+      } else {
+        v.addEventListener('canplay', finish, { once: true });
+      }
+    };
+    if (v.currentTime === 0 && v.readyState >= 2) afterSeek();
+    else { v.currentTime = 0; v.addEventListener('seeked', afterSeek, { once: true }); }
+    const timer = setTimeout(finish, 2500);   // never stall the loop outright
+  }
+
+  function tick(e) {
+    if (swapping || e.target !== active) return;
+    const { duration, currentTime } = e.target;
+    if (!duration || duration - currentTime > FADE_S) return;
+    swapping = true;
+    arm();
+    prepare(idle, handoff);
+  }
+
+  // If the next clip never becomes playable, the current one loops on its own
+  // rather than freezing on its last frame.
+  function onEnded(e) {
+    if (e.target !== active) return;
+    e.target.currentTime = 0;
+    e.target.play().catch(() => {});
+    swapping = false;
+  }
+
+  [a, b].forEach(v => {
+    v.addEventListener('timeupdate', tick);
+    v.addEventListener('ended', onEnded);
+  });
+})();
+
 // ---------- Navbar scroll state ----------
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
