@@ -36,8 +36,8 @@ body {
   display: flex;
   flex-direction: column;
 }
-.font-display { font-family: 'Playfair Display', serif; }
-.font-quote   { font-family: 'Cormorant Garamond', serif; }
+.font-display { font-family: 'Manrope', sans-serif; font-weight: 600; letter-spacing: -0.015em; }
+.font-quote   { font-family: 'Manrope', sans-serif; font-weight: 500; }
 
 .glass {
   background: rgba(255, 255, 255, 0.75);
@@ -90,7 +90,7 @@ body {
 }
 
 .wiz-question {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Manrope', sans-serif; font-weight: 600;
   font-size: clamp(1.75rem, 5vw, 2.6rem);
   line-height: 1.15; color: var(--charcoal);
 }
@@ -100,7 +100,7 @@ body {
   line-height: 1.6; margin-top: .7rem; max-width: 34rem;
 }
 .wiz-subhead {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Manrope', sans-serif; font-weight: 600;
   font-size: 1.35rem; color: var(--charcoal);
   margin: 2.25rem 0 .85rem;
 }
@@ -126,7 +126,7 @@ body {
 .wiz-choice.selected { border-color: var(--coral-deep); background: rgba(231,111,81,.05); }
 .wiz-choice-icon { font-size: 1.5rem; color: var(--coral); }
 .wiz-choice-name {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Manrope', sans-serif; font-weight: 600;
   font-size: 1.3rem; color: var(--charcoal);
 }
 .wiz-choice-desc { font-size: .87rem; line-height: 1.6; color: var(--graytext); }
@@ -246,7 +246,7 @@ body {
 .wiz-counter-btn:disabled { opacity: .28; cursor: not-allowed; }
 .wiz-counter-input {
   width: 58px; height: 48px; border: 0; text-align: center;
-  font-family: 'Playfair Display', serif; font-size: 1.3rem;
+  font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 1.3rem;
   color: var(--charcoal); background: transparent; -moz-appearance: textfield;
 }
 .wiz-counter-input::-webkit-inner-spin-button,
@@ -342,7 +342,7 @@ body {
   gap: .6rem; flex-wrap: wrap;
 }
 .wiz-room-name {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Manrope', sans-serif; font-weight: 600;
   font-size: 1.08rem; color: var(--charcoal);
 }
 .wiz-room-price {
@@ -460,7 +460,7 @@ body {
   color: rgba(255,255,255,.7);
 }
 .wiz-total {
-  font-family: 'Playfair Display', serif; font-size: 2.1rem;
+  font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 2.1rem;
   letter-spacing: 0; text-transform: none; color: var(--gold);
 }
 .wiz-perhead {
@@ -531,7 +531,7 @@ body {
   text-transform: uppercase; color: var(--graytext); white-space: nowrap;
 }
 .wiz-running-value {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Manrope', sans-serif; font-weight: 600;
   font-size: 1.15rem; color: var(--charcoal); white-space: nowrap;
 }
 

@@ -27,8 +27,8 @@
 * { -webkit-font-smoothing: antialiased; }
 html { scroll-behavior: smooth; }
 body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var(--charcoal); }
-.font-display { font-family: 'Playfair Display', serif; }
-.font-quote   { font-family: 'Cormorant Garamond', serif; }
+.font-display { font-family: 'Manrope', sans-serif; font-weight: 600; letter-spacing: -0.015em; }
+.font-quote   { font-family: 'Manrope', sans-serif; font-weight: 500; }
 
 .glass {
   background: rgba(255, 255, 255, 0.7);
@@ -304,7 +304,7 @@ body { font-family: 'Inter', sans-serif; background: var(--offwhite); color: var
   margin: 0; font-size: .85rem; color: var(--charcoal); text-align: right;
 }
 .trip-summary-rows .is-total dd {
-  font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--charcoal);
+  font-family: 'Manrope', sans-serif; font-size: 1.05rem; color: var(--charcoal);
 }
 .trip-summary-note {
   margin-top: .9rem; font-size: .78rem; color: var(--graytext); line-height: 1.5;

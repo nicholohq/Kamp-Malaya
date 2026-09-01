@@ -42,8 +42,11 @@
 html { scroll-behavior: smooth; }
 body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charcoal); overflow-x: hidden; }
 
-.font-display { font-family: 'Playfair Display', serif; }
-.font-quote   { font-family: 'Cormorant Garamond', serif; }
+.font-display { font-family: 'Manrope', sans-serif; font-weight: 600; letter-spacing: -0.015em; }
+.font-quote   { font-family: 'Manrope', sans-serif; font-weight: 500; }
+/* Manrope has no italic. <em> and the review pull-quotes would otherwise be
+   synthetically slanted, so they stay upright and lean on colour instead. */
+.font-quote, .font-quote em, em.font-quote { font-style: normal; }
 
 /* Glassmorphism — light/white tints */
 .glass {
@@ -224,7 +227,8 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 .exp-band-text { max-width: 34rem; }
 
 .exp-band-title {
-  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
   font-size: clamp(1.6rem, 3.4vw, 2.4rem);
   line-height: 1.15; color: #fff;
 }
@@ -240,6 +244,65 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 }
 
 /* Nav scrolled state — off-white with charcoal text */
+/* Weight is doing the legibility work here instead of a scrim over the video.
+   Heavier glyphs put more ink on screen, which reads far better against a
+   moving bright background. Each weight below is one the font request actually
+   loads — asking for a weight that is not loaded gets a synthetic bold. */
+#hero p.hero-anim  { font-weight: 600; letter-spacing: .28em; }
+#hero h1.hero-anim { font-weight: 700; letter-spacing: -.035em; }
+#hero h2.hero-anim { font-weight: 500; }
+
+/* Hero copy sits directly on video that swings from a bright sunset to dark
+   water, so a fixed text colour cannot stay legible on its own. Two shadows:
+   a tight one for glyph edge definition, and a wide soft halo that separates
+   the text from whatever is behind it. Scoped to the copy elements — the
+   Book Now pill is dark text on a light background and would only be muddied.
+   Note this improves real legibility but not the formal WCAG ratio, which is
+   computed foreground-against-background and ignores shadows. */
+#hero p.hero-anim,
+#hero h1.hero-anim,
+#hero h2.hero-anim {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 2px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Over the hero the navbar has no backdrop of its own, and since the hero
+   overlays were removed the links sit straight on a bright sunset. This adds a
+   scrim and blur behind the BAR ONLY, so the video underneath stays untouched.
+   It lives on ::before because the mask that feathers the bottom edge would
+   otherwise fade the links themselves; z-index keeps it behind the content
+   (the nav already makes a stacking context via its fixed + z-50). */
+#navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.22) 60%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  /* Feather the blur out with the tint; a hard cut-off reads as a visible band. */
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  pointer-events: none;
+  transition: opacity .5s ease;
+}
+/* Over the hero the outline CTA is coral text on the dark scrim, and the two
+   land at almost the same luminance (1.4:1) — the scrim actually made it worse.
+   Fill it instead: white on coral-deep is a fixed 4.8:1 that does not depend on
+   whatever frame is playing. Scrolled, the bar is white and the outline style
+   already passes, so it reverts to the site-wide look. */
+#navbar:not(.scrolled) .btn-coral {
+  background: var(--coral-deep);
+  color: #fff;
+  border-color: var(--coral-deep);
+}
+#navbar:not(.scrolled) .btn-coral:hover {
+  background: var(--coral-darker);
+  border-color: var(--coral-darker);
+}
+
+/* Once scrolled the bar has its own opaque background, so the scrim is redundant. */
+#navbar.scrolled::before { opacity: 0; }
+
 #navbar.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--line); }
 #navbar.scrolled .brand { color: var(--charcoal); }
 #navbar.scrolled .nav-link { color: var(--charcoal); }
@@ -313,7 +376,8 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
   text-transform: uppercase; color: var(--graytext);
 }
 .itin-marker-num {
-  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
   font-size: 1.6rem; line-height: 1; color: var(--charcoal);
 }
 
@@ -346,7 +410,8 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 @media (min-width: 900px) { .itin-card-day { display: none; } }
 
 .itin-card-title {
-  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
   font-size: 1.35rem; line-height: 1.2;
   color: var(--charcoal); margin-top: .2rem;
 }
@@ -405,8 +470,9 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 @media (min-width: 640px) { .inc-secondary { padding: .25rem 2rem; } }
 
 .inc-heading {
+  font-weight: 600;
   display: flex; align-items: center; gap: .6rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Manrope', sans-serif;
   font-size: 1.3rem; color: var(--charcoal);
 }
 .inc-heading i { font-size: 1.05rem; color: var(--seagrass-deep); }
@@ -498,8 +564,9 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 }
 .tour-icon { color: var(--coral); font-size: 1.15rem; line-height: 1.4; }
 
-.tour-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; }
+.tour-name { font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 1.15rem; }
 .tour-toggle {
+  font-weight: 600;
   background: none; border: 0; padding: 0;
   font: inherit; color: var(--charcoal);
   text-align: left; cursor: pointer;
@@ -592,8 +659,9 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
   text-transform: uppercase; color: var(--graytext);
 }
 .room-rate {
+  font-weight: 600;
   margin-top: .15rem;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Manrope', sans-serif;
   font-size: 1.5rem; line-height: 1.15; color: var(--charcoal);
   white-space: nowrap;       /* the rate is one line, always */
 }
@@ -603,8 +671,9 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
   margin-top: .2rem;
   font-size: .78rem; line-height: 1.4; color: var(--graytext);
 }
-/* Playfair's peso sign sits tight against the following digit; Inter's is
-   properly spaced. */
+/* Kept from the Playfair era, where the peso sign sat tight against the digit
+   after it. Manrope spaces it acceptably, so this is belt-and-braces now —
+   harmless, since body copy is Inter anyway. */
 .peso { font-family: 'Inter', sans-serif; font-size: .9em; }
 
 .room-book {
