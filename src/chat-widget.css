@@ -23,8 +23,8 @@
 .km-chat.km-open .km-chat__panel { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
 
 .km-chat__head { background: #C14C33; color: #fff; padding: 16px 18px; }
-.km-chat__head h4 { margin: 0; font-size: 15px; font-weight: 700; }
-.km-chat__head p { margin: 2px 0 0; font-size: 12px; opacity: .9; }
+.km-chat__head h4 { margin: 0; font-size: var(--fs-xs, 0.875rem); line-height: var(--lh-label, 1.4); font-weight: 700; }
+.km-chat__head p { margin: 2px 0 0; font-size: var(--fs-2xs, 0.75rem); opacity: .9; }
 
 .km-chat__options { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
 .km-chat__option {
@@ -35,14 +35,14 @@
 .km-chat__badge { width: 38px; height: 38px; border-radius: 9999px; flex: 0 0 auto;
   display: flex; align-items: center; justify-content: center; color: #fff; }
 .km-chat__badge svg { width: 20px; height: 20px; }
-.km-chat__option-txt strong { display: block; font-size: 13.5px; font-weight: 600; }
-.km-chat__option-txt span { display: block; font-size: 11.5px; color: #6B6B6B; }
+.km-chat__option-txt strong { display: block; font-size: var(--fs-xs, 0.875rem); font-weight: 600; }
+.km-chat__option-txt span { display: block; font-size: var(--fs-2xs, 0.75rem); color: #6B6B6B; }
 
 .km-chat__wa   { background: #25D366; }
 .km-chat__msg  { background: #0084FF; }
 .km-chat__book { background: #C14C33; }
 
-.km-chat__foot { text-align: center; font-size: 10.5px; color: #6B6B6B; padding: 4px 0 12px; }
+.km-chat__foot { text-align: center; font-size: var(--fs-2xs, 0.75rem); color: #6B6B6B; padding: 4px 0 12px; }
 
 @media (max-width: 380px) {
   .km-chat__panel { width: calc(100vw - 36px); }

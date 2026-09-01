@@ -20,9 +20,9 @@ function renderCards() {
     const delay = i % 3 === 1 ? ' reveal-delay-1' : i % 3 === 2 ? ' reveal-delay-2' : '';
     const meta = r.location ? r.location : '';
     return `
-      <div class="reveal${delay} bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gold/30 hover:border-gold transition-all">
+      <div class="reveal${delay} bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gold/30 hover:border-gold transition-all">
         <div class="flex gap-1 text-gold mb-4" aria-label="${r.rating || 5} out of 5 stars">${stars(r.rating)}</div>
-        <p class="font-quote text-charcoal text-xl leading-relaxed italic">&ldquo;${escapeHtml(r.body)}&rdquo;</p>
+        <p class="font-quote text-charcoal text-lg leading-relaxed">&ldquo;${escapeHtml(r.body)}&rdquo;</p>
         <p class="mt-6 font-semibold text-charcoal">${escapeHtml(r.author)}</p>
         ${meta ? `<p class="text-graytext text-sm">${escapeHtml(meta)}</p>` : ''}
       </div>`;

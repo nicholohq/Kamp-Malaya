@@ -42,6 +42,33 @@
 html { scroll-behavior: smooth; }
 body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charcoal); overflow-x: hidden; }
 
+/* ---------- Type scale ----------
+   One scale, shared by the custom rules below and the Tailwind utilities in
+   the markup. Before this, component CSS invented its own sizes: .68/.70/.72/
+   .75/.76/.78rem all sat within a pixel of each other, as did .84/.85/.86rem.
+   Steps a pixel apart are not decisions the eye can read, they are drift. */
+:root {
+  --fs-2xs: 0.75rem;    /* 12px — the floor; below this is unreadable on mobile */
+  --fs-xs:  0.875rem;   /* 14px */
+  --fs-sm:  1rem;       /* 16px */
+  --fs-md:  1.125rem;   /* 18px */
+  --fs-lg:  1.25rem;    /* 20px */
+  --fs-xl:  1.5rem;     /* 24px */
+  --fs-2xl: 1.875rem;   /* 30px */
+  --fs-3xl: 2.25rem;    /* 36px */
+
+  /* Heading leading, TIGHTENING as size grows — large type needs less air
+     between lines, not more. Two systems were disagreeing here: Tailwind's
+     text-* utilities carry their own line-heights (text-5xl is 1.0, text-2xl
+     is 1.33) while component CSS set its own, so a 24px heading sat looser
+     (1.33) than a 33px one (1.15). */
+  --lh-display: 1;      /* 72px and up */
+  --lh-hero:  1.1;      /* 36-48px section headings */
+  --lh-title: 1.2;      /* 24-33px */
+  --lh-sub:   1.3;      /* 18-20px */
+  --lh-label: 1.4;      /* 16px and below */
+}
+
 .font-display { font-family: 'Manrope', sans-serif; font-weight: 600; letter-spacing: -0.015em; }
 .font-quote   { font-family: 'Manrope', sans-serif; font-weight: 500; }
 /* Manrope has no italic. <em> and the review pull-quotes would otherwise be
@@ -224,17 +251,18 @@ body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: var(--charc
 
 /* The readable measure is capped on the text itself, not on the column. */
 .exp-band-title,
-.exp-band-text { max-width: 34rem; }
+.exp-band-text {
+  line-height: var(--lh-title); max-width: 34rem; }
 
 .exp-band-title {
   font-weight: 600;
   font-family: 'Manrope', sans-serif;
-  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+  font-size: clamp(var(--fs-xl), 3.4vw, var(--fs-3xl));
   line-height: 1.15; color: #fff;
 }
 .exp-band-text {
   margin-top: .7rem;
-  font-size: clamp(.88rem, 1.5vw, 1rem);
+  font-size: clamp(var(--fs-xs), 1.5vw, var(--fs-sm));
   line-height: 1.65; color: rgba(255,255,255,.86);
 }
 
@@ -372,13 +400,13 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
   }
 }
 .itin-marker-word {
-  font-size: .72rem; letter-spacing: .16em;
+  font-size: var(--fs-2xs); letter-spacing: .16em;
   text-transform: uppercase; color: var(--graytext);
 }
 .itin-marker-num {
   font-weight: 600;
   font-family: 'Manrope', sans-serif;
-  font-size: 1.6rem; line-height: 1; color: var(--charcoal);
+  font-size: var(--fs-xl); line-height: 1; color: var(--charcoal);
 }
 
 .itin-card {
@@ -402,7 +430,7 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 
 .itin-card-body { padding: 1.4rem 1.5rem 1.6rem; }
 .itin-card-day {
-  font-size: .68rem; letter-spacing: .16em;
+  font-size: var(--fs-2xs); letter-spacing: .16em;
   text-transform: uppercase; color: var(--seagrass-deep);
 }
 /* Duplicated by the rail marker on wide screens, so show it only when the
@@ -412,11 +440,11 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 .itin-card-title {
   font-weight: 600;
   font-family: 'Manrope', sans-serif;
-  font-size: 1.35rem; line-height: 1.2;
+  font-size: var(--fs-lg); line-height: var(--lh-sub);
   color: var(--charcoal); margin-top: .2rem;
 }
 .itin-card-meals {
-  margin-top: .5rem; font-size: .78rem; color: var(--graytext);
+  margin-top: .5rem; font-size: var(--fs-2xs); color: var(--graytext);
 }
 .itin-card-meals i { color: var(--seagrass); margin-right: .3rem; }
 
@@ -426,13 +454,13 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 }
 .itin-card-stops li {
   position: relative; padding-left: 1.1rem;
-  font-size: .86rem; color: var(--charcoal);
+  font-size: var(--fs-xs); color: var(--charcoal);
 }
 .itin-card-stops li::before {
   content: ''; position: absolute; left: 0; top: .5rem;
   width: 5px; height: 5px; border-radius: 50%; background: var(--gold);
 }
-.itin-stop-note { color: var(--graytext); font-size: .78rem; }
+.itin-stop-note { color: var(--graytext); font-size: var(--fs-2xs); }
 
 /* Alternating dark panel, echoing the reference layout. */
 .itin-day:nth-child(even) .itin-card-body { background: var(--charcoal); }
@@ -470,16 +498,18 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 @media (min-width: 640px) { .inc-secondary { padding: .25rem 2rem; } }
 
 .inc-heading {
+  line-height: var(--lh-sub);
   font-weight: 600;
   display: flex; align-items: center; gap: .6rem;
   font-family: 'Manrope', sans-serif;
-  font-size: 1.3rem; color: var(--charcoal);
+  font-size: var(--fs-lg); color: var(--charcoal);
 }
-.inc-heading i { font-size: 1.05rem; color: var(--seagrass-deep); }
+.inc-heading i { font-size: var(--fs-sm); color: var(--seagrass-deep); }
 .inc-heading-muted {
-  font-size: 1.05rem; color: var(--graytext);
+  line-height: var(--lh-sub);
+  font-size: var(--fs-sm); color: var(--graytext);
 }
-.inc-heading-muted i { color: #BF4628; font-size: .95rem; }
+.inc-heading-muted i { color: #BF4628; font-size: var(--fs-sm); }
 
 .inc-grid {
   list-style: none; padding: 0;
@@ -496,11 +526,11 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
   grid-template-columns: auto 1fr;
   gap: .6rem;
   align-items: start;
-  font-size: .9rem;
+  font-size: var(--fs-xs);
   line-height: 1.5;
   color: var(--charcoal);
 }
-.inc-item-muted { font-size: .84rem; color: var(--graytext); }
+.inc-item-muted { font-size: var(--fs-xs); color: var(--graytext); }
 
 /* Drawn rather than an icon font, so the tick can't shift the baseline while
    Font Awesome loads. */
@@ -534,9 +564,9 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
    so they were styled identically to the item and read as part of it. */
 .inc-sub {
   display: block; margin-top: .15rem;
-  font-size: .78rem; line-height: 1.45; color: var(--graytext);
+  font-size: var(--fs-2xs); line-height: 1.45; color: var(--graytext);
 }
-.inc-item-muted .inc-sub { font-size: .76rem; }
+.inc-item-muted .inc-sub { font-size: var(--fs-2xs); }
 
 
 /* ---------- Adventures: tour disclosures ----------
@@ -562,9 +592,10 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
   align-items: start;
   padding: 1.05rem 1.15rem;
 }
-.tour-icon { color: var(--coral); font-size: 1.15rem; line-height: 1.4; }
+.tour-icon { color: var(--coral); font-size: var(--fs-md); line-height: 1.4; }
 
-.tour-name { font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 1.15rem; }
+.tour-name {
+  line-height: var(--lh-sub); font-family: 'Manrope', sans-serif; font-weight: 600; font-size: var(--fs-md); }
 .tour-toggle {
   font-weight: 600;
   background: none; border: 0; padding: 0;
@@ -580,10 +611,10 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
   outline: 2px solid var(--gold); outline-offset: 2px;
 }
 
-.tour-summary { margin-top: .2rem; font-size: .85rem; line-height: 1.5; color: var(--graytext); }
+.tour-summary { margin-top: .2rem; font-size: var(--fs-xs); line-height: 1.5; color: var(--graytext); }
 
 .tour-chevron {
-  color: var(--graytext); font-size: .75rem; margin-top: .35rem;
+  color: var(--graytext); font-size: var(--fs-2xs); margin-top: .35rem;
   transition: transform .25s ease;
 }
 .tour-entry.is-open .tour-chevron { transform: rotate(180deg); }
@@ -606,7 +637,7 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
   overflow: hidden;              /* the clip that makes 0fr look collapsed */
   min-height: 0;
   padding: 0 1.15rem 0 3.2rem;   /* aligns with the summary, past the icon */
-  font-size: .85rem; line-height: 1.65; color: var(--charcoal);
+  font-size: var(--fs-xs); line-height: 1.65; color: var(--charcoal);
 }
 .tour-entry.is-open .tour-detail-inner { padding-bottom: 1.15rem; }
 .tour-detail-inner p {
@@ -655,21 +686,21 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
 .room-price { margin-top: 1.1rem; }
 
 .room-cap {
-  font-size: .7rem; letter-spacing: .14em;
+  font-size: var(--fs-2xs); letter-spacing: .14em;
   text-transform: uppercase; color: var(--graytext);
 }
 .room-rate {
   font-weight: 600;
   margin-top: .15rem;
   font-family: 'Manrope', sans-serif;
-  font-size: 1.5rem; line-height: 1.15; color: var(--charcoal);
+  font-size: var(--fs-xl); line-height: 1.15; color: var(--charcoal);
   white-space: nowrap;       /* the rate is one line, always */
 }
 /* The qualifier is its own line rather than a tail on the rate — that tail is
    what pushed the whole footer out of shape. */
 .room-note {
   margin-top: .2rem;
-  font-size: .78rem; line-height: 1.4; color: var(--graytext);
+  font-size: var(--fs-2xs); line-height: 1.4; color: var(--graytext);
 }
 /* Kept from the Playfair era, where the peso sign sat tight against the digit
    after it. Manrope spaces it acceptably, so this is belt-and-braces now —
@@ -681,5 +712,5 @@ img { background: linear-gradient(135deg, #F1F0EB, #E5E5E5); }
   margin-top: auto;          /* pins to the card's bottom, so all three align */
   padding: .7rem 1.25rem;
   white-space: nowrap;
-  font-size: .72rem; letter-spacing: .12em;
+  font-size: var(--fs-2xs); letter-spacing: .12em;
 }
