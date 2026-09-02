@@ -197,14 +197,28 @@ redeploy, and signs out every other session while keeping you signed in.
 
 ### If the password is forgotten
 
-Delete the **`admin:password`** key in the Upstash console. The dashboard falls
-back to `ADMIN_PASSWORD_HASH`, so a forgotten password can never lock you out.
-No redeploy needed.
+Delete the **`admin:password`** key. The dashboard falls back to
+`ADMIN_PASSWORD_HASH`, so a forgotten password can never lock you out. No
+redeploy needed.
+
+Either from the Upstash console (reachable from the Vercel storage page), or
+directly, which works even if the console does not — the two values are in
+Vercel → Settings → Environment Variables:
+
+```bash
+curl -X POST "$UPSTASH_REDIS_REST_URL/del/admin:password" \
+  -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN"
+```
 
 ### Signing every session out
 
-Set **`admin:sessions_valid_after`** in Upstash to the current unix time. Every
-outstanding cookie dies on the next request.
+Set **`admin:sessions_valid_after`** to the current unix time. Every outstanding
+cookie dies on the next request.
+
+```bash
+curl -X POST "$UPSTASH_REDIS_REST_URL/set/admin:sessions_valid_after/$(date +%s)" \
+  -H "Authorization: Bearer $UPSTASH_REDIS_REST_TOKEN"
+```
 
 ### Local development
 
