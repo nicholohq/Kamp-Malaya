@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   normalisePhone, contactDisplayName, previewText, formatTimestamp,
-  filterContacts, sortContacts, parseNote,
+  filterContacts, sortContacts, parseNote, initials,
 } from '../src/admin-format.mjs';
 
 // ---------------------------------------------------------------------- name
@@ -121,6 +121,23 @@ test('parseNote splits the webhook’s "Label: value" lines', () => {
     { label: 'Children', value: '2' },
     { label: 'Estimate shown to guest', value: 'PHP 29,598' },
   ]);
+});
+
+// -------------------------------------------------------------------- avatar
+
+test('initials takes first-and-last-word letters, one word gives one letter', () => {
+  assert.equal(initials('Ana Reyes'), 'AR');
+  assert.equal(initials('  Ana   Cruz   Reyes  '), 'AR');   // first + LAST word, middle ignored
+  assert.equal(initials('Ana'), 'A');
+  assert.equal(initials('ana reyes'), 'AR');                // always uppercased
+});
+
+test('initials degrades for the non-name fallbacks contactDisplayName can hand it', () => {
+  assert.equal(initials('ana@example.com'), 'A');
+  assert.equal(initials('+639170000001'), '+');
+  assert.equal(initials(''), '?');
+  assert.equal(initials(null), '?');
+  assert.equal(initials('   '), '?');
 });
 
 test('parseNote keeps prose intact rather than inventing a label', () => {

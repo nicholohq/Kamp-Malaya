@@ -18,8 +18,29 @@
 
 import {
   contactDisplayName, filterContacts, sortContacts,
-  formatTimestamp, parseNote, normalisePhone,
+  formatTimestamp, parseNote, normalisePhone, initials,
 } from './admin-format.mjs';
+
+// Font Awesome glyph per trip-detail field, purely decorative. Keyed on the
+// label strings FIELD_LABELS produces in api/_lib/ghl.js — a renamed or new
+// label just falls back to the generic icon below, nothing breaks.
+const FIELD_ICONS = {
+  'Booking type': 'fa-suitcase',
+  'Party size': 'fa-users',
+  'Accommodation': 'fa-bed',
+  'Check in': 'fa-calendar-check',
+  'Check out': 'fa-calendar-xmark',
+  'Tour date': 'fa-calendar-day',
+  'Special requests': 'fa-comment-dots',
+  'Dietary restrictions': 'fa-utensils',
+  'Source': 'fa-share-nodes',
+};
+const DEFAULT_FIELD_ICON = 'fa-circle-info';
+
+// ghl-webhook.js's formatPeso() always renders an amount as "PHP N,NNN" — the
+// one line in a note worth reading before any other, since it's what the
+// guest was actually quoted.
+const PESO_VALUE = /^PHP\s/i;
 
 // ---------------------------------------------------------------- DOM handles
 
@@ -35,6 +56,9 @@ const el = {
 
   back: document.getElementById('adm-back'),
   refresh: document.getElementById('adm-refresh'),
+  settingsBtn: document.getElementById('adm-settings-btn'),
+  settingsMenu: document.getElementById('adm-settings-menu'),
+  themeToggle: document.getElementById('adm-theme-toggle'),
   changePw: document.getElementById('adm-change-pw'),
   logout: document.getElementById('adm-logout'),
 
@@ -141,12 +165,32 @@ function lockOut(message) {
   render();
 }
 
+// -------------------------------------------------------------- settings menu
+//
+// Lives outside the state/render system entirely, the same way the password
+// dialog does (it is opened with a direct .showModal() + .focus(), not through
+// state) — this is transient UI chrome, not app state worth reconciling on
+// every render().
+
+function closeSettingsMenu({ restoreFocus = false } = {}) {
+  if (el.settingsMenu.hidden) return;
+  el.settingsMenu.hidden = true;
+  el.settingsBtn.setAttribute('aria-expanded', 'false');
+  if (restoreFocus) el.settingsBtn.focus();
+}
+
+function openSettingsMenu() {
+  el.settingsMenu.hidden = false;
+  el.settingsBtn.setAttribute('aria-expanded', 'true');
+  el.changePw.focus();
+}
+
 // ------------------------------------------------------------------- helpers
 
-/** <i class="fa-solid fa-x" aria-hidden="true">, built without innerHTML. */
-function icon(name) {
+/** <i class="fa-solid fa-x [extraClass]" aria-hidden="true">, built without innerHTML. */
+function icon(name, extraClass) {
   const i = document.createElement('i');
-  i.className = `fa-solid ${name}`;
+  i.className = extraClass ? `fa-solid ${name} ${extraClass}` : `fa-solid ${name}`;
   i.setAttribute('aria-hidden', 'true');
   return i;
 }
@@ -156,6 +200,10 @@ function elem(tag, className, text) {
   if (className) node.className = className;
   if (text !== undefined && text !== null) node.textContent = String(text);
   return node;
+}
+
+function avatar(displayName, { large = false } = {}) {
+  return elem('span', `adm-avatar${large ? ' adm-avatar--lg' : ''}`, initials(displayName));
 }
 
 function renderEmpty(container, iconName, text, retry) {
@@ -197,9 +245,12 @@ function render() {
 
   const signedIn = state.screen === 'app';
   el.refresh.hidden = !signedIn;
-  el.changePw.hidden = !signedIn;
-  el.logout.hidden = !signedIn;
+  el.settingsBtn.hidden = !signedIn;
   el.back.hidden = !(signedIn && state.selectedId);
+  // Defensive: if a 401 arrives mid-browse and drops us back to the lock
+  // screen while the menu happens to be open, it must not be left dangling
+  // open behind the login form.
+  if (!signedIn) closeSettingsMenu();
 
   if (state.screen === 'locked') {
     el.loginError.textContent = state.auth.error;
@@ -273,21 +324,28 @@ function renderRow(contact) {
   btn.setAttribute('aria-controls', 'adm-detail');
   if (contact.id === state.selectedId) btn.setAttribute('aria-current', 'true');
 
+  const name = contactDisplayName(contact);
+  const layout = elem('div', 'adm-row-layout');
+  layout.appendChild(avatar(name));
+
+  const body = elem('div', 'adm-row-body');
   const top = elem('div', 'adm-row-top');
-  top.appendChild(elem('span', 'adm-row-name', contactDisplayName(contact)));
+  top.appendChild(elem('span', 'adm-row-name', name));
   const when = formatTimestamp(contact.dateAdded);
   if (when) top.appendChild(elem('span', 'adm-row-when', when));
-  btn.appendChild(top);
+  body.appendChild(top);
 
   const sub = [contact.email, contact.phone].filter(Boolean).join(' · ');
-  if (sub) btn.appendChild(elem('p', 'adm-row-sub', sub));
+  if (sub) body.appendChild(elem('p', 'adm-row-sub', sub));
 
   if (contact.tags?.length) {
     const tags = elem('div', 'adm-row-tags');
     for (const tag of contact.tags.slice(0, 3)) tags.appendChild(elem('span', 'adm-tag', tag));
-    btn.appendChild(tags);
+    body.appendChild(tags);
   }
+  layout.appendChild(body);
 
+  btn.appendChild(layout);
   btn.addEventListener('click', () => selectContact(contact.id));
   li.appendChild(btn);
   return li;
@@ -316,9 +374,15 @@ function renderDetail() {
   const { contact, notes, notesUnavailable } = entry;
   const frag = document.createDocumentFragment();
 
-  frag.appendChild(elem('h1', 'adm-detail-name font-display', contactDisplayName(contact)));
+  const name = contactDisplayName(contact);
+  const head = elem('div', 'adm-detail-head');
+  head.appendChild(avatar(name, { large: true }));
+  const heading = elem('div');
+  heading.appendChild(elem('h1', 'adm-detail-name font-display', name));
   const added = formatTimestamp(contact.dateAdded);
-  if (added) frag.appendChild(elem('p', 'adm-detail-when', `Added ${added}`));
+  if (added) heading.appendChild(elem('p', 'adm-detail-when', `Added ${added}`));
+  head.appendChild(heading);
+  frag.appendChild(head);
 
   // Contact links are built from validated values only. An href assembled from
   // untrusted text is an execution sink (javascript:), unlike textContent.
@@ -352,8 +416,11 @@ function renderDetail() {
     const dl = elem('div', 'adm-fields');
     for (const field of contact.fields) {
       const row = elem('div', 'adm-field-row');
-      row.appendChild(elem('span', 'adm-field-label', field.label));
-      row.appendChild(elem('span', 'adm-field-value', field.value));
+      row.appendChild(icon(FIELD_ICONS[field.label] || DEFAULT_FIELD_ICON, 'adm-field-icon'));
+      const fieldBody = elem('div', 'adm-field-body');
+      fieldBody.appendChild(elem('span', 'adm-field-label', field.label));
+      fieldBody.appendChild(elem('span', 'adm-field-value', field.value));
+      row.appendChild(fieldBody);
       dl.appendChild(row);
     }
     frag.appendChild(dl);
@@ -369,16 +436,29 @@ function renderDetail() {
       const card = elem('div', 'adm-note');
       const when = formatTimestamp(note.createdAt);
       if (when) card.appendChild(elem('p', 'adm-note-when', when));
-      for (const line of parseNote(note.body)) {
-        const p = elem('p', 'adm-note-line');
+      // The first line of a note is often a free-text opener (the webhook
+      // always writes "Trip estimator details"; a hand-added GHL note might
+      // open with a sentence instead) — weighted so it reads as the note's
+      // subject rather than blending into the label:value rows beneath it.
+      // Only line 0 gets this; a later unlabelled line (mid-note prose) stays
+      // plain body text.
+      parseNote(note.body).forEach((line, i) => {
+        // The quoted total (ghl-webhook.js's formatPeso always writes
+        // "PHP N,NNN") is the one number on this card worth reading before
+        // any other — what the guest was actually told they would pay.
+        const isTotal = Boolean(line.label) && PESO_VALUE.test(line.value);
+        const p = elem('p', isTotal ? 'adm-note-line adm-note-total' : 'adm-note-line');
         if (line.label) {
           p.appendChild(elem('span', 'adm-note-label', `${line.label}: `));
-          p.appendChild(document.createTextNode(line.value));
+          p.appendChild(elem('span', 'adm-note-value', line.value));
+        } else if (i === 0) {
+          p.classList.add('adm-note-kicker');
+          p.textContent = line.value;
         } else {
           p.textContent = line.value;
         }
         card.appendChild(p);
-      }
+      });
       frag.appendChild(card);
     }
   }
@@ -487,16 +567,45 @@ el.search.addEventListener('input', () => {
 el.refresh.addEventListener('click', () => loadContacts());
 el.back.addEventListener('click', goBackToList);
 
+el.settingsBtn.addEventListener('click', () => {
+  if (el.settingsMenu.hidden) openSettingsMenu();
+  else closeSettingsMenu();
+});
+
+// Closes the menu on any click outside it. Checking containment (rather than
+// e.g. a capture-phase stopPropagation dance) means the settings button's own
+// click — which toggles the menu open — is correctly left alone: by the time
+// this bubbles up to document, its containment check sees the click landed
+// inside the button and no-ops.
+document.addEventListener('click', (e) => {
+  if (el.settingsMenu.hidden) return;
+  if (el.settingsBtn.contains(e.target) || el.settingsMenu.contains(e.target)) return;
+  closeSettingsMenu();
+});
+
 el.logout.addEventListener('click', async () => {
+  closeSettingsMenu();
   try { await api('/api/admin/logout', { method: 'POST', body: {} }); }
   catch { /* clearing local state matters more than the round trip */ }
   lockOut('');
 });
 
-// Escape backs out of the detail pane on mobile, matching the Back button.
+el.themeToggle.addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('km-admin-theme', next); } catch { /* private browsing */ }
+  el.themeToggle.setAttribute('aria-checked', String(next === 'dark'));
+  state.status = next === 'dark' ? 'Dark mode on.' : 'Dark mode off.';
+  render();
+  closeSettingsMenu({ restoreFocus: true });
+});
+
+// Escape backs out of the detail pane on mobile, matching the Back button —
+// and closes the settings menu, matching the password dialog it defers to.
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (el.pwDialog.open) return;                         // the dialog owns Escape
+  if (!el.settingsMenu.hidden) { closeSettingsMenu({ restoreFocus: true }); return; }
   if (state.screen === 'app' && state.selectedId
       && window.matchMedia('(max-width: 767px)').matches) {
     goBackToList();
@@ -522,6 +631,7 @@ el.rows.addEventListener('keydown', (e) => {
 // ------------------------------------------------------------ change password
 
 el.changePw.addEventListener('click', () => {
+  closeSettingsMenu();
   state.pw = { busy: false, error: '' };
   el.pwError.textContent = '';
   el.pwForm.reset();
@@ -572,6 +682,12 @@ el.pwForm.addEventListener('submit', async (e) => {
 
 window.addEventListener('offline', () => { el.offline.hidden = false; });
 window.addEventListener('online', () => { el.offline.hidden = true; });
+
+// The inline boot script in admin.html sets data-theme before this module
+// even runs (avoiding a flash of the wrong theme); sync the toggle's visual
+// state to whatever it decided, so it doesn't default to "off" on a return
+// visit where dark mode is actually already active.
+el.themeToggle.setAttribute('aria-checked', String(document.documentElement.dataset.theme === 'dark'));
 
 // The contacts call doubles as the session probe: a 401 flips boot -> locked,
 // a success flips it to app. No separate /api/admin/session endpoint needed.

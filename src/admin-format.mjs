@@ -46,6 +46,22 @@ export function contactDisplayName(contact) {
   return 'Unknown contact';
 }
 
+/**
+ * One or two initials for the avatar circle. Takes the already-resolved
+ * display name (name, else email, else phone, else "Unknown contact") rather
+ * than the raw contact — it has no opinion on that fallback chain, only on
+ * turning whatever string it is given into a glyph.
+ */
+export function initials(displayName) {
+  const clean = String(displayName ?? '').trim();
+  if (!clean) return '?';
+  const words = clean.split(/\s+/).filter(Boolean);
+  const first = words[0]?.[0] ?? '';
+  const last = words.length > 1 ? words[words.length - 1][0] : '';
+  const result = (first + last).toUpperCase();
+  return result || '?';
+}
+
 /** Collapses to a single line for the list row preview. */
 export function previewText(body, max = 80) {
   const flat = String(body ?? '').replace(/\s+/g, ' ').trim();
