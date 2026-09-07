@@ -646,9 +646,73 @@ function renderThreadDetail() {
 }
 
 function renderMessageBubble(msg) {
+  return msg.contentType === 'text/html' ? renderEmailCard(msg) : renderTextBubble(msg);
+}
+
+function renderTextBubble(msg) {
   const wrap = elem('div', msg.direction === 'outbound' ? 'adm-msg adm-msg--out' : 'adm-msg adm-msg--in');
   wrap.appendChild(elem('p', null, msg.body));
+  appendAttachments(wrap, msg);
+  appendMessageMeta(wrap, msg);
+  return wrap;
+}
 
+/**
+ * A real email, shown as a bordered card at (near) full thread width rather
+ * than a chat bubble — forcing a self-styled HTML email template into an
+ * 80%-wide seagrass/warmgray bubble reads worse than just giving it room, the
+ * same way an email client doesn't try to bubble-ify a newsletter.
+ */
+function renderEmailCard(msg) {
+  const card = elem('div', msg.direction === 'outbound' ? 'adm-email-card adm-email-card--out' : 'adm-email-card adm-email-card--in');
+
+  const head = elem('div', 'adm-email-card-head');
+  head.appendChild(elem('span', 'adm-email-card-dir', msg.direction === 'outbound' ? 'Sent' : 'Received'));
+  const when = formatTimestamp(msg.dateAdded);
+  if (when) head.appendChild(elem('span', null, when));
+  card.appendChild(head);
+
+  if (msg.subject) card.appendChild(elem('p', 'adm-email-card-subject', msg.subject));
+
+  card.appendChild(buildEmailFrame(msg.body));
+  appendAttachments(card, msg);
+
+  if (msg.status === 'failed' || msg.status === 'undelivered') {
+    const status = elem('p', 'adm-email-card-status adm-msg-status', 'Not delivered');
+    card.appendChild(status);
+  }
+
+  return card;
+}
+
+/**
+ * Renders a real email's HTML — content from a public, unauthenticated
+ * source (anyone can email the business, or reply to an auto-reply) — inside
+ * a script-less sandboxed iframe. This is the ONE place in this file where
+ * untrusted markup becomes markup rather than text, and it is deliberately
+ * NOT innerHTML: no `sandbox="allow-scripts"`, ever, so nothing in the email
+ * — a <script>, an onerror= handler, a javascript: link — can execute. It
+ * cannot reach this page's cookie or call /api/admin/* either way, since
+ * without allow-scripts nothing here runs at all. allow-same-origin (with
+ * scripts still off) only exists so contentDocument below is readable, to
+ * size the frame to its content; allow-popups only lets a clicked link open
+ * in a new, equally sandboxed tab instead of doing nothing.
+ */
+function buildEmailFrame(html) {
+  const frame = document.createElement('iframe');
+  frame.className = 'adm-email-frame';
+  frame.sandbox = 'allow-same-origin allow-popups';
+  frame.srcdoc = html;
+  frame.addEventListener('load', () => {
+    try {
+      const h = frame.contentDocument?.body?.scrollHeight;
+      if (h) frame.style.height = `${h}px`;
+    } catch { /* opaque-origin edge case; the CSS min-height still applies */ }
+  });
+  return frame;
+}
+
+function appendAttachments(container, msg) {
   for (const url of msg.attachments) {
     const a = elem('a', 'adm-msg-attachment');
     a.href = url;
@@ -656,18 +720,18 @@ function renderMessageBubble(msg) {
     a.rel = 'noopener noreferrer';
     a.appendChild(icon('fa-paperclip'));
     a.appendChild(elem('span', null, 'View attachment'));
-    wrap.appendChild(a);
+    container.appendChild(a);
   }
+}
 
+function appendMessageMeta(container, msg) {
   const meta = elem('div', 'adm-msg-meta');
   const when = formatTimestamp(msg.dateAdded);
   if (when) meta.appendChild(elem('span', null, when));
   if (msg.status === 'failed' || msg.status === 'undelivered') {
     meta.appendChild(elem('span', 'adm-msg-status', 'Not delivered'));
   }
-  if (meta.childElementCount) wrap.appendChild(meta);
-
-  return wrap;
+  if (meta.childElementCount) container.appendChild(meta);
 }
 
 /**

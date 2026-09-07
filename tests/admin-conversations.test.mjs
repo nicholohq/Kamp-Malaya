@@ -167,6 +167,80 @@ test('CRM activity-log entries are dropped from the thread, not shown as message
   assert.equal(res.payload.messages[0].id, 'realmsgabcdefghij1');
 });
 
+test('a TYPE_EMAIL message expands into one bubble per real email, with real HTML', async () => {
+  // The rolled-up list entry (first response) only carries a flattened
+  // plain-text summary; the two ids in meta.email.messageIds are what
+  // resolve to the actual auto-reply and the guest's real HTML reply —
+  // exactly the shape traced from Mathias's real conversation.
+  // No `contentType` field in any of these bodies — confirmed live that GHL's
+  // real response never includes one, whatever its documented schema says.
+  // projectEmailDetail() has to sniff the body for markup instead.
+  stubFetch([
+    { status: 200, body: { messages: {
+      lastMessageId: 'groupmsgabcdefghij1', nextPage: false,
+      messages: [{
+        id: 'groupmsgabcdefghij1', direction: 'inbound', body: 'flattened summary text',
+        dateAdded: '2026-09-05T14:28:15.162Z', messageType: 'TYPE_EMAIL',
+        meta: { email: { messageIds: ['autoreplyabcdefghij1', 'realreplyabcdefghij1'] } },
+      }],
+    } } },
+    { status: 200, body: { emailMessage: {
+      id: 'autoreplyabcdefghij1', direction: 'outbound',
+      body: 'Thank you for your inquiry!', dateAdded: '2026-09-05T14:28:15.000Z',
+    } } },
+    { status: 200, body: { emailMessage: {
+      id: 'realreplyabcdefghij1', direction: 'inbound',
+      subject: 'Re: Your inquiry',
+      body: '<div dir="ltr">What is the pickup service?</div>',
+      dateAdded: '2026-09-05T16:07:00.000Z',
+      attachments: ['https://cdn.example/photo.jpg', 'javascript:alert(1)'],
+    } } },
+  ]);
+  const res = mockRes();
+  await messages(authedGet({ id: CONVO_ID }), res);
+  assert.equal(res.code, 200);
+  assert.equal(res.payload.messages.length, 2, 'one grouped message became two real emails');
+  assert.equal(res.payload.messages[0].contentType, 'text/plain');
+  assert.equal(res.payload.messages[1].contentType, 'text/html');
+  assert.equal(res.payload.messages[1].body, '<div dir="ltr">What is the pickup service?</div>');
+  assert.equal(res.payload.messages[1].subject, 'Re: Your inquiry');
+  assert.deepEqual(res.payload.messages[1].attachments, ['https://cdn.example/photo.jpg']);
+});
+
+test('when every per-email fetch fails, the rolled-up summary is kept rather than dropped', async () => {
+  stubFetch([
+    { status: 200, body: { messages: {
+      lastMessageId: 'groupmsgabcdefghij1', nextPage: false,
+      messages: [{
+        id: 'groupmsgabcdefghij1', direction: 'inbound', body: 'flattened summary text',
+        dateAdded: '2026-09-05T14:28:15.162Z', messageType: 'TYPE_EMAIL',
+        meta: { email: { messageIds: ['brokenidabcdefghij123'] } },
+      }],
+    } } },
+    { status: 500, body: 'email service exploded' },
+  ]);
+  const res = mockRes();
+  await messages(authedGet({ id: CONVO_ID }), res);
+  assert.equal(res.code, 200, 'a resolvable failure must not fail the whole thread');
+  assert.equal(res.payload.messages.length, 1);
+  assert.equal(res.payload.messages[0].id, 'groupmsgabcdefghij1');
+  assert.equal(res.payload.messages[0].contentType, 'text/plain');
+});
+
+test('a non-email message is never sent through the per-email expansion', async () => {
+  const calls = stubFetch([{ status: 200, body: { messages: {
+    lastMessageId: 'smsmsgabcdefghij123', nextPage: false,
+    messages: [{
+      id: 'smsmsgabcdefghij123', direction: 'inbound', body: 'hey', messageType: 'TYPE_SMS',
+      dateAdded: '2026-09-05T14:28:15.162Z',
+    }],
+  } } }]);
+  const res = mockRes();
+  await messages(authedGet({ id: CONVO_ID }), res);
+  assert.equal(calls.length, 1, 'no extra outbound call for a channel with no email grouping');
+  assert.equal(res.payload.messages[0].contentType, 'text/plain');
+});
+
 test('a non-id cursor is dropped rather than reaching the outbound url', async () => {
   const calls = stubFetch([{ status: 200, body: { messages: { messages: [] } } }]);
   await messages(authedGet({ id: CONVO_ID, lastMessageId: '../../x' }), mockRes());

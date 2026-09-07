@@ -79,8 +79,11 @@ export function mapGhlError(status, detail) {
  *
  * GET-only until the messages feature needed to POST a reply; `method`/`body`
  * default away to nothing, so every existing GET call site is unaffected.
+ * `timeoutMs` defaults to the module budget but can be tightened for a call
+ * that runs alongside others — see messages.js's per-email expansion, which
+ * has to leave room under this call's own 7s inside Vercel's 10s cap.
  */
-export async function ghlFetch(path, { searchParams, version = GHL_VERSION, method = 'GET', body } = {}) {
+export async function ghlFetch(path, { searchParams, version = GHL_VERSION, method = 'GET', body, timeoutMs = TIMEOUT_MS } = {}) {
   const key = process.env.GHL_API_KEY;
   if (!key) {
     console.error('[ghl] GHL_API_KEY is not configured');
@@ -102,7 +105,7 @@ export async function ghlFetch(path, { searchParams, version = GHL_VERSION, meth
   if (body !== undefined) headers['Content-Type'] = 'application/json';
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   let response;
   try {
     response = await fetch(url, {
@@ -241,17 +244,20 @@ export function projectConversationSummary(c) {
   };
 }
 
+/** https: only — an attachment url can never become a javascript: or data: sink. */
+function safeAttachments(list) {
+  return Array.isArray(list) ? list.filter(u => typeof u === 'string' && /^https:/.test(u)) : [];
+}
+
 /**
- * One message in a thread. Attachment URLs are filtered to https: only — the
- * same defensive-scheme principle renderDetail() already applies to the
- * tel:/mailto: contact links, so an attachment can never become a javascript:
- * or data: execution sink.
+ * One message in a thread, as GHL's rolled-up messages-list endpoint returns
+ * it. For an email this `body` is GHL's own flattened, plain-text extraction
+ * of the thread group — never real HTML, whatever its own `contentType` field
+ * claims — so this always reports 'text/plain'. Real per-email HTML comes
+ * only from projectEmailDetail() below, via a separate, deliberate fetch.
  */
 export function projectMessage(m) {
   const channel = channelFor(m?.messageType);
-  const attachments = Array.isArray(m?.attachments)
-    ? m.attachments.filter(u => typeof u === 'string' && /^https:/.test(u))
-    : [];
   return {
     id: str(m?.id),
     direction: m?.direction === 'outbound' ? 'outbound' : 'inbound',
@@ -259,6 +265,46 @@ export function projectMessage(m) {
     dateAdded: str(m?.dateAdded),
     status: str(m?.status),
     channel: channel.label,
-    attachments,
+    contentType: 'text/plain',
+    subject: '',
+    attachments: safeAttachments(m?.attachments),
+  };
+}
+
+// The documented schema for get-email-by-id lists `contentType` as a required
+// field ('text/plain' | 'text/html'). Confirmed live: the real response never
+// includes it at all — a real HTML email came back with no contentType key
+// whatsoever. Sniffing the body itself is more reliable than trusting a field
+// that doesn't exist: a genuine email body (this endpoint's only content)
+// consistently opens with real markup; misreading either direction is
+// cosmetic, not a security issue — see buildEmailFrame() in admin.js.
+const HTML_TAG_PATTERN = /<[a-z][\s\S]*>/i;
+
+/**
+ * One real email, individually resolved via GET /conversations/messages/email/{id}.
+ * Unlike the messages-list endpoint, this one actually carries the email's own
+ * HTML — GHL wraps the payload in {emailMessage: {...}}, confirmed live (the
+ * same one-level-deeper nesting quirk as the messages-list endpoint).
+ *
+ * `body` passes through RAW here — deliberately. This module never sanitises;
+ * it projects. The browser is the only place untrusted HTML is either
+ * rendered (inside a script-less sandboxed iframe) or it is not rendered at
+ * all — see buildEmailFrame() in admin.js. Emailing the business is a public,
+ * unauthenticated action, so this body is exactly the kind of content
+ * admin.js's zero-innerHTML rule exists to guard against.
+ */
+export function projectEmailDetail(raw) {
+  const email = raw?.emailMessage ?? raw ?? {};
+  const body = str(email?.body);
+  return {
+    id: str(email?.id),
+    direction: email?.direction === 'outbound' ? 'outbound' : 'inbound',
+    body,
+    dateAdded: str(email?.dateAdded),
+    status: str(email?.status),
+    channel: 'Email',
+    contentType: HTML_TAG_PATTERN.test(body) ? 'text/html' : 'text/plain',
+    subject: str(email?.subject),
+    attachments: safeAttachments(email?.attachments),
   };
 }
