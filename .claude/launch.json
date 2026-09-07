@@ -10,6 +10,14 @@
       ],
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "kamp-malaya-admin-local",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "scripts/local-admin-server.mjs"
+      ],
+      "port": 3000
     }
   ]
 }
