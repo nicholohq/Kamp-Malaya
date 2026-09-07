@@ -633,7 +633,15 @@ function renderThreadDetail() {
   // Rendered oldest-first regardless of fetch/merge order — a chat thread
   // reads top-to-bottom, unlike the newest-first contact list.
   const ordered = entry.messages.slice().sort((a, b) => a.dateAdded.localeCompare(b.dateAdded));
-  for (const msg of ordered) thread.appendChild(renderMessageBubble(msg));
+  // Every reply after the first quotes what it's replying to — GHL includes a
+  // full copy of the prior email inside each new one. Rather than pattern-match
+  // a mail client's own quote markup (Gmail's blockquote, Outlook's divRplyFwdMsg,
+  // ...), which vary and would miss some, renderEmailBody() below cuts each
+  // later message off as soon as its own text starts matching the FIRST
+  // message's text — the one thing every quote in this thread actually
+  // traces back to, however the client chose to mark it up.
+  const quoteText = ordered.length > 1 ? messagePlainText(ordered[0]) : null;
+  ordered.forEach((msg, i) => thread.appendChild(renderMessageBubble(msg, i === 0 ? null : quoteText)));
   frag.appendChild(thread);
 
   el.detail.replaceChildren(frag);
@@ -645,71 +653,225 @@ function renderThreadDetail() {
   }
 }
 
-function renderMessageBubble(msg) {
-  return msg.contentType === 'text/html' ? renderEmailCard(msg) : renderTextBubble(msg);
-}
-
-function renderTextBubble(msg) {
+function renderMessageBubble(msg, quoteText) {
   const wrap = elem('div', msg.direction === 'outbound' ? 'adm-msg adm-msg--out' : 'adm-msg adm-msg--in');
-  wrap.appendChild(elem('p', null, msg.body));
+  if (msg.contentType === 'text/html') {
+    wrap.appendChild(renderEmailBody(msg.body, quoteText));
+  } else {
+    wrap.appendChild(elem('p', 'adm-msg-text', msg.body));
+  }
   appendAttachments(wrap, msg);
   appendMessageMeta(wrap, msg);
   return wrap;
 }
 
+function normalizeWs(s) {
+  return String(s ?? '').replace(/\s+/g, ' ').trim();
+}
+
+/** Plain text of a message, regardless of channel — used only for the
+ * quote-matching probe below, never rendered. */
+function messagePlainText(msg) {
+  if (msg.contentType !== 'text/html') return normalizeWs(msg.body);
+  return normalizeWs(new DOMParser().parseFromString(msg.body, 'text/html').body.textContent);
+}
+
+// href schemes an emailed link is allowed to keep — the same defensive
+// principle as the tel:/mailto: contact links above: an href built from
+// untrusted text is an execution sink (javascript:, data:) unless checked.
+const SAFE_LINK_SCHEMES = /^(https?:|tel:|mailto:)/i;
+
 /**
- * A real email, shown as a bordered card at (near) full thread width rather
- * than a chat bubble — forcing a self-styled HTML email template into an
- * 80%-wide seagrass/warmgray bubble reads worse than just giving it room, the
- * same way an email client doesn't try to bubble-ify a newsletter.
+ * Parses a real email's HTML — content from a public, unauthenticated
+ * source, since anyone can email the business or reply to its auto-reply —
+ * into a small allowlisted set of elements (bold/italic/underline, links,
+ * paragraphs, line breaks, lists, simple two-column tables), built entirely
+ * with createElement/textContent. This is the ONE place in this file
+ * untrusted markup could become markup rather than text, and it deliberately
+ * never does: DOMParser.parseFromString() never executes anything in the
+ * string it's given, and nothing parsed out of it is ever assigned via
+ * innerHTML — every node in the result is one this function chose to create.
+ * Anything not on the allowlist (a <script> DOMParser already refused to run,
+ * a <style>, a tracking-pixel <img>, an inline style attribute) is dropped or
+ * unwrapped, never trusted.
+ *
+ * Quote removal happens in the same pass: `quoteText` is the plain text of
+ * the message this one replies to (see messagePlainText() above) — GHL
+ * includes a full copy of it inside every later message in the thread. Once
+ * the accumulated text of the nodes walked so far starts matching it, the
+ * rest is the quoted copy and is dropped, root and all — this only reads the
+ * page's OWN prior message, not any particular mail client's quote markup.
  */
-function renderEmailCard(msg) {
-  const card = elem('div', msg.direction === 'outbound' ? 'adm-email-card adm-email-card--out' : 'adm-email-card adm-email-card--in');
+function renderEmailBody(html, quoteText) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const probe = quoteText && quoteText.length >= 30 ? quoteText.slice(0, 60) : null;
 
-  const head = elem('div', 'adm-email-card-head');
-  head.appendChild(elem('span', 'adm-email-card-dir', msg.direction === 'outbound' ? 'Sent' : 'Received'));
-  const when = formatTimestamp(msg.dateAdded);
-  if (when) head.appendChild(elem('span', null, when));
-  card.appendChild(head);
+  const frag = document.createDocumentFragment();
+  let buffer = '';
+  let stopped = false;
+  // Every node commit()ted (see below) is logged here with the buffer length
+  // at that moment, so that once a match fires, the handful of nodes that
+  // fed the FINAL run leading into it — which had already been committed
+  // before enough of the probe had accumulated to detect it — can be
+  // retroactively un-committed instead of leaking through. matchRunStart is
+  // the buffer length at which the current unbroken overlap with probe's
+  // prefix began; it resets to null whenever a run turns out to be a false
+  // start, so only the run that actually won is ever rolled back.
+  const history = [];
+  let matchRunStart = null;
 
-  if (msg.subject) card.appendChild(elem('p', 'adm-email-card-subject', msg.subject));
-
-  card.appendChild(buildEmailFrame(msg.body));
-  appendAttachments(card, msg);
-
-  if (msg.status === 'failed' || msg.status === 'undelivered') {
-    const status = elem('p', 'adm-email-card-status adm-msg-status', 'Not delivered');
-    card.appendChild(status);
+  function overlapLen(buf) {
+    const maxL = Math.min(buf.length, probe.length - 1);
+    for (let l = maxL; l > 0; l--) {
+      if (buf.endsWith(probe.slice(0, l))) return l;
+    }
+    return 0;
   }
 
-  return card;
+  function sawText(text) {
+    if (!probe || stopped) return;
+    // No separator inserted between accumulated text and this node's text:
+    // messagePlainText()'s probe comes from raw .textContent, which adds no
+    // whitespace of its own between adjacent tags either — GHL's HTML often
+    // has zero whitespace between them (confirmed live), so inserting one
+    // here would desync this buffer from the probe and the match would
+    // never fire.
+    buffer = normalizeWs(`${buffer}${text}`);
+    if (buffer.includes(probe)) { stopped = true; return; }
+    const l = overlapLen(buffer);
+    matchRunStart = l > 0 ? (matchRunStart ?? buffer.length - l) : null;
+  }
+
+  function commit(out, el) {
+    out.appendChild(el);
+    history.push({ out, el, bufferLen: buffer.length });
+  }
+
+  function rollback() {
+    if (matchRunStart === null) return;
+    for (const entry of history) {
+      if (entry.bufferLen > matchRunStart && entry.el.parentNode === entry.out) {
+        entry.out.removeChild(entry.el);
+      }
+    }
+  }
+
+  function walkChildren(parent, out) {
+    for (const node of Array.from(parent.childNodes)) {
+      if (stopped) return;
+      walkNode(node, out);
+    }
+  }
+
+  function walkNode(node, out) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent;
+      if (!text) return;
+      sawText(text);
+      if (!stopped) commit(out, document.createTextNode(text));
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+    switch (node.tagName) {
+      case 'SCRIPT': case 'STYLE': case 'IMG':
+        return; // inline images dropped too — real attachments render separately
+      case 'BR':
+        commit(out, document.createElement('br'));
+        return;
+      case 'B': case 'STRONG': {
+        const el = document.createElement('strong');
+        walkChildren(node, el);
+        if (el.childNodes.length) commit(out, el);
+        return;
+      }
+      case 'I': case 'EM': {
+        const el = document.createElement('em');
+        walkChildren(node, el);
+        if (el.childNodes.length) commit(out, el);
+        return;
+      }
+      case 'U': {
+        const el = document.createElement('u');
+        walkChildren(node, el);
+        if (el.childNodes.length) commit(out, el);
+        return;
+      }
+      case 'A': {
+        const href = node.getAttribute('href') || '';
+        const el = SAFE_LINK_SCHEMES.test(href) ? document.createElement('a') : document.createElement('span');
+        if (el.tagName === 'A') {
+          el.href = href;
+          el.target = '_blank';
+          el.rel = 'noopener noreferrer';
+          el.className = 'adm-msg-link';
+        }
+        walkChildren(node, el);
+        if (el.childNodes.length) commit(out, el);
+        return;
+      }
+      case 'UL': case 'OL': {
+        const el = document.createElement(node.tagName.toLowerCase());
+        walkChildren(node, el);
+        if (el.childNodes.length) commit(out, el);
+        return;
+      }
+      case 'LI': {
+        const el = document.createElement('li');
+        walkChildren(node, el);
+        commit(out, el);
+        return;
+      }
+      case 'TABLE':
+        appendSimpleTable(node, out, sawText, commit, () => stopped);
+        return;
+      case 'P': case 'DIV': case 'H1': case 'H2': case 'H3': case 'BLOCKQUOTE': {
+        // Block-level: a paragraph in the bubble, recursing into children.
+        // BLOCKQUOTE gets no special treatment — the content-based probe
+        // above is what removes a quote, regardless of how any given mail
+        // client happened to mark one up.
+        const el = elem('p', 'adm-msg-p');
+        walkChildren(node, el);
+        if (el.childNodes.length) commit(out, el);
+        return;
+      }
+      default:
+        // Anything else (a styling span, a table-layout wrapper div, ...):
+        // unwrap rather than drop, so its text isn't lost just because the
+        // wrapper itself isn't one we render specially.
+        walkChildren(node, out);
+    }
+  }
+
+  walkChildren(doc.body, frag);
+  rollback();
+  return frag;
 }
 
 /**
- * Renders a real email's HTML — content from a public, unauthenticated
- * source (anyone can email the business, or reply to an auto-reply) — inside
- * a script-less sandboxed iframe. This is the ONE place in this file where
- * untrusted markup becomes markup rather than text, and it is deliberately
- * NOT innerHTML: no `sandbox="allow-scripts"`, ever, so nothing in the email
- * — a <script>, an onerror= handler, a javascript: link — can execute. It
- * cannot reach this page's cookie or call /api/admin/* either way, since
- * without allow-scripts nothing here runs at all. allow-same-origin (with
- * scripts still off) only exists so contentDocument below is readable, to
- * size the frame to its content; allow-popups only lets a clicked link open
- * in a new, equally sandboxed tab instead of doing nothing.
+ * GHL's own templates are simple label/value tables (Tour Date | Feb 18,
+ * 2027) — rendered as flex rows reusing this file's own styling rather than
+ * any layout from the source table, which is never trusted anyway.
  */
-function buildEmailFrame(html) {
-  const frame = document.createElement('iframe');
-  frame.className = 'adm-email-frame';
-  frame.sandbox = 'allow-same-origin allow-popups';
-  frame.srcdoc = html;
-  frame.addEventListener('load', () => {
-    try {
-      const h = frame.contentDocument?.body?.scrollHeight;
-      if (h) frame.style.height = `${h}px`;
-    } catch { /* opaque-origin edge case; the CSS min-height still applies */ }
-  });
-  return frame;
+function appendSimpleTable(table, out, sawText, commit, isStopped) {
+  const el = elem('div', 'adm-msg-table');
+  for (const row of table.querySelectorAll('tr')) {
+    if (isStopped()) break;
+    const cells = Array.from(row.children).filter(c => c.tagName === 'TD' || c.tagName === 'TH');
+    const texts = cells.map(c => normalizeWs(c.textContent));
+    if (!texts.some(Boolean)) continue;
+    sawText(texts.join('')); // no join space — see the comment on sawText() above
+    if (isStopped()) break;
+    const rowEl = elem('div', 'adm-msg-table-row');
+    if (texts.length >= 2) {
+      rowEl.appendChild(elem('span', 'adm-msg-table-label', texts[0]));
+      rowEl.appendChild(elem('span', 'adm-msg-table-value', texts.slice(1).join(' ')));
+    } else {
+      rowEl.appendChild(elem('span', null, texts[0]));
+    }
+    el.appendChild(rowEl);
+  }
+  if (el.childNodes.length) commit(out, el);
 }
 
 function appendAttachments(container, msg) {
