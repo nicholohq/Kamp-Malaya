@@ -252,6 +252,23 @@ body.adm-body {
 }
 .adm-error:empty { margin: 0; }
 
+/* ------------------------------------------------------------------ tabs -- */
+
+.adm-tabs { display: flex; gap: .4rem; padding: .85rem .85rem 0; }
+.adm-tab {
+  flex: 1; text-align: center;
+  background: none; border: 1px solid var(--line); border-radius: 999px;
+  padding: .5rem .9rem; font: inherit; font-size: var(--fs-2xs); letter-spacing: .04em;
+  color: var(--graytext); cursor: pointer; min-height: 36px;
+}
+.adm-tab:hover { color: var(--charcoal); }
+/* aria-current is the single source of truth, same reasoning as the theme
+   toggle's aria-checked above — no separate JS-managed class to drift. */
+.adm-tab[aria-current="page"] {
+  background: var(--warmgray); color: var(--charcoal); border-color: var(--warmgray);
+  font-weight: 600;
+}
+
 /* ----------------------------------------------------------------- shell -- */
 
 .adm-shell {
@@ -331,6 +348,14 @@ body.adm-body {
   font-size: var(--fs-2xs); font-weight: 600; line-height: 1.5;
   padding: .05rem .5rem; border-radius: 999px;
   background: var(--warmgray); color: var(--seagrass-deep);
+}
+
+/* Unread count. Solid seagrass rather than the outline .adm-tag gets — this is
+   a count that needs to be scanned at a glance among rows, not a label. */
+.adm-unread-badge {
+  flex: none; min-width: 1.35rem; height: 1.35rem; padding: 0 .3rem;
+  border-radius: 999px; background: var(--seagrass-deep); color: #fff;
+  font-size: var(--fs-2xs); font-weight: 700; line-height: 1.35rem; text-align: center;
 }
 
 /* Skeletons, for the moment before the first list lands. */
@@ -421,6 +446,67 @@ body.adm-body {
 }
 .adm-note-total .adm-note-value { font-size: var(--fs-md); color: var(--seagrass-deep); }
 
+/* --------------------------------------------------------------- thread -- */
+
+.adm-thread { display: flex; flex-direction: column; gap: .6rem; }
+.adm-thread-more { align-self: center; margin-bottom: .2rem; }
+
+.adm-msg {
+  max-width: 80%; padding: .6rem .85rem; border-radius: 16px;
+  font-size: var(--fs-xs); line-height: var(--lh-label);
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.adm-msg--in {
+  align-self: flex-start; background: var(--warmgray); color: var(--charcoal);
+  border-bottom-left-radius: 4px;
+}
+.adm-msg--out {
+  align-self: flex-end; background: var(--seagrass-deep); color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.adm-msg-meta {
+  display: flex; gap: .5rem; align-items: baseline; margin-top: .35rem;
+  font-size: var(--fs-2xs);
+}
+.adm-msg--in .adm-msg-meta { color: var(--graytext); }
+.adm-msg--out .adm-msg-meta { color: rgba(255, 255, 255, .8); }
+/* Failed/undelivered needs to read as a warning even inside an outbound
+   bubble, where --error itself is too close to the seagrass background to
+   read as "wrong" — white-on-seagrass with weight does the job instead. */
+.adm-msg-status { color: var(--error); }
+.adm-msg--out .adm-msg-status { color: #fff; font-weight: 700; }
+
+.adm-msg-attachment {
+  display: flex; align-items: center; gap: .4rem; margin-top: .4rem;
+  font-size: var(--fs-2xs); text-decoration: underline;
+  color: inherit;
+}
+
+/* --------------------------------------------------------------- composer -- */
+
+.adm-composer { display: flex; gap: .5rem; align-items: flex-end; margin-top: 1rem; }
+.adm-composer-input {
+  flex: 1; resize: none; max-height: 8rem; min-height: 44px;
+  border: 1px solid var(--line); border-radius: 16px;
+  padding: .6rem .9rem; font: inherit; font-size: var(--fs-xs); color: var(--charcoal);
+  background: var(--surface);
+}
+.adm-composer-input:focus { outline: none; border-color: var(--seagrass-deep); box-shadow: 0 0 0 3px rgba(var(--seagrass-deep-rgb), .18); }
+.adm-composer-send {
+  flex: none; width: 44px; height: 44px; border-radius: 50%;
+  background: var(--seagrass-deep); color: #fff; border: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; font-size: var(--fs-sm);
+}
+.adm-composer-send:hover:not(:disabled) { background: var(--seagrass); }
+.adm-composer-send:disabled { opacity: .5; cursor: not-allowed; }
+/* flex-basis:100% wraps the error onto its own line below the input+button
+   row, inside the same flex container, rather than squeezing in beside them. */
+.adm-composer .adm-error { flex-basis: 100%; margin: .4rem 0 0; }
+.adm-composer-unavailable {
+  margin-top: 1rem; font-size: var(--fs-2xs); color: var(--graytext);
+  text-align: center;
+}
+
 .adm-empty { padding: 2.5rem 1rem; text-align: center; color: var(--graytext); }
 .adm-empty i { font-size: var(--fs-xl); color: var(--line); display: block; margin-bottom: .6rem; }
 .adm-empty p { margin: 0 0 .8rem; font-size: var(--fs-xs); }
@@ -429,6 +515,7 @@ body.adm-body {
   border-radius: 999px; padding: .45rem 1rem; font: inherit; font-size: var(--fs-2xs);
   cursor: pointer; min-height: 36px;
 }
+.adm-retry:disabled { opacity: .6; cursor: not-allowed; }
 
 /* ---------------------------------------------------------------- dialog -- */
 

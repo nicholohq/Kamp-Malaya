@@ -62,6 +62,21 @@ export function initials(displayName) {
   return result || '?';
 }
 
+/**
+ * Best available label for a conversation. Same fallback chain as
+ * contactDisplayName, adapted to the conversation summary's field names (it
+ * carries `name`/`email`/`phone` directly, not a raw GHL contact object).
+ */
+export function conversationDisplayName(convo) {
+  const name = String(convo?.name ?? '').replace(/\s+/g, ' ').trim();
+  if (name) return name;
+  const email = String(convo?.email ?? '').trim();
+  if (email) return email;
+  const phone = String(convo?.phone ?? '').trim();
+  if (phone) return phone;
+  return 'Unknown contact';
+}
+
 /** Collapses to a single line for the list row preview. */
 export function previewText(body, max = 80) {
   const flat = String(body ?? '').replace(/\s+/g, ' ').trim();
@@ -114,6 +129,30 @@ export function filterContacts(items, query) {
   return list.filter((c) => {
     if (String(c?.name ?? '').toLowerCase().includes(q)) return true;
     if (String(c?.email ?? '').toLowerCase().includes(q)) return true;
+    if (digitsMeaningful && phoneKey(c?.phone).includes(qDigits)) return true;
+    return false;
+  });
+}
+
+/**
+ * Case-insensitive search across a conversation's name, email, phone and last
+ * message preview. No sort function alongside this one: unlike contacts, GHL's
+ * conversation summary carries no timestamp, so list order is whatever the
+ * server returned (sorted server-side by last message time) and this only
+ * narrows it, never reorders it.
+ */
+export function filterConversations(items, query) {
+  const list = Array.isArray(items) ? items : [];
+  const q = String(query ?? '').trim().toLowerCase();
+  if (!q) return list;
+
+  const qDigits = phoneKey(q);
+  const digitsMeaningful = qDigits.length >= 3;
+
+  return list.filter((c) => {
+    if (String(c?.name ?? '').toLowerCase().includes(q)) return true;
+    if (String(c?.email ?? '').toLowerCase().includes(q)) return true;
+    if (String(c?.preview ?? '').toLowerCase().includes(q)) return true;
     if (digitsMeaningful && phoneKey(c?.phone).includes(qDigits)) return true;
     return false;
   });

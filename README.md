@@ -163,8 +163,17 @@ npm run preview
 ## 🔐 Admin Dashboard
 
 `/admin.html` — a password-gated page listing CRM contacts, so the owner can see
-who enquired without logging into GoHighLevel. **Read-only**: nothing on it can
-change CRM data. It is `noindex,nofollow` and `Disallow`ed in `robots.txt`.
+who enquired without logging into GoHighLevel. It is `noindex,nofollow` and
+`Disallow`ed in `robots.txt`.
+
+Two tabs: **Contacts** (read-only — nothing on it can change CRM data) and
+**Messages** (read + reply). Replying is restricted to the channel the guest
+used (SMS, Email, WhatsApp, Instagram, Facebook, Web chat) — a conversation on
+any other channel (a call, a review) shows the thread with no composer. Each
+conversation has its own send limit (20 messages / 10 minutes) as a safety net
+against a UI bug looping sends at one guest — not a security control, since a
+valid session already means it's the owner. There is no mark-as-read; the
+unread count shown is GHL's own.
 
 ### Environment variables
 
@@ -178,7 +187,10 @@ See `.env.example` for the full list. The admin area needs:
 | `ADMIN_ORIGIN` | the only origin allowed to call `/api/admin/*` |
 | `UPSTASH_REDIS_REST_URL` / `_TOKEN` | injected by the Vercel Marketplace integration |
 
-`GHL_API_KEY` needs the `contacts.readonly` scope added.
+`GHL_API_KEY` needs these scopes added on the Private Integration Token
+(Settings → Private Integrations): `contacts.readonly` (Contacts tab),
+`conversations.readonly`, `conversations/message.readonly` and
+`conversations/message.write` (Messages tab).
 
 ### First-time setup
 

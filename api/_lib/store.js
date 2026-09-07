@@ -15,9 +15,16 @@ const KEY_PASSWORD = 'admin:password';
 const KEY_VALID_AFTER = 'admin:sessions_valid_after';
 const KEY_KEEP_SID = 'admin:sessions_keep_sid';
 const KEY_LOGIN_FAIL = 'admin:login_fail:';
+const KEY_MSG_SEND = 'admin:msg_send:';
 
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_S = 900; // 15 minutes
+
+// Not an attacker defense — a valid session already means it's the owner. This
+// is a safety net against a UI bug looping sends at one real guest, so it is
+// scoped per conversation rather than per IP.
+const SEND_LIMIT_MAX = 20;
+const SEND_LIMIT_WINDOW_S = 600; // 10 minutes
 
 let _client;          // memoised across warm invocations
 let _clientResolved = false;
@@ -202,4 +209,33 @@ export async function clearLoginFailures(ipHash) {
   }
 }
 
-export { RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_S };
+/**
+ * Counts sends per conversation in a fixed window. Same fail-open reasoning as
+ * checkRateLimit: an Upstash outage must not stop the owner from replying to a
+ * real guest.
+ */
+export async function checkSendRateLimit(conversationId) {
+  try {
+    const redis = await client();
+    if (!redis) return { allowed: true, degraded: true };
+    const count = Number(await redis.get(KEY_MSG_SEND + conversationId)) || 0;
+    return { allowed: count < SEND_LIMIT_MAX, degraded: false, count };
+  } catch (err) {
+    console.error('[admin store] send rate limit read failed, allowing', err);
+    return { allowed: true, degraded: true };
+  }
+}
+
+export async function recordSend(conversationId) {
+  try {
+    const redis = await client();
+    if (!redis) return;
+    const key = KEY_MSG_SEND + conversationId;
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, SEND_LIMIT_WINDOW_S);
+  } catch (err) {
+    console.error('[admin store] send rate limit write failed', err);
+  }
+}
+
+export { RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_S, SEND_LIMIT_MAX, SEND_LIMIT_WINDOW_S };

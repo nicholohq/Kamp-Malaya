@@ -104,7 +104,15 @@
 </main>
 
 <main id="adm-app" class="adm-shell" data-pane="list" hidden>
-  <section class="adm-list" aria-label="Contacts">
+  <section class="adm-list" aria-label="Contacts and messages">
+    <!-- Plain buttons, not role="tablist" — the same restraint the settings
+         menu and the contact list already use: a full ARIA tab model promises
+         arrow-key/Home/End navigation this does not implement. aria-current
+         is the single source of truth for which is active. -->
+    <nav class="adm-tabs" aria-label="Section">
+      <button id="adm-tab-contacts" class="adm-tab" type="button" aria-current="page" hidden>Contacts</button>
+      <button id="adm-tab-messages" class="adm-tab" type="button" hidden>Messages</button>
+    </nav>
     <div class="adm-search-wrap">
       <i class="fa-solid fa-magnifying-glass adm-search-icon" aria-hidden="true"></i>
       <label class="adm-sr-only" for="adm-search">Search contacts</label>

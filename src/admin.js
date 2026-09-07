@@ -18,7 +18,8 @@
 
 import {
   contactDisplayName, filterContacts, sortContacts,
-  formatTimestamp, parseNote, normalisePhone, initials,
+  formatTimestamp, parseNote, normalisePhone, initials, previewText,
+  conversationDisplayName, filterConversations,
 } from './admin-format.mjs';
 
 // Font Awesome glyph per trip-detail field, purely decorative. Keyed on the
@@ -56,6 +57,8 @@ const el = {
 
   back: document.getElementById('adm-back'),
   refresh: document.getElementById('adm-refresh'),
+  tabContacts: document.getElementById('adm-tab-contacts'),
+  tabMessages: document.getElementById('adm-tab-messages'),
   settingsBtn: document.getElementById('adm-settings-btn'),
   settingsMenu: document.getElementById('adm-settings-menu'),
   themeToggle: document.getElementById('adm-theme-toggle'),
@@ -85,10 +88,16 @@ const el = {
 const state = {
   screen: 'boot',            // 'boot' | 'locked' | 'app'
   auth: { busy: false, error: '' },
+  section: 'contacts',       // 'contacts' | 'messages'
   contacts: { status: 'idle', items: [], error: '' },
   query: '',
   selectedId: null,
   details: new Map(),        // contactId -> { status, contact, notes, error }
+  conversations: { status: 'idle', items: [], error: '' },
+  convoQuery: '',
+  selectedConvoId: null,
+  threads: new Map(),        // conversationId -> { status, messages, nextPage, lastMessageId, error }
+  composer: { busy: false, error: '', value: '' },
   pw: { busy: false, error: '' },
   status: '',
 };
@@ -158,6 +167,11 @@ function lockOut(message) {
   state.details.clear();
   state.selectedId = null;
   state.query = '';
+  state.conversations = { status: 'idle', items: [], error: '' };
+  state.threads.clear();
+  state.selectedConvoId = null;
+  state.convoQuery = '';
+  state.composer = { busy: false, error: '', value: '' };
   state.screen = 'locked';
   state.auth = { busy: false, error: message || '' };
   if (el.search) el.search.value = '';
@@ -233,6 +247,15 @@ function skeletons(count) {
 const visibleContacts = () =>
   sortContacts(filterContacts(state.contacts.items, state.query));
 
+// No sort here: unlike contacts, GHL's conversation summary carries no
+// timestamp — the list is already newest-first because conversations.js asks
+// GHL to sort it that way, so this only narrows, never reorders.
+const visibleConversations = () =>
+  filterConversations(state.conversations.items, state.convoQuery);
+
+const activeSelectedId = () =>
+  state.section === 'contacts' ? state.selectedId : state.selectedConvoId;
+
 // -------------------------------------------------------------------- render
 
 function render() {
@@ -246,7 +269,9 @@ function render() {
   const signedIn = state.screen === 'app';
   el.refresh.hidden = !signedIn;
   el.settingsBtn.hidden = !signedIn;
-  el.back.hidden = !(signedIn && state.selectedId);
+  el.tabContacts.hidden = !signedIn;
+  el.tabMessages.hidden = !signedIn;
+  el.back.hidden = !(signedIn && activeSelectedId());
   // Defensive: if a 401 arrives mid-browse and drops us back to the lock
   // screen while the menu happens to be open, it must not be left dangling
   // open behind the login form.
@@ -259,7 +284,18 @@ function render() {
   }
 
   if (signedIn) {
-    el.app.dataset.pane = state.selectedId ? 'detail' : 'list';
+    const onContacts = state.section === 'contacts';
+    if (onContacts) el.tabContacts.setAttribute('aria-current', 'page');
+    else el.tabContacts.removeAttribute('aria-current');
+    if (!onContacts) el.tabMessages.setAttribute('aria-current', 'page');
+    else el.tabMessages.removeAttribute('aria-current');
+
+    el.search.placeholder = onContacts
+      ? 'Search name, email or phone'
+      : 'Search name, email or message';
+    el.search.value = onContacts ? state.query : state.convoQuery;
+
+    el.app.dataset.pane = activeSelectedId() ? 'detail' : 'list';
     renderList();
     renderDetail();
   }
@@ -276,6 +312,11 @@ function render() {
 }
 
 function renderList() {
+  if (state.section === 'messages') return renderConvoList();
+  return renderContactList();
+}
+
+function renderContactList() {
   const { status, error } = state.contacts;
 
   if (status === 'loading') {
@@ -316,6 +357,46 @@ function renderList() {
   el.rows.replaceChildren(frag);
 }
 
+function renderConvoList() {
+  const { status, error } = state.conversations;
+
+  if (status === 'loading' || status === 'idle') {
+    el.rows.replaceChildren(skeletons(6));
+    el.rows.setAttribute('aria-busy', 'true');
+    el.listCount.textContent = '';
+    return;
+  }
+  el.rows.setAttribute('aria-busy', 'false');
+
+  if (status === 'error') {
+    el.listCount.textContent = '';
+    renderEmpty(el.rows, 'fa-triangle-exclamation', error || 'Could not load messages.', loadConversations);
+    return;
+  }
+
+  const items = visibleConversations();
+  const total = state.conversations.items.length;
+
+  if (total === 0) {
+    el.listCount.textContent = '';
+    renderEmpty(el.rows, 'fa-comments', 'No conversations yet.');
+    return;
+  }
+  if (items.length === 0) {
+    el.listCount.textContent = '';
+    renderEmpty(el.rows, 'fa-magnifying-glass', `No conversations match “${state.convoQuery}”.`);
+    return;
+  }
+
+  el.listCount.textContent = state.convoQuery
+    ? `${items.length} of ${total} conversations`
+    : `${total} conversation${total === 1 ? '' : 's'}`;
+
+  const frag = document.createDocumentFragment();
+  for (const convo of items) frag.appendChild(renderConvoRow(convo));
+  el.rows.replaceChildren(frag);
+}
+
 function renderRow(contact) {
   const li = document.createElement('li');
   const btn = elem('button', 'adm-row');
@@ -351,7 +432,45 @@ function renderRow(contact) {
   return li;
 }
 
+function renderConvoRow(convo) {
+  const li = document.createElement('li');
+  const btn = elem('button', 'adm-row');
+  btn.type = 'button';
+  btn.dataset.id = convo.id;
+  btn.setAttribute('aria-controls', 'adm-detail');
+  if (convo.id === state.selectedConvoId) btn.setAttribute('aria-current', 'true');
+
+  const name = conversationDisplayName(convo);
+  const layout = elem('div', 'adm-row-layout');
+  layout.appendChild(avatar(name));
+
+  const body = elem('div', 'adm-row-body');
+  const top = elem('div', 'adm-row-top');
+  top.appendChild(elem('span', 'adm-row-name', name));
+  if (convo.unreadCount > 0) {
+    top.appendChild(elem('span', 'adm-unread-badge', String(convo.unreadCount)));
+  }
+  body.appendChild(top);
+
+  if (convo.preview) body.appendChild(elem('p', 'adm-row-sub', previewText(convo.preview)));
+
+  const tags = elem('div', 'adm-row-tags');
+  tags.appendChild(elem('span', 'adm-tag', convo.channel));
+  body.appendChild(tags);
+
+  layout.appendChild(body);
+  btn.appendChild(layout);
+  btn.addEventListener('click', () => selectConversation(convo.id));
+  li.appendChild(btn);
+  return li;
+}
+
 function renderDetail() {
+  if (state.section === 'messages') return renderThreadDetail();
+  return renderContactDetail();
+}
+
+function renderContactDetail() {
   if (!state.selectedId) {
     renderEmpty(el.detail, 'fa-hand-pointer', 'Pick a contact to see their enquiry.');
     return;
@@ -466,6 +585,135 @@ function renderDetail() {
   el.detail.replaceChildren(frag);
 }
 
+function renderThreadDetail() {
+  if (!state.selectedConvoId) {
+    renderEmpty(el.detail, 'fa-hand-pointer', 'Pick a conversation to see the thread.');
+    return;
+  }
+
+  const convo = state.conversations.items.find(c => c.id === state.selectedConvoId);
+  const entry = state.threads.get(state.selectedConvoId);
+  if (!entry || entry.status === 'loading') {
+    el.detail.setAttribute('aria-busy', 'true');
+    el.detail.replaceChildren(skeletons(4));
+    return;
+  }
+  el.detail.setAttribute('aria-busy', 'false');
+
+  if (entry.status === 'error') {
+    renderEmpty(el.detail, 'fa-triangle-exclamation', entry.error || 'Could not load this conversation.',
+      () => loadThread(state.selectedConvoId, { force: true }));
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+  const name = convo ? conversationDisplayName(convo) : 'Conversation';
+
+  const head = elem('div', 'adm-detail-head');
+  head.appendChild(avatar(name, { large: true }));
+  const heading = elem('div');
+  heading.appendChild(elem('h1', 'adm-detail-name font-display', name));
+  if (convo) heading.appendChild(elem('p', 'adm-detail-when', convo.channel));
+  head.appendChild(heading);
+  frag.appendChild(head);
+
+  const thread = elem('div', 'adm-thread');
+  thread.setAttribute('role', 'log');
+  thread.setAttribute('aria-label', 'Messages');
+
+  if (entry.nextPage) {
+    const more = elem('button', 'adm-retry adm-thread-more',
+      entry.loadingMore ? 'Loading…' : 'Load earlier messages');
+    more.type = 'button';
+    more.disabled = Boolean(entry.loadingMore);
+    more.addEventListener('click', () => loadThread(state.selectedConvoId, { before: entry.lastMessageId }));
+    thread.appendChild(more);
+  }
+
+  // Rendered oldest-first regardless of fetch/merge order — a chat thread
+  // reads top-to-bottom, unlike the newest-first contact list.
+  const ordered = entry.messages.slice().sort((a, b) => a.dateAdded.localeCompare(b.dateAdded));
+  for (const msg of ordered) thread.appendChild(renderMessageBubble(msg));
+  frag.appendChild(thread);
+
+  el.detail.replaceChildren(frag);
+
+  if (convo?.sendType) {
+    el.detail.appendChild(buildComposer(convo));
+  } else if (convo) {
+    el.detail.appendChild(elem('p', 'adm-composer-unavailable', 'This conversation can’t be replied to from here.'));
+  }
+}
+
+function renderMessageBubble(msg) {
+  const wrap = elem('div', msg.direction === 'outbound' ? 'adm-msg adm-msg--out' : 'adm-msg adm-msg--in');
+  wrap.appendChild(elem('p', null, msg.body));
+
+  for (const url of msg.attachments) {
+    const a = elem('a', 'adm-msg-attachment');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.appendChild(icon('fa-paperclip'));
+    a.appendChild(elem('span', null, 'View attachment'));
+    wrap.appendChild(a);
+  }
+
+  const meta = elem('div', 'adm-msg-meta');
+  const when = formatTimestamp(msg.dateAdded);
+  if (when) meta.appendChild(elem('span', null, when));
+  if (msg.status === 'failed' || msg.status === 'undelivered') {
+    meta.appendChild(elem('span', 'adm-msg-status', 'Not delivered'));
+  }
+  if (meta.childElementCount) wrap.appendChild(meta);
+
+  return wrap;
+}
+
+/**
+ * Lives outside the render() reconciliation the rest of the detail pane uses:
+ * the draft text is mirrored into state.composer.value on every keystroke
+ * (without triggering a render — that would fight the caret) specifically so
+ * an unrelated render elsewhere (e.g. toggling dark mode from the settings
+ * menu) rebuilds this textarea WITHOUT losing whatever the owner was typing.
+ */
+function buildComposer(convo) {
+  const form = elem('form', 'adm-composer');
+  const textarea = document.createElement('textarea');
+  textarea.className = 'adm-composer-input';
+  textarea.placeholder = `Reply by ${convo.channel}…`;
+  textarea.rows = 1;
+  textarea.value = state.composer.value;
+  textarea.disabled = state.composer.busy;
+  textarea.setAttribute('aria-label', 'Reply message');
+  textarea.addEventListener('input', () => { state.composer.value = textarea.value; });
+  textarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+  });
+
+  const send = elem('button');
+  send.type = 'submit';
+  send.className = 'adm-composer-send';
+  send.disabled = state.composer.busy;
+  send.setAttribute('aria-label', 'Send');
+  send.appendChild(icon('fa-paper-plane'));
+
+  form.appendChild(textarea);
+  form.appendChild(send);
+
+  if (state.composer.error) {
+    const err = elem('p', 'adm-error', state.composer.error);
+    form.appendChild(err);
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    sendReply(convo, textarea.value);
+  });
+
+  return form;
+}
+
 // ------------------------------------------------------------------- actions
 
 async function loadContacts() {
@@ -529,11 +777,94 @@ function selectContact(id) {
 }
 
 function goBackToList() {
-  const id = state.selectedId;
-  state.selectedId = null;
+  const idField = state.section === 'contacts' ? 'selectedId' : 'selectedConvoId';
+  const id = state[idField];
+  state[idField] = null;
   render();
   const row = id && el.rows.querySelector(`[data-id="${CSS.escape(id)}"]`);
   if (row) row.focus();
+}
+
+function switchSection(section) {
+  if (state.section === section) return;
+  state.section = section;
+  render();
+  if (section === 'messages' && state.conversations.status === 'idle') loadConversations();
+}
+
+async function loadConversations() {
+  state.conversations.status = 'loading';
+  render();
+  try {
+    const data = await api('/api/admin/conversations?limit=50');
+    state.conversations = { status: 'ready', items: data.conversations || [], error: '' };
+    state.status = `${state.conversations.items.length} conversations loaded.`;
+    render();
+  } catch (err) {
+    if (err instanceof SessionExpired) return;
+    state.conversations = { status: 'error', items: [], error: err.message };
+    render();
+  }
+}
+
+async function loadThread(id, { force = false, before } = {}) {
+  const existing = state.threads.get(id);
+  if (!force && !before && existing?.status === 'ready') return;
+  state.threads.set(id, before ? { ...existing, loadingMore: true } : { status: 'loading' });
+  render();
+  try {
+    const qs = new URLSearchParams({ id });
+    if (before) qs.set('lastMessageId', before);
+    const data = await api(`/api/admin/messages?${qs}`);
+    const messages = before && existing
+      ? [...existing.messages, ...(data.messages || [])]
+      : (data.messages || []);
+    state.threads.set(id, {
+      status: 'ready',
+      messages,
+      nextPage: Boolean(data.nextPage),
+      lastMessageId: data.lastMessageId || null,
+    });
+  } catch (err) {
+    if (err instanceof SessionExpired) return;
+    state.threads.set(id, { status: 'error', error: err.message });
+  }
+  render();
+}
+
+function selectConversation(id) {
+  state.selectedConvoId = id;
+  state.composer = { busy: false, error: '', value: '' };
+  if (window.matchMedia('(max-width: 767px)').matches) focusAfterRender = el.detail;
+  render();
+  loadThread(id);
+}
+
+async function sendReply(convo, rawMessage) {
+  if (state.composer.busy) return;
+  const message = rawMessage.trim();
+  if (!message) return;
+
+  state.composer.busy = true;
+  state.composer.error = '';
+  render();
+
+  try {
+    await api('/api/admin/send-message', {
+      method: 'POST',
+      body: { conversationId: convo.id, contactId: convo.contactId, type: convo.sendType, message },
+    });
+    state.composer = { busy: false, error: '', value: '' };
+    state.status = 'Message sent.';
+    // Reflects the true stored message (id, status) from GHL rather than
+    // guessing what it would look like with a local echo.
+    await loadThread(convo.id, { force: true });
+  } catch (err) {
+    if (err instanceof SessionExpired) return;
+    state.composer.busy = false;
+    state.composer.error = err.message;
+    render();
+  }
 }
 
 // --------------------------------------------------------------------- wiring
@@ -560,12 +891,19 @@ el.loginForm.addEventListener('submit', async (e) => {
 });
 
 el.search.addEventListener('input', () => {
-  state.query = el.search.value;
+  if (state.section === 'contacts') state.query = el.search.value;
+  else state.convoQuery = el.search.value;
   render();
 });
 
-el.refresh.addEventListener('click', () => loadContacts());
+el.refresh.addEventListener('click', () => {
+  if (state.section === 'contacts') loadContacts();
+  else loadConversations();
+});
 el.back.addEventListener('click', goBackToList);
+
+el.tabContacts.addEventListener('click', () => switchSection('contacts'));
+el.tabMessages.addEventListener('click', () => switchSection('messages'));
 
 el.settingsBtn.addEventListener('click', () => {
   if (el.settingsMenu.hidden) openSettingsMenu();
@@ -606,7 +944,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (el.pwDialog.open) return;                         // the dialog owns Escape
   if (!el.settingsMenu.hidden) { closeSettingsMenu({ restoreFocus: true }); return; }
-  if (state.screen === 'app' && state.selectedId
+  if (state.screen === 'app' && activeSelectedId()
       && window.matchMedia('(max-width: 767px)').matches) {
     goBackToList();
   }

@@ -11,6 +11,9 @@ import crypto from 'node:crypto';
 
 export const GHL_BASE = 'https://services.leadconnectorhq.com';
 export const GHL_VERSION = '2021-07-28';
+// Conversations/messages are a different GHL resource family with their own
+// API version — contacts calls must not pass this one, and vice versa.
+export const GHL_CONVO_VERSION = '2021-04-15';
 export const LOCATION_ID = 'YBLbWASoQgsSEqY0V5KV';
 
 // Vercel Hobby caps a function at 10s total. One outbound call at 7s leaves
@@ -73,8 +76,11 @@ export function mapGhlError(status, detail) {
 /**
  * The only function that reads GHL_API_KEY. Returns parsed JSON, or throws a
  * GhlError whose message is already safe to show a browser.
+ *
+ * GET-only until the messages feature needed to POST a reply; `method`/`body`
+ * default away to nothing, so every existing GET call site is unaffected.
  */
-export async function ghlFetch(path, { searchParams, version = GHL_VERSION } = {}) {
+export async function ghlFetch(path, { searchParams, version = GHL_VERSION, method = 'GET', body } = {}) {
   const key = process.env.GHL_API_KEY;
   if (!key) {
     console.error('[ghl] GHL_API_KEY is not configured');
@@ -88,16 +94,21 @@ export async function ghlFetch(path, { searchParams, version = GHL_VERSION } = {
     }
   }
 
+  const headers = {
+    Authorization: `Bearer ${key}`,
+    Version: version,
+    Accept: 'application/json',
+  };
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   let response;
   try {
     response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${key}`,
-        Version: version,
-        Accept: 'application/json',
-      },
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
     });
   } catch (err) {
@@ -173,4 +184,81 @@ export function projectNotes(payload) {
     }))
     .filter(n => n.body.trim())
     .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+}
+
+// ----------------------------------------------------------- conversations
+
+/**
+ * GHL's message "type" values, mapped to a readable label and — where we can
+ * actually reply on that channel — the `type` string POST /conversations/messages
+ * expects. A channel with no `sendType` (a call, a review, GMB — not in
+ * SendMessageBodyDto's enum) renders read-only in the UI: no composer.
+ */
+export const CHANNEL_MAP = {
+  TYPE_SMS: { label: 'SMS', sendType: 'SMS' },
+  TYPE_EMAIL: { label: 'Email', sendType: 'Email' },
+  TYPE_WHATSAPP: { label: 'WhatsApp', sendType: 'WhatsApp' },
+  TYPE_INSTAGRAM: { label: 'Instagram', sendType: 'IG' },
+  TYPE_FACEBOOK: { label: 'Facebook', sendType: 'FB' },
+  TYPE_LIVE_CHAT: { label: 'Web chat', sendType: 'Live_Chat' },
+  TYPE_WEBCHAT: { label: 'Web chat', sendType: 'Live_Chat' },
+};
+const DEFAULT_CHANNEL = { label: 'Message', sendType: null };
+
+/** The exact set POST /conversations/messages accepts for `type`. */
+export const REPLYABLE_SEND_TYPES = new Set(['SMS', 'Email', 'WhatsApp', 'IG', 'FB', 'Live_Chat']);
+
+function channelFor(messageType) {
+  return CHANNEL_MAP[messageType] || DEFAULT_CHANNEL;
+}
+
+// GHL's message thread carries CRM system-log entries alongside real guest
+// communication — "Opportunity created", internal notes, form submissions —
+// each with its own messageType. Confirmed live: TYPE_ACTIVITY_OPPORTUNITY
+// showed up as a bare "Opportunity created" bubble, indistinguishable from an
+// actual sent message. These three prefixes/values are the CRM's own
+// unambiguous "this is a log entry, not a message" signal.
+const SYSTEM_MESSAGE_TYPES = /^TYPE_ACTIVITY_|^TYPE_INTERNAL_COMMENT$|^TYPE_FORM_SUBMISSION$/;
+
+/** True for anything that belongs in a guest-facing thread. */
+export function isConversationalMessage(messageType) {
+  return typeof messageType === 'string' && !SYSTEM_MESSAGE_TYPES.test(messageType);
+}
+
+/** Conversations as the list needs them. Never pass GHL's object through. */
+export function projectConversationSummary(c) {
+  const channel = channelFor(c?.lastMessageType);
+  return {
+    id: str(c?.id),
+    contactId: str(c?.contactId),
+    name: str(c?.fullName || c?.contactName).trim(),
+    email: str(c?.email),
+    phone: str(c?.phone),
+    preview: str(c?.lastMessageBody),
+    channel: channel.label,
+    sendType: channel.sendType,
+    unreadCount: Number.isFinite(c?.unreadCount) ? c.unreadCount : 0,
+  };
+}
+
+/**
+ * One message in a thread. Attachment URLs are filtered to https: only — the
+ * same defensive-scheme principle renderDetail() already applies to the
+ * tel:/mailto: contact links, so an attachment can never become a javascript:
+ * or data: execution sink.
+ */
+export function projectMessage(m) {
+  const channel = channelFor(m?.messageType);
+  const attachments = Array.isArray(m?.attachments)
+    ? m.attachments.filter(u => typeof u === 'string' && /^https:/.test(u))
+    : [];
+  return {
+    id: str(m?.id),
+    direction: m?.direction === 'outbound' ? 'outbound' : 'inbound',
+    body: str(m?.body),
+    dateAdded: str(m?.dateAdded),
+    status: str(m?.status),
+    channel: channel.label,
+    attachments,
+  };
 }

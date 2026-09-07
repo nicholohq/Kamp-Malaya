@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   normalisePhone, contactDisplayName, previewText, formatTimestamp,
   filterContacts, sortContacts, parseNote, initials,
+  conversationDisplayName, filterConversations,
 } from '../src/admin-format.mjs';
 
 // ---------------------------------------------------------------------- name
@@ -146,4 +147,29 @@ test('parseNote keeps prose intact rather than inventing a label', () => {
   assert.deepEqual(parseNote(prose), [{ label: '', value: prose }]);
   assert.deepEqual(parseNote(''), []);
   assert.deepEqual(parseNote(null), []);
+});
+
+// ------------------------------------------------------------- conversations
+
+test('conversationDisplayName falls back through email and phone', () => {
+  assert.equal(conversationDisplayName({ name: 'Ana Reyes' }), 'Ana Reyes');
+  assert.equal(conversationDisplayName({ name: '  Ana   Reyes  ' }), 'Ana Reyes');
+  assert.equal(conversationDisplayName({ name: '', email: 'a@example.com' }), 'a@example.com');
+  assert.equal(conversationDisplayName({ name: '', email: '', phone: '+639170000000' }), '+639170000000');
+  assert.equal(conversationDisplayName({}), 'Unknown contact');
+  assert.equal(conversationDisplayName(null), 'Unknown contact');
+});
+
+test('filterConversations matches name, email, phone and the message preview', () => {
+  const items = [
+    { name: 'Ana Reyes', email: 'ana@example.com', phone: '+639170000001', preview: 'What time is check-in?' },
+    { name: 'Ben Cruz', email: 'ben@other.com', phone: '+639170000002', preview: 'Thanks for the quote' },
+  ];
+  assert.equal(filterConversations(items, 'ana').length, 1);
+  assert.equal(filterConversations(items, 'ANA').length, 1);
+  assert.equal(filterConversations(items, 'check-in').length, 1);
+  assert.equal(filterConversations(items, 'quote').length, 1);
+  assert.equal(filterConversations(items, '170000001').length, 1);
+  assert.equal(filterConversations(items, '').length, 2);
+  assert.equal(filterConversations(null, 'x').length, 0);
 });
