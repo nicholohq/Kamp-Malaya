@@ -823,7 +823,25 @@ function renderEmailBody(html, quoteText) {
         return;
       }
       case 'TABLE':
-        appendSimpleTable(node, out, sawText, commit, () => stopped);
+        if (node.querySelector('table')) {
+          // A table containing another table is (almost) never real tabular
+          // data — it's table-based email layout, a table used purely to
+          // position content for old email clients. Confirmed live: GHL's
+          // own auto-reply nests 4-5 tables deep purely for layout, with
+          // exactly one real 2-column (label/value) table inside all of
+          // that. Treating every <table> as data made querySelectorAll('tr')
+          // in appendSimpleTable() below sweep up the SAME rows at every
+          // nesting depth — the actual bug behind the duplicated, run-together
+          // text reported from the deployed site. Unwrapping here — walking
+          // through exactly like any other container (TR/TD/TBODY have no
+          // case of their own, so they fall through to the same default
+          // unwrap) — lets the walk reach the real content once, and the
+          // genuinely simple table nested inside (no further nesting) then
+          // correctly qualifies for the branch below on its own.
+          walkChildren(node, out);
+        } else {
+          appendSimpleTable(node, out, sawText, commit, walkChildren, () => stopped);
+        }
         return;
       case 'P': case 'DIV': case 'H1': case 'H2': case 'H3': case 'BLOCKQUOTE': {
         // Block-level: a paragraph in the bubble, recursing into children.
@@ -853,23 +871,42 @@ function renderEmailBody(html, quoteText) {
  * 2027) — rendered as flex rows reusing this file's own styling rather than
  * any layout from the source table, which is never trusted anyway.
  */
-function appendSimpleTable(table, out, sawText, commit, isStopped) {
+function appendSimpleTable(table, out, sawText, commit, walkChildren, isStopped) {
   const el = elem('div', 'adm-msg-table');
   for (const row of table.querySelectorAll('tr')) {
     if (isStopped()) break;
     const cells = Array.from(row.children).filter(c => c.tagName === 'TD' || c.tagName === 'TH');
-    const texts = cells.map(c => normalizeWs(c.textContent));
-    if (!texts.some(Boolean)) continue;
-    sawText(texts.join('')); // no join space — see the comment on sawText() above
-    if (isStopped()) break;
+    if (!cells.some(c => normalizeWs(c.textContent))) continue;
+
     const rowEl = elem('div', 'adm-msg-table-row');
-    if (texts.length >= 2) {
-      rowEl.appendChild(elem('span', 'adm-msg-table-label', texts[0]));
-      rowEl.appendChild(elem('span', 'adm-msg-table-value', texts.slice(1).join(' ')));
+    if (cells.length >= 2) {
+      // The label (e.g. "Check-in") stays plain text — .adm-msg-table-label
+      // is already bold via CSS, and a label is never anything richer than
+      // that in practice. Only the label needs its own sawText() call: the
+      // value cell(s) get their text from walkChildren() below, which calls
+      // sawText() itself for every text node it visits.
+      const label = normalizeWs(cells[0].textContent);
+      sawText(label);
+      if (isStopped()) break;
+      rowEl.appendChild(elem('span', 'adm-msg-table-label', label));
+
+      // The value cell(s) go through the SAME safe-tag walk as everything
+      // else, not raw textContent — a "value" can be a real link, like the
+      // phone-call button's own single-cell table below, which would
+      // otherwise lose its tel: href and become inert text.
+      const valueEl = elem('span', 'adm-msg-table-value');
+      for (const cell of cells.slice(1)) {
+        if (isStopped()) break;
+        walkChildren(cell, valueEl);
+      }
+      if (valueEl.childNodes.length) rowEl.appendChild(valueEl);
     } else {
-      rowEl.appendChild(elem('span', null, texts[0]));
+      const cellEl = elem('span', null);
+      walkChildren(cells[0], cellEl);
+      if (cellEl.childNodes.length) rowEl.appendChild(cellEl);
     }
-    el.appendChild(rowEl);
+
+    if (rowEl.childNodes.length) el.appendChild(rowEl);
   }
   if (el.childNodes.length) commit(out, el);
 }
