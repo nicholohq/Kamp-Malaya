@@ -99,6 +99,19 @@ test('a valid threadId/replyMessageId/emailFrom are forwarded as-is', async () =
   assert.equal(sentBody.emailFrom, 'bookings@mail.kampmalaya.tours');
 });
 
+test('a "Name <address>" emailFrom is forwarded whole, not collapsed to the bare address', async () => {
+  // Sending just the bare address is exactly what caused GHL to fill in the
+  // acting GHL user's own name instead of "Kamp Malaya" — confirmed by
+  // inspecting the actual delivered message afterward, not assumed.
+  const calls = stubFetch([{ status: 200, body: { messageId: 'x' } }]);
+  await sendMessage(authedPost({
+    ...VALID_BODY, type: 'Email',
+    emailFrom: 'Kamp Malaya <bookings@mail.kampmalaya.tours>',
+  }), mockRes());
+  const sentBody = JSON.parse(calls[0].options.body);
+  assert.equal(sentBody.emailFrom, 'Kamp Malaya <bookings@mail.kampmalaya.tours>');
+});
+
 test('a malformed threadId, replyMessageId or emailFrom is dropped, not sent, and does not block the send', async () => {
   const calls = stubFetch([{ status: 200, body: { messageId: 'x' } }]);
   const res = mockRes();

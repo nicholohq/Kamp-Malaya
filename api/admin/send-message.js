@@ -17,7 +17,7 @@ import { ghlFetch, isGhlId, GHL_CONVO_VERSION, REPLYABLE_SEND_TYPES, GhlError } 
 const MAX_MESSAGE_LENGTH = 4000;
 const MAX_SUBJECT_LENGTH = 200;
 const MAX_EMAIL_LENGTH = 254; // RFC 5321
-const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_ADDR_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // GHL's own OpenAPI schema doesn't list it as required, but a real Email-type
 // send with no subject comes back as a 422 — confirmed against GHL's own
 // published guidance, not assumed. Every real conversation in this account is
@@ -68,15 +68,20 @@ export default withAdmin(async function handler(req, res) {
   const rawReplyMessageId = String(req.body?.replyMessageId ?? '');
   const replyMessageId = isGhlId(rawReplyMessageId) ? rawReplyMessageId : undefined;
 
-  // The address this reply sends FROM. Left unset, GHL falls back to
-  // whichever individual GHL user's own account is making the API call, not
-  // the business's own configured mailbox — confirmed by testing a reply
-  // through GHL's own UI and seeing it go out under a personal name instead
-  // of "Kamp Malaya". The client sources this from the thread's own most
-  // recent OUTBOUND message, which is never a guest's address; still
-  // validated here rather than trusted blindly, since it crossed the wire.
+  // The identity this reply sends FROM — the FULL "Kamp Malaya
+  // <bookings@...>" form, not just the bare address. Read from GHL's own
+  // stored data: sending just the address, with no display name, made GHL
+  // fill in whichever GHL user's own account name made the API call instead
+  // of "Kamp Malaya" — confirmed by inspecting the actual delivered message
+  // afterward, not assumed. The client sources this from the thread's own
+  // FIRST outbound message (reliably the workflow-sent auto-reply, so
+  // reliably carrying the right name); still validated here rather than
+  // trusted blindly, since it crossed the wire. Accepts either a bare
+  // address or a "Name <address>" string, but forwards whichever was given
+  // as-is — collapsing it to just the address is exactly what caused this.
   const rawEmailFrom = String(req.body?.emailFrom ?? '').trim().slice(0, MAX_EMAIL_LENGTH);
-  const emailFrom = EMAIL_SHAPE.test(rawEmailFrom) ? rawEmailFrom : undefined;
+  const emailFromAddr = (rawEmailFrom.match(/<([^<>]+)>\s*$/)?.[1] ?? rawEmailFrom).trim();
+  const emailFrom = EMAIL_ADDR_SHAPE.test(emailFromAddr) ? rawEmailFrom : undefined;
 
   const rate = await checkSendRateLimit(conversationId);
   if (!rate.allowed) {

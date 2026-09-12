@@ -683,32 +683,35 @@ function replySubject(priorSubject) {
   return /^re:/i.test(trimmed) ? trimmed : `Re: ${trimmed}`;
 }
 
-/** "Name <address>" -> "address". Falls back to the raw string if unparsed. */
-function extractEmailAddress(raw) {
-  const m = String(raw ?? '').match(/<([^<>]+)>/);
-  return normalizeWs(m ? m[1] : raw);
-}
-
 /**
  * Everything a reply needs to land in the same GHL email thread, sent from
  * the business's own address rather than whichever GHL user's account made
  * the API call — confirmed live: a bare send with none of this either 422s
- * or (via GHL's own UI) goes out under a personal name instead of "Kamp
- * Malaya". threadId/replyMessageId come from the LAST message in the
- * thread — every email in it reports the same threadId, confirmed live, so
- * the most recent one is as good a source as the first. emailFrom is read
- * from the most recent OUTBOUND message specifically: an inbound message's
- * `from` is the guest's own address, never the business's.
+ * or (via GHL's own UI, and via this dashboard before this fix) goes out
+ * under a personal name instead of "Kamp Malaya". threadId/replyMessageId
+ * come from the LAST message in the thread — every email in it reports the
+ * same threadId, confirmed live, so the most recent one is as good a source
+ * as the first.
+ *
+ * emailFrom is read from the FIRST outbound message specifically, not the
+ * most recent one — confirmed live that the first is reliably the
+ * workflow-triggered auto-reply, whose `from` is genuinely
+ * "Kamp Malaya <bookings@mail.kampmalaya.tours>" (the display NAME, not just
+ * the address — GHL fills in whichever GHL user's own name sent it if only
+ * the bare address is given, which is exactly the bug this works around).
+ * A later reply sent before this fix carries the wrong name in its own
+ * `from`; sourcing from the first message keeps that from contaminating
+ * future sends.
  */
 function replyContext(ordered) {
   const last = ordered[ordered.length - 1];
   const priorSubject = [...ordered].reverse().find(m => m.subject)?.subject;
-  const lastOutboundFrom = [...ordered].reverse().find(m => m.direction === 'outbound' && m.from)?.from;
+  const firstOutboundFrom = ordered.find(m => m.direction === 'outbound' && m.from)?.from;
   return {
     subject: replySubject(priorSubject),
     threadId: last?.threadId || undefined,
     replyMessageId: last?.id || undefined,
-    emailFrom: lastOutboundFrom ? extractEmailAddress(lastOutboundFrom) : undefined,
+    emailFrom: firstOutboundFrom ? normalizeWs(firstOutboundFrom) : undefined,
   };
 }
 
