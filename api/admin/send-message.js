@@ -24,6 +24,16 @@ const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Email, so this is the actual cause of "The CRM rejected this request."
 const DEFAULT_EMAIL_SUBJECT = 'Re: Your enquiry – Kamp Malaya';
 
+/** The owner's own plain-text reply, converted to the minimum HTML GHL wants
+ * for an Email send. Escaped even though the author is trusted — it becomes
+ * part of a real outbound email, not admin.js's own rendering, so nothing
+ * about that trust boundary should change what gets escaped. */
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 export default withAdmin(async function handler(req, res) {
   const conversationId = String(req.body?.conversationId ?? '');
   const contactId = String(req.body?.contactId ?? '');
@@ -74,11 +84,19 @@ export default withAdmin(async function handler(req, res) {
   }
 
   try {
+    // GHL's real rejection reason, read from its own logs (never guessed):
+    // "There is no message or attachments for this message. Skip sending."
+    // (CONVERSATIONS_MSG_NO_CONTENT) — for an Email send, GHL doesn't treat
+    // plain `message` as real content; it wants `html`. `message` is still
+    // sent alongside as the plain-text part (harmless, and is what non-email
+    // channels actually use).
+    const html = type === 'Email' ? `<p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>` : undefined;
+
     const data = await ghlFetch('/conversations/messages', {
       version: GHL_CONVO_VERSION,
       method: 'POST',
       body: {
-        type, contactId, conversationId, message,
+        type, contactId, conversationId, message, html,
         subject: subject || undefined, threadId, replyMessageId, emailFrom,
       },
     });

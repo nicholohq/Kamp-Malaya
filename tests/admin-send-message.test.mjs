@@ -116,6 +116,27 @@ test('a malformed threadId, replyMessageId or emailFrom is dropped, not sent, an
   assert.ok(!('emailFrom' in sentBody));
 });
 
+test('an Email send carries html content, escaped and with line breaks preserved', async () => {
+  // GHL's real rejection (read from its own logs, not guessed):
+  // "There is no message or attachments for this message. Skip sending."
+  // (CONVERSATIONS_MSG_NO_CONTENT) — a plain-text `message` alone isn't
+  // treated as real content for an Email send; it wants `html`.
+  const calls = stubFetch([{ status: 200, body: { messageId: 'x' } }]);
+  await sendMessage(authedPost({
+    ...VALID_BODY, type: 'Email', message: 'Line one\nLine <two> & "three"',
+  }), mockRes());
+  const sentBody = JSON.parse(calls[0].options.body);
+  assert.equal(sentBody.html, '<p>Line one<br>Line &lt;two&gt; &amp; &quot;three&quot;</p>');
+  assert.equal(sentBody.message, 'Line one\nLine <two> & "three"', 'the plain-text part is still sent too');
+});
+
+test('a non-Email send carries no html at all', async () => {
+  const calls = stubFetch([{ status: 200, body: { messageId: 'x' } }]);
+  await sendMessage(authedPost(VALID_BODY), mockRes());
+  const sentBody = JSON.parse(calls[0].options.body);
+  assert.ok(!('html' in sentBody), 'SMS/WhatsApp/etc never needed html, this must not start now');
+});
+
 test('an Email send with no subject gets a default one — GHL 422s without it', async () => {
   // Confirmed against GHL's own published guidance, not just their OpenAPI
   // schema (which doesn't list subject as required): a real Email-type send

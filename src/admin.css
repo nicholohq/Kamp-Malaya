@@ -507,7 +507,17 @@ body.adm-body {
 
 /* --------------------------------------------------------------- composer -- */
 
-.adm-composer { display: flex; gap: .5rem; align-items: flex-end; margin-top: 1rem; }
+/* Sticky within .adm-detail's own scroll container (not the viewport) — the
+   thread scrolls underneath it, the composer itself stays put at the bottom.
+   Needs its own background + a top border, since content now scrolls behind
+   it rather than the composer simply being the last thing on the page. */
+.adm-composer {
+  display: flex; gap: .5rem; align-items: flex-end;
+  margin-top: 1rem; padding-top: .75rem;
+  position: sticky; bottom: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
 .adm-composer-input {
   flex: 1; resize: none; max-height: 8rem; min-height: 44px;
   border: 1px solid var(--line); border-radius: 16px;
