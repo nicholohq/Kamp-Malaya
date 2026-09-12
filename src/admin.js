@@ -647,7 +647,13 @@ function renderThreadDetail() {
   el.detail.replaceChildren(frag);
 
   if (convo?.sendType) {
-    el.detail.appendChild(buildComposer(convo));
+    // GHL rejects an Email-type send with no subject (a 422 — confirmed
+    // against GHL's own published guidance, not just the OpenAPI schema,
+    // which doesn't list it as required). Reusing the thread's own most
+    // recent subject, "Re:"-prefixed, keeps the reply threaded as the same
+    // conversation in the guest's inbox rather than starting a new one.
+    const priorSubject = [...ordered].reverse().find(m => m.subject)?.subject;
+    el.detail.appendChild(buildComposer(convo, replySubject(priorSubject)));
   } else if (convo) {
     el.detail.appendChild(elem('p', 'adm-composer-unavailable', 'This conversation can’t be replied to from here.'));
   }
@@ -674,6 +680,13 @@ function normalizeWs(s) {
 function messagePlainText(msg) {
   if (msg.contentType !== 'text/html') return normalizeWs(msg.body);
   return normalizeWs(new DOMParser().parseFromString(msg.body, 'text/html').body.textContent);
+}
+
+/** "Re: X", without doubling up an already-"Re:"-prefixed subject. */
+function replySubject(priorSubject) {
+  const trimmed = normalizeWs(priorSubject);
+  if (!trimmed) return 'Re: Your enquiry – Kamp Malaya';
+  return /^re:/i.test(trimmed) ? trimmed : `Re: ${trimmed}`;
 }
 
 // href schemes an emailed link is allowed to keep — the same defensive
@@ -940,7 +953,7 @@ function appendMessageMeta(container, msg) {
  * an unrelated render elsewhere (e.g. toggling dark mode from the settings
  * menu) rebuilds this textarea WITHOUT losing whatever the owner was typing.
  */
-function buildComposer(convo) {
+function buildComposer(convo, subject) {
   const form = elem('form', 'adm-composer');
   const textarea = document.createElement('textarea');
   textarea.className = 'adm-composer-input';
@@ -971,7 +984,7 @@ function buildComposer(convo) {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    sendReply(convo, textarea.value);
+    sendReply(convo, textarea.value, subject);
   });
 
   return form;
@@ -1103,7 +1116,7 @@ function selectConversation(id) {
   loadThread(id);
 }
 
-async function sendReply(convo, rawMessage) {
+async function sendReply(convo, rawMessage, subject) {
   if (state.composer.busy) return;
   const message = rawMessage.trim();
   if (!message) return;
@@ -1115,7 +1128,7 @@ async function sendReply(convo, rawMessage) {
   try {
     await api('/api/admin/send-message', {
       method: 'POST',
-      body: { conversationId: convo.id, contactId: convo.contactId, type: convo.sendType, message },
+      body: { conversationId: convo.id, contactId: convo.contactId, type: convo.sendType, message, subject },
     });
     state.composer = { busy: false, error: '', value: '' };
     state.status = 'Message sent.';

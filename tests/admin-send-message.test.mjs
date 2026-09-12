@@ -84,6 +84,38 @@ test('a valid reply is sent on the requested channel and version', async () => {
   assert.deepEqual(sentBody, { type: 'SMS', contactId: CONTACT_ID, conversationId: CONVO_ID, message: VALID_BODY.message });
 });
 
+test('an Email send with no subject gets a default one — GHL 422s without it', async () => {
+  // Confirmed against GHL's own published guidance, not just their OpenAPI
+  // schema (which doesn't list subject as required): a real Email-type send
+  // with no subject is rejected. Every real conversation in this account is
+  // Email, so this was the actual cause of "The CRM rejected this request."
+  const calls = stubFetch([{ status: 200, body: { messageId: 'x' } }]);
+  await sendMessage(authedPost({ ...VALID_BODY, type: 'Email' }), mockRes());
+  const sentBody = JSON.parse(calls[0].options.body);
+  assert.ok(sentBody.subject, 'an Email send must always carry a subject');
+});
+
+test('a client-provided subject is used as-is, "Re:" or not', async () => {
+  const calls = stubFetch([{ status: 200, body: { messageId: 'x' } }]);
+  await sendMessage(authedPost({ ...VALID_BODY, type: 'Email', subject: 'Re: Your Joiner Tour Inquiry' }), mockRes());
+  const sentBody = JSON.parse(calls[0].options.body);
+  assert.equal(sentBody.subject, 'Re: Your Joiner Tour Inquiry');
+});
+
+test('a non-Email send carries no subject at all when none is given', async () => {
+  const calls = stubFetch([{ status: 200, body: { messageId: 'x' } }]);
+  await sendMessage(authedPost(VALID_BODY), mockRes());
+  const sentBody = JSON.parse(calls[0].options.body);
+  assert.ok(!('subject' in sentBody), 'SMS has no reason to carry a subject');
+});
+
+test('an oversized subject is capped rather than rejected', async () => {
+  const calls = stubFetch([{ status: 200, body: { messageId: 'x' } }]);
+  await sendMessage(authedPost({ ...VALID_BODY, type: 'Email', subject: 'x'.repeat(500) }), mockRes());
+  const sentBody = JSON.parse(calls[0].options.body);
+  assert.equal(sentBody.subject.length, 200);
+});
+
 test('never relays more than ok/messageId, even if GHL sends more back', async () => {
   stubFetch([{ status: 200, body: { messageId: 'sentmsg123456789', internalDebug: 'do-not-leak' } }]);
   const res = mockRes();

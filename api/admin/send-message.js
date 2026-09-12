@@ -15,6 +15,12 @@ import { sessionNotRevoked, checkSendRateLimit, recordSend } from '../_lib/store
 import { ghlFetch, isGhlId, GHL_CONVO_VERSION, REPLYABLE_SEND_TYPES, GhlError } from '../_lib/ghl.js';
 
 const MAX_MESSAGE_LENGTH = 4000;
+const MAX_SUBJECT_LENGTH = 200;
+// GHL's own OpenAPI schema doesn't list it as required, but a real Email-type
+// send with no subject comes back as a 422 — confirmed against GHL's own
+// published guidance, not assumed. Every real conversation in this account is
+// Email, so this is the actual cause of "The CRM rejected this request."
+const DEFAULT_EMAIL_SUBJECT = 'Re: Your enquiry – Kamp Malaya';
 
 export default withAdmin(async function handler(req, res) {
   const conversationId = String(req.body?.conversationId ?? '');
@@ -34,6 +40,11 @@ export default withAdmin(async function handler(req, res) {
     return res.status(400).json({ error: `Message is too long (max ${MAX_MESSAGE_LENGTH} characters)` });
   }
 
+  // Defaulted here too, not just sent by the client — an Email send with no
+  // subject fails at GHL regardless of why the client didn't provide one.
+  let subject = String(req.body?.subject ?? '').trim().slice(0, MAX_SUBJECT_LENGTH);
+  if (!subject && type === 'Email') subject = DEFAULT_EMAIL_SUBJECT;
+
   const rate = await checkSendRateLimit(conversationId);
   if (!rate.allowed) {
     return res.status(429).json({ error: 'Too many messages sent to this conversation. Try again shortly.' });
@@ -43,7 +54,7 @@ export default withAdmin(async function handler(req, res) {
     const data = await ghlFetch('/conversations/messages', {
       version: GHL_CONVO_VERSION,
       method: 'POST',
-      body: { type, contactId, conversationId, message },
+      body: { type, contactId, conversationId, message, subject: subject || undefined },
     });
 
     await recordSend(conversationId);
