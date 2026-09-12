@@ -647,13 +647,7 @@ function renderThreadDetail() {
   el.detail.replaceChildren(frag);
 
   if (convo?.sendType) {
-    // GHL rejects an Email-type send with no subject (a 422 — confirmed
-    // against GHL's own published guidance, not just the OpenAPI schema,
-    // which doesn't list it as required). Reusing the thread's own most
-    // recent subject, "Re:"-prefixed, keeps the reply threaded as the same
-    // conversation in the guest's inbox rather than starting a new one.
-    const priorSubject = [...ordered].reverse().find(m => m.subject)?.subject;
-    el.detail.appendChild(buildComposer(convo, replySubject(priorSubject)));
+    el.detail.appendChild(buildComposer(convo, replyContext(ordered)));
   } else if (convo) {
     el.detail.appendChild(elem('p', 'adm-composer-unavailable', 'This conversation can’t be replied to from here.'));
   }
@@ -687,6 +681,35 @@ function replySubject(priorSubject) {
   const trimmed = normalizeWs(priorSubject);
   if (!trimmed) return 'Re: Your enquiry – Kamp Malaya';
   return /^re:/i.test(trimmed) ? trimmed : `Re: ${trimmed}`;
+}
+
+/** "Name <address>" -> "address". Falls back to the raw string if unparsed. */
+function extractEmailAddress(raw) {
+  const m = String(raw ?? '').match(/<([^<>]+)>/);
+  return normalizeWs(m ? m[1] : raw);
+}
+
+/**
+ * Everything a reply needs to land in the same GHL email thread, sent from
+ * the business's own address rather than whichever GHL user's account made
+ * the API call — confirmed live: a bare send with none of this either 422s
+ * or (via GHL's own UI) goes out under a personal name instead of "Kamp
+ * Malaya". threadId/replyMessageId come from the LAST message in the
+ * thread — every email in it reports the same threadId, confirmed live, so
+ * the most recent one is as good a source as the first. emailFrom is read
+ * from the most recent OUTBOUND message specifically: an inbound message's
+ * `from` is the guest's own address, never the business's.
+ */
+function replyContext(ordered) {
+  const last = ordered[ordered.length - 1];
+  const priorSubject = [...ordered].reverse().find(m => m.subject)?.subject;
+  const lastOutboundFrom = [...ordered].reverse().find(m => m.direction === 'outbound' && m.from)?.from;
+  return {
+    subject: replySubject(priorSubject),
+    threadId: last?.threadId || undefined,
+    replyMessageId: last?.id || undefined,
+    emailFrom: lastOutboundFrom ? extractEmailAddress(lastOutboundFrom) : undefined,
+  };
 }
 
 // href schemes an emailed link is allowed to keep — the same defensive
@@ -953,7 +976,7 @@ function appendMessageMeta(container, msg) {
  * an unrelated render elsewhere (e.g. toggling dark mode from the settings
  * menu) rebuilds this textarea WITHOUT losing whatever the owner was typing.
  */
-function buildComposer(convo, subject) {
+function buildComposer(convo, ctx) {
   const form = elem('form', 'adm-composer');
   const textarea = document.createElement('textarea');
   textarea.className = 'adm-composer-input';
@@ -984,7 +1007,7 @@ function buildComposer(convo, subject) {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    sendReply(convo, textarea.value, subject);
+    sendReply(convo, textarea.value, ctx);
   });
 
   return form;
@@ -1114,9 +1137,30 @@ function selectConversation(id) {
   if (window.matchMedia('(max-width: 767px)').matches) focusAfterRender = el.detail;
   render();
   loadThread(id);
+  markConversationRead(id);
 }
 
-async function sendReply(convo, rawMessage, subject) {
+/**
+ * Best-effort, not load-bearing: opening a conversation is what a human
+ * reading it looks like, so its badge clears the same way any inbox's does.
+ * Fails silently (console-only) rather than surfacing an error — a wrong
+ * unread count is cosmetic, and the thread itself already loaded fine
+ * regardless of whether this succeeds.
+ */
+async function markConversationRead(id) {
+  const convo = state.conversations.items.find(c => c.id === id);
+  if (!convo || !convo.unreadCount) return;
+  try {
+    await api('/api/admin/mark-conversation-read', { method: 'POST', body: { conversationId: id } });
+    convo.unreadCount = 0;
+    render();
+  } catch (err) {
+    if (err instanceof SessionExpired) return;
+    console.error('[admin] mark-as-read failed', err.message);
+  }
+}
+
+async function sendReply(convo, rawMessage, ctx) {
   if (state.composer.busy) return;
   const message = rawMessage.trim();
   if (!message) return;
@@ -1128,7 +1172,7 @@ async function sendReply(convo, rawMessage, subject) {
   try {
     await api('/api/admin/send-message', {
       method: 'POST',
-      body: { conversationId: convo.id, contactId: convo.contactId, type: convo.sendType, message, subject },
+      body: { conversationId: convo.id, contactId: convo.contactId, type: convo.sendType, message, ...ctx },
     });
     state.composer = { busy: false, error: '', value: '' };
     state.status = 'Message sent.';

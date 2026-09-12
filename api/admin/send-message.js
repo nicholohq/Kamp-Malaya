@@ -16,6 +16,8 @@ import { ghlFetch, isGhlId, GHL_CONVO_VERSION, REPLYABLE_SEND_TYPES, GhlError } 
 
 const MAX_MESSAGE_LENGTH = 4000;
 const MAX_SUBJECT_LENGTH = 200;
+const MAX_EMAIL_LENGTH = 254; // RFC 5321
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // GHL's own OpenAPI schema doesn't list it as required, but a real Email-type
 // send with no subject comes back as a 422 — confirmed against GHL's own
 // published guidance, not assumed. Every real conversation in this account is
@@ -45,6 +47,27 @@ export default withAdmin(async function handler(req, res) {
   let subject = String(req.body?.subject ?? '').trim().slice(0, MAX_SUBJECT_LENGTH);
   if (!subject && type === 'Email') subject = DEFAULT_EMAIL_SUBJECT;
 
+  // Both optional, both silently dropped rather than rejecting the whole send
+  // if malformed — a best-effort improvement, not a requirement to reply at
+  // all. threadId/replyMessageId tie the reply into the existing GHL email
+  // thread (confirmed live: a send with neither is what a 422 resembles, and
+  // it's what GHL's own "Reply" UI always sets when replying to a specific
+  // message — its plain "type a message" box behaves differently).
+  const rawThreadId = String(req.body?.threadId ?? '');
+  const threadId = isGhlId(rawThreadId) ? rawThreadId : undefined;
+  const rawReplyMessageId = String(req.body?.replyMessageId ?? '');
+  const replyMessageId = isGhlId(rawReplyMessageId) ? rawReplyMessageId : undefined;
+
+  // The address this reply sends FROM. Left unset, GHL falls back to
+  // whichever individual GHL user's own account is making the API call, not
+  // the business's own configured mailbox — confirmed by testing a reply
+  // through GHL's own UI and seeing it go out under a personal name instead
+  // of "Kamp Malaya". The client sources this from the thread's own most
+  // recent OUTBOUND message, which is never a guest's address; still
+  // validated here rather than trusted blindly, since it crossed the wire.
+  const rawEmailFrom = String(req.body?.emailFrom ?? '').trim().slice(0, MAX_EMAIL_LENGTH);
+  const emailFrom = EMAIL_SHAPE.test(rawEmailFrom) ? rawEmailFrom : undefined;
+
   const rate = await checkSendRateLimit(conversationId);
   if (!rate.allowed) {
     return res.status(429).json({ error: 'Too many messages sent to this conversation. Try again shortly.' });
@@ -54,7 +77,10 @@ export default withAdmin(async function handler(req, res) {
     const data = await ghlFetch('/conversations/messages', {
       version: GHL_CONVO_VERSION,
       method: 'POST',
-      body: { type, contactId, conversationId, message, subject: subject || undefined },
+      body: {
+        type, contactId, conversationId, message,
+        subject: subject || undefined, threadId, replyMessageId, emailFrom,
+      },
     });
 
     await recordSend(conversationId);

@@ -185,11 +185,13 @@ test('a TYPE_EMAIL message expands into one bubble per real email, with real HTM
       }],
     } } },
     { status: 200, body: { emailMessage: {
-      id: 'autoreplyabcdefghij1', direction: 'outbound',
+      id: 'autoreplyabcdefghij1', direction: 'outbound', threadId: 'threadabcdefghij123',
+      from: 'Kamp Malaya <bookings@mail.kampmalaya.tours>',
       body: 'Thank you for your inquiry!', dateAdded: '2026-09-05T14:28:15.000Z',
     } } },
     { status: 200, body: { emailMessage: {
-      id: 'realreplyabcdefghij1', direction: 'inbound',
+      id: 'realreplyabcdefghij1', direction: 'inbound', threadId: 'threadabcdefghij123',
+      from: 'A Guest <guest@example.com>',
       subject: 'Re: Your inquiry',
       body: '<div dir="ltr">What is the pickup service?</div>',
       dateAdded: '2026-09-05T16:07:00.000Z',
@@ -205,6 +207,11 @@ test('a TYPE_EMAIL message expands into one bubble per real email, with real HTM
   assert.equal(res.payload.messages[1].body, '<div dir="ltr">What is the pickup service?</div>');
   assert.equal(res.payload.messages[1].subject, 'Re: Your inquiry');
   assert.deepEqual(res.payload.messages[1].attachments, ['https://cdn.example/photo.jpg']);
+  // Both needed to send a reply that GHL actually accepts and attributes to
+  // the business — see send-message.js.
+  assert.equal(res.payload.messages[0].threadId, 'threadabcdefghij123');
+  assert.equal(res.payload.messages[1].threadId, 'threadabcdefghij123');
+  assert.equal(res.payload.messages[0].from, 'Kamp Malaya <bookings@mail.kampmalaya.tours>');
 });
 
 test('when every per-email fetch fails, the rolled-up summary is kept rather than dropped', async () => {

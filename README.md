@@ -172,8 +172,8 @@ used (SMS, Email, WhatsApp, Instagram, Facebook, Web chat) — a conversation on
 any other channel (a call, a review) shows the thread with no composer. Each
 conversation has its own send limit (20 messages / 10 minutes) as a safety net
 against a UI bug looping sends at one guest — not a security control, since a
-valid session already means it's the owner. There is no mark-as-read; the
-unread count shown is GHL's own.
+valid session already means it's the owner. Opening a conversation clears its
+unread count in GHL.
 
 ### Environment variables
 
@@ -189,8 +189,10 @@ See `.env.example` for the full list. The admin area needs:
 
 `GHL_API_KEY` needs these scopes added on the Private Integration Token
 (Settings → Private Integrations): `contacts.readonly` (Contacts tab),
-`conversations.readonly`, `conversations/message.readonly` and
-`conversations/message.write` (Messages tab).
+`conversations.readonly`, `conversations/message.readonly`,
+`conversations/message.write` and `conversations.write` (Messages tab — the
+last one is only for clearing unread counts, nothing else in the app writes
+a conversation).
 
 ### First-time setup
 

@@ -84,6 +84,38 @@ test('a valid reply is sent on the requested channel and version', async () => {
   assert.deepEqual(sentBody, { type: 'SMS', contactId: CONTACT_ID, conversationId: CONVO_ID, message: VALID_BODY.message });
 });
 
+test('a valid threadId/replyMessageId/emailFrom are forwarded as-is', async () => {
+  const calls = stubFetch([{ status: 200, body: { messageId: 'x' } }]);
+  await sendMessage(authedPost({
+    ...VALID_BODY,
+    type: 'Email',
+    threadId: 'threadabcdefghij123',
+    replyMessageId: 'replymsgabcdefghij1',
+    emailFrom: 'bookings@mail.kampmalaya.tours',
+  }), mockRes());
+  const sentBody = JSON.parse(calls[0].options.body);
+  assert.equal(sentBody.threadId, 'threadabcdefghij123');
+  assert.equal(sentBody.replyMessageId, 'replymsgabcdefghij1');
+  assert.equal(sentBody.emailFrom, 'bookings@mail.kampmalaya.tours');
+});
+
+test('a malformed threadId, replyMessageId or emailFrom is dropped, not sent, and does not block the send', async () => {
+  const calls = stubFetch([{ status: 200, body: { messageId: 'x' } }]);
+  const res = mockRes();
+  await sendMessage(authedPost({
+    ...VALID_BODY,
+    type: 'Email',
+    threadId: '../../x',
+    replyMessageId: 'short',
+    emailFrom: 'not-an-email',
+  }), res);
+  assert.equal(res.code, 200, 'a bad reply-context field must not block the send itself');
+  const sentBody = JSON.parse(calls[0].options.body);
+  assert.ok(!('threadId' in sentBody));
+  assert.ok(!('replyMessageId' in sentBody));
+  assert.ok(!('emailFrom' in sentBody));
+});
+
 test('an Email send with no subject gets a default one — GHL 422s without it', async () => {
   // Confirmed against GHL's own published guidance, not just their OpenAPI
   // schema (which doesn't list subject as required): a real Email-type send

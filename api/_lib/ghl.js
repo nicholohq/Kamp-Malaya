@@ -267,6 +267,8 @@ export function projectMessage(m) {
     channel: channel.label,
     contentType: 'text/plain',
     subject: '',
+    threadId: str(m?.threadId),
+    from: '',
     attachments: safeAttachments(m?.attachments),
   };
 }
@@ -305,6 +307,19 @@ export function projectEmailDetail(raw) {
     channel: 'Email',
     contentType: HTML_TAG_PATTERN.test(body) ? 'text/html' : 'text/plain',
     subject: str(email?.subject),
+    // The id GHL actually uses to thread a reply into this same email
+    // conversation — confirmed live, every email in a thread (including the
+    // first) reports the same threadId. Sending a reply with no threadId is
+    // what GHL's own "Reply" UI never does; its bare "type a message" box,
+    // which behaves differently, is what a 422 on a plain send resembles.
+    threadId: str(email?.threadId),
+    // "Name <address>" — an OUTBOUND message's own `from` is the business's
+    // real sending identity (confirmed live: "Kamp Malaya
+    // <bookings@mail.kampmalaya.tours>", the same address the automated
+    // auto-reply already sends from via Mailgun). Reusing it is what stops a
+    // reply from going out as whichever individual GHL user's own account
+    // sent it instead of the business.
+    from: str(email?.from),
     attachments: safeAttachments(email?.attachments),
   };
 }
