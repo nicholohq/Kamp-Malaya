@@ -179,6 +179,51 @@ function lockOut(message) {
   render();
 }
 
+// ---------------------------------------------------------------- view cache
+//
+// Which tab and which contact/conversation was open, remembered per-browser
+// so a refresh (or a re-login after the session merely expired) lands back
+// where the owner left off — not customer data itself, just two opaque ids,
+// so localStorage is an appropriate place for it. Cleared on an explicit
+// logout (not on a session-expiry lockOut(), which is not a deliberate exit)
+// so a shared device doesn't hand the next sign-in a stale "last viewed"
+// straight back.
+
+const VIEW_CACHE_KEY = 'km-admin-view';
+
+function saveViewCache() {
+  try {
+    localStorage.setItem(VIEW_CACHE_KEY, JSON.stringify({
+      section: state.section,
+      selectedId: state.section === 'contacts' ? state.selectedId : state.selectedConvoId,
+    }));
+  } catch { /* private browsing, storage disabled, etc — not critical */ }
+}
+
+function loadViewCache() {
+  try {
+    const raw = localStorage.getItem(VIEW_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function clearViewCache() {
+  try { localStorage.removeItem(VIEW_CACHE_KEY); } catch { /* ignore */ }
+}
+
+/** Called once per authenticated boot (initial load or a fresh login). */
+function restoreLastView() {
+  if (state.screen !== 'app') return; // boot failed / locked out — nothing to restore into
+  const cached = loadViewCache();
+  if (!cached) return;
+  if (cached.section === 'messages') {
+    switchSection('messages');
+    if (cached.selectedId) selectConversation(cached.selectedId);
+  } else if (cached.selectedId) {
+    selectContact(cached.selectedId);
+  }
+}
+
 // -------------------------------------------------------------- settings menu
 //
 // Lives outside the state/render system entirely, the same way the password
@@ -1075,6 +1120,7 @@ function selectContact(id) {
   // never for layout.
   if (window.matchMedia('(max-width: 767px)').matches) focusAfterRender = el.detail;
   render();
+  saveViewCache();
   loadDetail(id);
 }
 
@@ -1083,6 +1129,7 @@ function goBackToList() {
   const id = state[idField];
   state[idField] = null;
   render();
+  saveViewCache();
   const row = id && el.rows.querySelector(`[data-id="${CSS.escape(id)}"]`);
   if (row) row.focus();
 }
@@ -1091,6 +1138,7 @@ function switchSection(section) {
   if (state.section === section) return;
   state.section = section;
   render();
+  saveViewCache();
   if (section === 'messages' && state.conversations.status === 'idle') loadConversations();
 }
 
@@ -1109,7 +1157,7 @@ async function loadConversations() {
   }
 }
 
-async function loadThread(id, { force = false, before } = {}) {
+async function loadThread(id, { force = false, before, scrollToBottom = false } = {}) {
   const existing = state.threads.get(id);
   if (!force && !before && existing?.status === 'ready') return;
   state.threads.set(id, before ? { ...existing, loadingMore: true } : { status: 'loading' });
@@ -1132,6 +1180,11 @@ async function loadThread(id, { force = false, before } = {}) {
     state.threads.set(id, { status: 'error', error: err.message });
   }
   render();
+  // Done here, right after the render() that actually shows the real
+  // thread — not via the generic focusAfterRender-style queue, which would
+  // fire on the earlier "loading" render too (its skeleton has nothing
+  // worth scrolling to) and be spent before the real content ever painted.
+  if (scrollToBottom) requestAnimationFrame(() => { el.detail.scrollTop = el.detail.scrollHeight; });
 }
 
 function selectConversation(id) {
@@ -1139,7 +1192,8 @@ function selectConversation(id) {
   state.composer = { busy: false, error: '', value: '' };
   if (window.matchMedia('(max-width: 767px)').matches) focusAfterRender = el.detail;
   render();
-  loadThread(id);
+  saveViewCache();
+  loadThread(id, { scrollToBottom: true });
   markConversationRead(id);
 }
 
@@ -1181,7 +1235,7 @@ async function sendReply(convo, rawMessage, ctx) {
     state.status = 'Message sent.';
     // Reflects the true stored message (id, status) from GHL rather than
     // guessing what it would look like with a local echo.
-    await loadThread(convo.id, { force: true });
+    await loadThread(convo.id, { force: true, scrollToBottom: true });
   } catch (err) {
     if (err instanceof SessionExpired) return;
     state.composer.busy = false;
@@ -1203,7 +1257,8 @@ el.loginForm.addEventListener('submit', async (e) => {
     state.auth = { busy: false, error: '' };
     state.status = 'Signed in.';
     await loadContacts();
-    focusAfterRender = el.search;
+    restoreLastView();
+    if (!focusAfterRender) focusAfterRender = el.search;
     render();
   } catch (err) {
     if (err instanceof SessionExpired) return;
@@ -1248,6 +1303,7 @@ el.logout.addEventListener('click', async () => {
   closeSettingsMenu();
   try { await api('/api/admin/logout', { method: 'POST', body: {} }); }
   catch { /* clearing local state matters more than the round trip */ }
+  clearViewCache();
   lockOut('');
 });
 
@@ -1352,4 +1408,4 @@ el.themeToggle.setAttribute('aria-checked', String(document.documentElement.data
 
 // The contacts call doubles as the session probe: a 401 flips boot -> locked,
 // a success flips it to app. No separate /api/admin/session endpoint needed.
-loadContacts();
+loadContacts().then(restoreLastView);
